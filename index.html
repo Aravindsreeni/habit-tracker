@@ -6,6 +6,10 @@
   <title>Habit Tracker</title>
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/base.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#161614">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 </head>
 <body>
 
@@ -19,6 +23,7 @@
   <button class="tab" data-tab="weekly"  onclick="sw('weekly')">Weekly</button>
   <button class="tab" data-tab="monthly" onclick="sw('monthly')">Monthly</button>
   <button class="tab" data-tab="wins"    onclick="sw('wins')">Quick Wins</button>
+  <button class="tab" data-tab="settings" onclick="sw('settings')">⚙ Settings</button>
 </nav>
 
 <!-- DAILY -->
@@ -111,6 +116,9 @@
   <div id="ql"></div>
 </div>
 
+<!-- SETTINGS -->
+<div class="pnl" id="p-settings"></div>
+
 <!-- SYNC -->
 <div class="syncsec">
   <div class="sync-row">
@@ -127,6 +135,11 @@
 <div id="toast"></div>
 
 <script type="module" src="js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  }
+</script>
 <script src="https://accounts.google.com/gsi/client" async onload="gisLoaded()"></script>
 </body>
 </html>

@@ -45,10 +45,10 @@ js/
 | Batch | Status | Commit | Files changed | Notes |
 |---|---|---|---|---|
 | B0.1 Docs + flatten | ✅ done | fb59c40 | `CLAUDE.md`, `progress.md`, `index.html`→root, `app.js`→root, `style.css`→root | Nested `habit-tracker/habit-tracker/` removed; Pages now serves from repo root |
-| B1.1 ES module split | ✅ done | *(fill after commit)* | `index.html`, `css/tokens.css`, `css/base.css`, `js/app.js`, `js/store.js`, `js/ui.js`, `js/sync.js`, `js/router.js`, `js/views/*` | Monolithic app.js → 11 ES modules; behavior-identical |
-| B1.2 Schema v2 + migration | 🔲 todo | — | `js/store.js` | Preserve all existing localStorage data |
-| B1.3 Full-history sync + Export/Import | 🔲 todo | — | `js/sync.js`, `index.html` | Fix buildPayload to include all ht_* keys |
-| B1.4 PWA + Settings + scalable nav | 🔲 todo | — | `manifest.webmanifest`, `sw.js`, `icons/`, `js/router.js`, `js/views/settings.js` | Offline shell, installable, overflow nav |
+| B1.1 ES module split | ✅ done | f508173 | `index.html`, `css/tokens.css`, `css/base.css`, `js/app.js`, `js/store.js`, `js/ui.js`, `js/sync.js`, `js/router.js`, `js/views/*` | Monolithic app.js → 11 ES modules; behavior-identical |
+| B1.2 Schema v2 + migration | ✅ done | 222b808 | `js/store.js`, `js/app.js` | initSchema() + migrate() before loadAll() |
+| B1.3 Full-history sync + Export/Import | ✅ done | 7e9d887 | `js/sync.js`, `js/app.js`, `index.html` | buildPayload collects all ht_* keys; Export/Import JSON buttons |
+| B1.4 PWA + Settings + scalable nav | ✅ done | *(fill after commit)* | `manifest.webmanifest`, `sw.js`, `icons/icon-192.svg`, `css/tokens.css`, `js/views/settings.js`, `js/app.js`, `index.html` | Offline app-shell, installable, theme toggle |
 | B2.1 Brain-dump / Inbox | 🔲 todo | — | `js/views/inbox.js`, CSS | Ultra-low-friction capture |
 | B2.2 Smart Quick Wins | 🔲 todo | — | `js/views/tasks.js`, `js/store.js` | Add priority; smart sort |
 | B2.3 Eye-care Reminder | 🔲 todo | — | `js/reminders.js`, `js/views/settings.js` | Timer + Notification API |

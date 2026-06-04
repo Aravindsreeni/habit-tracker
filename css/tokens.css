@@ -42,3 +42,43 @@
     --danger: #c85050;
   }
 }
+
+/* ── Explicit theme overrides (set by Settings view) ── */
+[data-theme="light"] {
+  --bg: #ffffff;
+  --s: #f4f4f2;
+  --card: #ffffff;
+  --b: rgba(0, 0, 0, 0.11);
+  --b2: rgba(0, 0, 0, 0.22);
+  --t: #18180f;
+  --t2: #64645a;
+  --t3: #a8a89e;
+  --ok: #4a8e52;
+  --ok-bg: rgba(74, 142, 82, 0.1);
+  --ok-b: rgba(74, 142, 82, 0.4);
+  --warn-b: rgba(170, 120, 15, 0.55);
+  --info-b: rgba(55, 115, 185, 0.65);
+  --danger: #bc3a3a;
+}
+[data-theme="dark"] {
+  --bg: #161614;
+  --s: #1e1e1c;
+  --card: #1e1e1c;
+  --b: rgba(255, 255, 255, 0.09);
+  --b2: rgba(255, 255, 255, 0.2);
+  --t: #ece8e0;
+  --t2: #888880;
+  --t3: #525248;
+  --ok: #5ea866;
+  --ok-bg: rgba(94, 168, 102, 0.1);
+  --ok-b: rgba(94, 168, 102, 0.4);
+  --warn-b: rgba(190, 145, 30, 0.55);
+  --info-b: rgba(70, 130, 200, 0.65);
+  --danger: #c85050;
+}
+/* active theme button */
+.stg-on {
+  background: var(--t) !important;
+  color: var(--bg) !important;
+  border-color: var(--t) !important;
+}

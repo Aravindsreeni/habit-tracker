@@ -6,12 +6,14 @@ import { render as rD, showAddForm as sAFd, closeAddForm as cAFd, addHabit as aH
 import { render as rW, showAddForm as sAFw, closeAddForm as cAFw, addHabit as aHw } from './views/weekly.js';
 import { render as rM, showAddForm as sAFm, closeAddForm as cAFm, addHabit as aHm } from './views/monthly.js';
 import { render as rQ, setFilter, toggleForm, addTask } from './views/tasks.js';
+import { render as rSettings, applyTheme } from './views/settings.js';
 
 // ── Register views ─────────────────────────────────────────────────
 registerView('daily',   'p-daily',   rD);
 registerView('weekly',  'p-weekly',  rW);
 registerView('monthly', 'p-monthly', rM);
 registerView('wins',    'p-wins',    rQ);
+registerView('settings','p-settings', rSettings);
 
 // ── Date header ────────────────────────────────────────────────────
 document.getElementById('hdr').textContent = new Date().toLocaleDateString('en-IN', {
@@ -51,6 +53,7 @@ window.addHabit = (section) => {
 };
 
 // ── Init ───────────────────────────────────────────────────────────
+applyTheme();   // apply saved theme before paint (avoids flash)
 initSchema();   // run migration before loading data
 loadAll();
 rD(); rW(); rM(); rQ();
