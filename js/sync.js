@@ -1,8 +1,9 @@
-// ── sync.js — Google Drive OAuth + sync ───────────────────────────
-import { lsGet, lsSet, dKey, wKey, mKey, HABITS, D, W, M, QW } from './store.js';
+// ── sync.js — Google Drive OAuth + full-history sync + Export/Import ─
+import { lsGet, lsSet } from './store.js';
 import { toast } from './ui.js';
 
 const GOOGLE_CLIENT_ID = '18794991368-45hja4sdkilvcmbi4k50cnqmb9b2plm1.apps.googleusercontent.com';
+const BACKUP_FILENAME  = 'habit-tracker-backup.json';
 
 let gAccessToken = null, tokenClient = null, afterAuth = null, syncTimer = null;
 
@@ -32,6 +33,19 @@ export function requestToken(cb) {
   tokenClient.requestAccessToken({ prompt: '' });
 }
 
+// ── Full-history payload ───────────────────────────────────────────
+// Collects ALL ht_* keys from localStorage so Drive holds the complete archive.
+export function buildPayload() {
+  const payload = { syncedAt: new Date().toISOString() };
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key && key.startsWith('ht_')) {
+      payload[key] = lsGet(key);
+    }
+  }
+  return payload;
+}
+
 // ── Drive REST ─────────────────────────────────────────────────────
 async function driveFind(name) {
   const r = await fetch(
@@ -42,7 +56,7 @@ async function driveFind(name) {
   return (await r.json()).files?.[0] || null;
 }
 
-async function driveSave(content, name = 'habit-tracker-backup.json') {
+async function driveSave(content, name = BACKUP_FILENAME) {
   const existing = await driveFind(name);
   const form = new FormData();
   form.append('metadata', new Blob([JSON.stringify(existing ? {} : { name, mimeType: 'application/json' })], { type: 'application/json' }));
@@ -54,7 +68,7 @@ async function driveSave(content, name = 'habit-tracker-backup.json') {
   if (!r.ok) throw new Error('save_' + r.status);
 }
 
-async function driveLoad(name = 'habit-tracker-backup.json') {
+async function driveLoad(name = BACKUP_FILENAME) {
   const file = await driveFind(name);
   if (!file) return null;
   const r = await fetch(
@@ -65,20 +79,19 @@ async function driveLoad(name = 'habit-tracker-backup.json') {
   return await r.json();
 }
 
-// NOTE (B1.3): buildPayload will be expanded to include ALL ht_* keys for full history.
-// For now it matches the original behaviour so existing syncs aren't broken.
-function buildPayload() {
-  return {
-    habits:   HABITS,
-    daily:    { [dKey()]: D },
-    weekly:   { [wKey()]: W },
-    monthly:  { [mKey()]: M },
-    wins:     QW,
-    syncedAt: new Date().toISOString()
-  };
+// ── Restore payload → localStorage → re-render ────────────────────
+async function restorePayload(data) {
+  // Write every ht_* key from the backup back to localStorage
+  for (const [key, val] of Object.entries(data)) {
+    if (key.startsWith('ht_')) lsSet(key, val);
+  }
+  const store = await import('./store.js');
+  store.loadAll();
+  const views = await import('./views/_all.js');
+  views.renderAll();
 }
 
-// ── Sync actions ───────────────────────────────────────────────────
+// ── Sync actions (Drive) ───────────────────────────────────────────
 export function syncTrigger() { requestToken(doSync); }
 export function loadTrigger() { requestToken(doLoadDrive); }
 
@@ -91,7 +104,7 @@ async function doSync() {
     lsSet('ht_lastsync', ts);
     const el = document.getElementById('syncinfo');
     if (el) el.innerHTML = `<b>Last synced:</b> ${ts}`;
-    toast('Synced to Google Drive');
+    toast('Synced to Google Drive ✓');
   } catch (e) {
     if (e.message.includes('401') || e.message.includes('403')) { gAccessToken = null; requestToken(doSync); }
     else toast('Sync failed — check your connection', false);
@@ -107,18 +120,8 @@ async function doLoadDrive() {
     if (!data) {
       toast('No backup found in Drive yet', false);
     } else {
-      // Re-import store setters dynamically to keep store in sync
-      const store = await import('./store.js');
-      if (data.habits)  { store.setHabits(data.habits); lsSet('ht_habits', data.habits); }
-      if (data.wins)    { store.setQW(data.wins);        lsSet('ht_qw', data.wins); }
-      if (data.daily)   for (const [k, v] of Object.entries(data.daily))   lsSet(k, v);
-      if (data.weekly)  for (const [k, v] of Object.entries(data.weekly))  lsSet(k, v);
-      if (data.monthly) for (const [k, v] of Object.entries(data.monthly)) lsSet(k, v);
-
-      store.loadAll();
-      const views = await import('./views/_all.js');
-      views.renderAll();
-      toast('Data restored from Google Drive');
+      await restorePayload(data);
+      toast('Data restored from Google Drive ✓');
     }
   } catch (e) {
     if (e.message.includes('401')) { gAccessToken = null; requestToken(doLoadDrive); }
@@ -130,4 +133,54 @@ async function doLoadDrive() {
 export function scheduleSync() {
   clearTimeout(syncTimer);
   syncTimer = setTimeout(() => { if (gAccessToken) doSync(); }, 20000);
+}
+
+// ── Export / Import JSON (offline backup) ─────────────────────────
+export function exportJSON() {
+  const payload = buildPayload();
+  const blob    = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url     = URL.createObjectURL(blob);
+  const a       = document.createElement('a');
+  a.href        = url;
+  a.download    = `habit-tracker-backup-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup downloaded ✓');
+}
+
+export function importJSON() {
+  const inp = document.createElement('input');
+  inp.type  = 'file';
+  inp.accept = '.json,application/json';
+  inp.onchange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      // Validate: must have at least ht_habits
+      if (!data.ht_habits && !data.habits) {
+        toast('Invalid backup file', false); return;
+      }
+      // Support both new flat format (ht_* keys) and old nested format
+      if (data.ht_habits) {
+        await restorePayload(data);
+      } else {
+        // Old format compatibility
+        if (data.habits)  lsSet('ht_habits', data.habits);
+        if (data.wins)    lsSet('ht_qw', data.wins);
+        if (data.daily)   for (const [k, v] of Object.entries(data.daily))   lsSet(k, v);
+        if (data.weekly)  for (const [k, v] of Object.entries(data.weekly))  lsSet(k, v);
+        if (data.monthly) for (const [k, v] of Object.entries(data.monthly)) lsSet(k, v);
+        const store = await import('./store.js');
+        store.loadAll();
+        const views = await import('./views/_all.js');
+        views.renderAll();
+      }
+      toast('Data imported successfully ✓');
+    } catch (err) {
+      toast('Could not read backup file', false);
+    }
+  };
+  inp.click();
 }

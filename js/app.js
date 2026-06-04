@@ -1,6 +1,6 @@
 // ── app.js — bootstrap ─────────────────────────────────────────────
 import { loadAll, initSchema } from './store.js';
-import { gisLoaded, syncTrigger, loadTrigger } from './sync.js';
+import { gisLoaded, syncTrigger, loadTrigger, exportJSON, importJSON } from './sync.js';
 import { registerView, sw } from './router.js';
 import { render as rD, showAddForm as sAFd, closeAddForm as cAFd, addHabit as aHd } from './views/daily.js';
 import { render as rW, showAddForm as sAFw, closeAddForm as cAFw, addHabit as aHw } from './views/weekly.js';
@@ -27,9 +27,11 @@ document.getElementById('qfn')?.addEventListener('keydown', e => { if (e.key ===
   if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') addFns[s](); });
 });
 
-// ── Sync buttons ───────────────────────────────────────────────────
+// ── Sync / backup buttons ──────────────────────────────────────────
 document.getElementById('syncbtn')?.addEventListener('click', syncTrigger);
 document.getElementById('loadbtn')?.addEventListener('click', loadTrigger);
+document.getElementById('exportbtn')?.addEventListener('click', exportJSON);
+document.getElementById('importbtn')?.addEventListener('click', importJSON);
 
 // ── Expose globals for GIS script onload + any remaining inline refs
 window.gisLoaded = gisLoaded;
