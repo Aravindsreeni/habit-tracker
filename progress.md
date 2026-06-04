@@ -6,28 +6,42 @@
 
 ## ▶ Resume here
 
-**Current:** Phase 1 complete → start **Phase 2, Batch B2.1**
+**Current:** Phase 2 complete → start **Phase 3, Batch B3.1**
 
-### What to do next (B2.1 — Brain-Dump / Inbox)
+### What to do next (B3.1 — Quarterly + Yearly goal views)
 
-Add a new **Inbox** tab: ultra-low-friction capture of any thought, idea, or task.
-Items have: text, optional note, and a "Convert to task" button (moves to Quick Wins).
+Add Quarterly and Yearly tabs, reusing the weekly/monthly counter-to-target pattern.
 
 Key files to create/modify:
-- **`js/views/inbox.js`** — new view (`render`, `addItem`, `deleteItem`, `convertToTask`)
-- **`js/store.js`** — add `ht_inbox` key + `INBOX` state var + `svInbox()` helper
-- **`js/views/_all.js`** — add inbox render to `renderAll()`
-- **`js/app.js`** — register 'inbox' view; wire keyboard shortcut (Enter to add)
-- **`index.html`** — add Inbox tab + panel HTML
-- **`sw.js`** — add `js/views/inbox.js` to SHELL cache
+- **`js/store.js`** — add `qKey()`, `yKey()`, `qName()`, `yName()` date helpers;
+  `Q` and `Y` state vars; `setQ/setY`; `svQ/svY`; `loadAll()` reads `ht_q_*` + `ht_y_*`
+  Also add `quarterly: []` + `yearly: []` to `DEFAULT_HABITS` and in migration ensure they exist.
+- **`js/views/quarterly.js`** — new view (copy weekly pattern; counter-to-target + summary)
+- **`js/views/yearly.js`**    — new view (same)
+- **`js/views/_all.js`**      — add quarterly + yearly render to `renderAll()`
+- **`js/app.js`**             — register 'quarterly' + 'yearly' views
+- **`index.html`**            — add Quarterly + Yearly tabs + panels + add-habit forms
+- **`sw.js`**                 — ht-v4 cache; add quarterly.js + yearly.js
 
-Storage key: `ht_inbox` → array of `{ id, text, note, createdAt, done }`
+Storage keys:
+- `ht_q_YYYY-Q#` → `{ [habitId]: number, remarks: {} }`
+- `ht_y_YYYY`    → `{ [habitId]: number, remarks: {} }`
 
-**Verification for B2.1:**
-1. `python -m http.server 8000` → Inbox tab shows
-2. Type a thought, hit Enter or Add → appears in list
-3. Delete removes it; Convert to task adds it to Quick Wins and removes from Inbox
-4. Refreshing the page preserves all inbox items
+Quarter key formula (similar to ISO week key):
+```js
+function qKey() {
+  const d = new Date();
+  const q = Math.floor(d.getMonth() / 3) + 1;
+  return `ht_q_${d.getFullYear()}-Q${q}`;
+}
+```
+
+**Verification for B3.1:**
+1. `python -m http.server 8000` → Quarterly + Yearly tabs show
+2. Add a quarterly habit (e.g. "Read 3 books"), counter increments/decrements
+3. Add a yearly habit, summary bar updates
+4. Daily/Weekly/Monthly still work identically
+5. Existing localStorage data is preserved
 
 ---
 
@@ -42,7 +56,7 @@ Storage key: `ht_inbox` → array of `{ id, text, note, createdAt, done }`
 | B1.4 PWA + Settings + scalable nav | ✅ done | 53bf1c2 | `manifest.webmanifest`, `sw.js`, `icons/icon-192.svg`, `css/tokens.css`, `js/views/settings.js`, `js/app.js`, `index.html` | Offline app-shell, installable, theme toggle |
 | B2.1 Brain-dump / Inbox | ✅ done | a102690 | `js/views/inbox.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `css/base.css`, `sw.js` | Inbox tab with capture, note, done, convert-to-task |
 | B2.2 Smart Quick Wins | ✅ done | 1091126 | `js/views/tasks.js`, `index.html`, `css/base.css` | Priority field + win-score sort |
-| B2.3 Eye-care Reminder | ✅ done | *(fill after commit)* | `js/reminders.js`, `js/views/settings.js`, `js/app.js`, `css/base.css`, `sw.js` | Configurable timer, Notification API, in-app banner, daily count |
+| B2.3 Eye-care Reminder | ✅ done | 4159999 | `js/reminders.js`, `js/views/settings.js`, `js/app.js`, `css/base.css`, `sw.js` | Configurable timer, Notification API, in-app banner, daily count |
 | B3.1 Quarterly + Yearly | 🔲 todo | — | `js/views/quarterly.js`, `js/views/yearly.js`, `js/store.js` | Reuse weekly/monthly pattern |
 | B3.2 Goal linking | 🔲 todo | — | TBD | Deferrable |
 | B4.1 Routine builder | 🔲 todo | — | `js/views/routine.js` | Time-blocked day |
