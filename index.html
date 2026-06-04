@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Habit Tracker</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
 </head>
 <body>
 
@@ -14,10 +15,10 @@
 </header>
 
 <nav>
-  <button class="tab" onclick="sw('daily')">Daily</button>
-  <button class="tab" onclick="sw('weekly')">Weekly</button>
-  <button class="tab" onclick="sw('monthly')">Monthly</button>
-  <button class="tab on" onclick="sw('wins')">Quick Wins</button>
+  <button class="tab" data-tab="daily"   onclick="sw('daily')">Daily</button>
+  <button class="tab" data-tab="weekly"  onclick="sw('weekly')">Weekly</button>
+  <button class="tab" data-tab="monthly" onclick="sw('monthly')">Monthly</button>
+  <button class="tab" data-tab="wins"    onclick="sw('wins')">Quick Wins</button>
 </nav>
 
 <!-- DAILY -->
@@ -84,7 +85,7 @@
 </div>
 
 <!-- QUICK WINS -->
-<div class="pnl on" id="p-wins">
+<div class="pnl" id="p-wins">
   <div class="qbar">
     <div class="fg">
       <button class="fb on" onclick="sf('all')">All</button>
@@ -113,15 +114,15 @@
 <!-- SYNC -->
 <div class="syncsec">
   <div class="sync-row">
-    <button class="syncbtn" id="syncbtn" onclick="syncTrigger()">↑ Sync to Drive</button>
-    <button class="syncbtn" id="loadbtn" onclick="loadTrigger()">↓ Load from Drive</button>
+    <button class="syncbtn" id="syncbtn">↑ Sync to Drive</button>
+    <button class="syncbtn" id="loadbtn">↓ Load from Drive</button>
   </div>
   <div class="syncinfo" id="syncinfo">Sync to Google Drive to access your habits from any device.</div>
 </div>
 
 <div id="toast"></div>
 
-<script src="app.js"></script>
+<script type="module" src="js/app.js"></script>
 <script src="https://accounts.google.com/gsi/client" async onload="gisLoaded()"></script>
 </body>
 </html>
