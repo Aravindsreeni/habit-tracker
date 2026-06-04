@@ -40,7 +40,7 @@ Storage key: `ht_inbox` → array of `{ id, text, note, createdAt, done }`
 | B1.2 Schema v2 + migration | ✅ done | 222b808 | `js/store.js`, `js/app.js` | initSchema() + migrate() before loadAll() |
 | B1.3 Full-history sync + Export/Import | ✅ done | 7e9d887 | `js/sync.js`, `js/app.js`, `index.html` | buildPayload collects all ht_* keys; Export/Import JSON buttons |
 | B1.4 PWA + Settings + scalable nav | ✅ done | 53bf1c2 | `manifest.webmanifest`, `sw.js`, `icons/icon-192.svg`, `css/tokens.css`, `js/views/settings.js`, `js/app.js`, `index.html` | Offline app-shell, installable, theme toggle |
-| B2.1 Brain-dump / Inbox | ✅ done | *(fill after commit)* | `js/views/inbox.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `css/base.css`, `sw.js` | Inbox tab with capture, note, done, convert-to-task |
+| B2.1 Brain-dump / Inbox | ✅ done | a102690 | `js/views/inbox.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `css/base.css`, `sw.js` | Inbox tab with capture, note, done, convert-to-task |
 | B2.2 Smart Quick Wins | 🔲 todo | — | `js/views/tasks.js`, `js/store.js` | Add priority; smart sort |
 | B2.3 Eye-care Reminder | 🔲 todo | — | `js/reminders.js`, `js/views/settings.js` | Timer + Notification API |
 | B3.1 Quarterly + Yearly | 🔲 todo | — | `js/views/quarterly.js`, `js/views/yearly.js`, `js/store.js` | Reuse weekly/monthly pattern |

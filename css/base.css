@@ -560,6 +560,20 @@ nav {
   font-weight: 500;
 }
 
+/* ── Quick Wins priority ── */
+.qpri {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.pri-dot-high { background: #e05050; }
+.pri-dot-med  { background: #c8960a; }
+.pri-dot-low  { background: #4a8e52; }
+.et.pri-high  { border-color: rgba(224,80,80,0.4);  color: #e05050; }
+.et.pri-med   { border-color: rgba(200,150,10,0.4); color: #c8960a; }
+.et.pri-low   { border-color: rgba(74,142,82,0.4);  color: #4a8e52; }
+
 /* ── Inbox ── */
 .inb-add-row {
   display: flex;
