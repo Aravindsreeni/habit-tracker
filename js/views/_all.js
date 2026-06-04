@@ -3,7 +3,8 @@ import { render as rD } from './daily.js';
 import { render as rW } from './weekly.js';
 import { render as rM } from './monthly.js';
 import { render as rQ } from './tasks.js';
+import { render as rInbox } from './inbox.js';
 
 export function renderAll() {
-  rD(); rW(); rM(); rQ();
+  rD(); rW(); rM(); rQ(); rInbox();
 }

@@ -29,12 +29,14 @@ export const DEFAULT_QW = () => [
 // ── Mutable app state ──────────────────────────────────────────────
 export let HABITS = {};
 export let D = {}, W = {}, M = {}, QW = [];
+export let INBOX = [];
 
 export function setHabits(v) { HABITS = v; }
 export function setD(v)      { D = v; }
 export function setW(v)      { W = v; }
 export function setM(v)      { M = v; }
 export function setQW(v)     { QW = v; }
+export function setInbox(v)  { INBOX = v; }
 
 // ── localStorage helpers ───────────────────────────────────────────
 export function lsGet(key) {
@@ -117,7 +119,8 @@ export function loadAll() {
   D = lsGet(dKey()) || {};  if (!D.remarks)  D.remarks  = {};
   W = lsGet(wKey()) || {};  if (!W.remarks)  W.remarks  = {};
   M = lsGet(mKey()) || {};  if (!M.remarks)  M.remarks  = {};
-  QW = lsGet('ht_qw') || DEFAULT_QW();
+  QW    = lsGet('ht_qw')    || DEFAULT_QW();
+  INBOX = lsGet('ht_inbox') || [];
 
   const lastSync = lsGet('ht_lastsync');
   const el = document.getElementById('syncinfo');
@@ -126,6 +129,12 @@ export function loadAll() {
       ? `<b>Last synced:</b> ${lastSync}`
       : `Sync to Google Drive to access your habits from any device.`;
   }
+}
+
+// svInbox: called after mutating INBOX
+export function svInbox() {
+  lsSet('ht_inbox', INBOX);
+  import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
 }
 
 // svHabits: called after mutating HABITS (add/delete)

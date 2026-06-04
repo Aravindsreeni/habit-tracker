@@ -560,6 +560,20 @@ nav {
   font-weight: 500;
 }
 
+/* ── Inbox ── */
+.inb-add-row {
+  display: flex;
+  gap: 7px;
+  margin: 10px 0;
+}
+.inb-add-row .fi { flex: 1; }
+.inb-card { margin-bottom: 7px; }
+.inb-conv {
+  font-size: 11px;
+  padding: 2px 8px;
+  flex-shrink: 0;
+}
+
 /* ── Misc ── */
 .empty {
   text-align: center;
