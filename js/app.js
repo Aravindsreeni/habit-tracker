@@ -7,7 +7,7 @@ import { render as rW, showAddForm as sAFw, closeAddForm as cAFw, addHabit as aH
 import { render as rM, showAddForm as sAFm, closeAddForm as cAFm, addHabit as aHm } from './views/monthly.js';
 import { render as rQ, setFilter, toggleForm, addTask } from './views/tasks.js';
 import { render as rInbox } from './views/inbox.js';
-import { render as rSettings, applyTheme } from './views/settings.js';
+import { render as rSettings, applyTheme, initRem } from './views/settings.js';
 
 // ── Register views ─────────────────────────────────────────────────
 registerView('daily',   'p-daily',   rD);
@@ -58,6 +58,7 @@ window.addHabit = (section) => {
 applyTheme();   // apply saved theme before paint (avoids flash)
 initSchema();   // run migration before loading data
 loadAll();
+initRem();      // start reminder timers
 rD(); rW(); rM(); rQ();
 
 // Activate the wins tab on load (same as original default)

@@ -560,6 +560,77 @@ nav {
   font-weight: 500;
 }
 
+/* ── Reminder banners ── */
+#rem-banners {
+  position: sticky;
+  top: 43px;   /* just below sticky nav */
+  z-index: 19;
+}
+.rem-banner {
+  background: rgba(224, 160, 10, 0.13);
+  border-bottom: 1px solid rgba(200, 150, 10, 0.4);
+  padding: 9px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.rem-lbl {
+  flex: 1;
+  font-size: 13px;
+  color: var(--t);
+}
+.rem-note {
+  font-size: 11px;
+  color: var(--t3);
+}
+.rem-acts {
+  display: flex;
+  gap: 5px;
+}
+.rem-btn {
+  padding: 3px 9px;
+  border-radius: 6px;
+  border: 0.5px solid var(--b2);
+  background: var(--s);
+  color: var(--t);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+.rem-done {
+  background: var(--ok-bg);
+  border-color: var(--ok-b);
+  color: var(--ok);
+  font-weight: 500;
+}
+
+/* ── Settings reminder list ── */
+.rem-row.rem-due { border-color: rgba(200,150,10,0.55); }
+.rem-cd {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--t3);
+  min-width: 38px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.rem-cd.rem-cd-due { color: #c8960a; }
+.rem-tog {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  margin-left: 8px;
+  font-size: 11px;
+}
+.stg-note {
+  font-size: 11px;
+  color: var(--t3);
+  padding: 4px 0 10px;
+  line-height: 1.6;
+}
+
 /* ── Quick Wins priority ── */
 .qpri {
   width: 7px;
