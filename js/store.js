@@ -1,4 +1,4 @@
-// ── store.js — state, localStorage, date keys ─────────────────────
+// ── store.js — state, localStorage, schema migration, date keys ────
 
 export const DEFAULT_HABITS = {
   daily: [
@@ -73,6 +73,42 @@ export function wRange() {
 }
 export function mName() {
   return new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+}
+
+// ── Schema version + migration ─────────────────────────────────────
+const SCHEMA_VERSION = 2;
+
+// migrate() is idempotent and additive — it never deletes existing data.
+// v1 → v2: ensure ht_habits has a `quarterly` and `yearly` array (for Phase 3);
+//           ensure all period-log objects have a `remarks` map.
+function migrate(from) {
+  // v1 → v2
+  if (from < 2) {
+    const h = lsGet('ht_habits');
+    if (h) {
+      if (!Array.isArray(h.quarterly)) h.quarterly = [];
+      if (!Array.isArray(h.yearly))    h.yearly    = [];
+      lsSet('ht_habits', h);
+    }
+    // Ensure `remarks` exists in all stored period logs
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (!key) continue;
+      if (/^ht_(d|w|m)_/.test(key)) {
+        const val = lsGet(key);
+        if (val && typeof val === 'object' && !val.remarks) {
+          val.remarks = {};
+          lsSet(key, val);
+        }
+      }
+    }
+  }
+  lsSet('ht_schema_version', SCHEMA_VERSION);
+}
+
+export function initSchema() {
+  const v = lsGet('ht_schema_version') || 1;
+  if (v < SCHEMA_VERSION) migrate(v);
 }
 
 // ── Load & save ────────────────────────────────────────────────────

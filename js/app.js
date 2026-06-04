@@ -1,5 +1,5 @@
 // ── app.js — bootstrap ─────────────────────────────────────────────
-import { loadAll } from './store.js';
+import { loadAll, initSchema } from './store.js';
 import { gisLoaded, syncTrigger, loadTrigger } from './sync.js';
 import { registerView, sw } from './router.js';
 import { render as rD, showAddForm as sAFd, closeAddForm as cAFd, addHabit as aHd } from './views/daily.js';
@@ -49,6 +49,7 @@ window.addHabit = (section) => {
 };
 
 // ── Init ───────────────────────────────────────────────────────────
+initSchema();   // run migration before loading data
 loadAll();
 rD(); rW(); rM(); rQ();
 
