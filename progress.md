@@ -6,37 +6,28 @@
 
 ## ▶ Resume here
 
-**Current:** Phase 0 complete → start **Phase 1, Batch B1.1**
+**Current:** Phase 1 complete → start **Phase 2, Batch B2.1**
 
-### What to do next (B1.1)
+### What to do next (B2.1 — Brain-Dump / Inbox)
 
-Split the monolithic `app.js` + `style.css` into ES modules while keeping all four tabs
-(Daily / Weekly / Monthly / Quick Wins) **behavior-identical**. Target structure:
+Add a new **Inbox** tab: ultra-low-friction capture of any thought, idea, or task.
+Items have: text, optional note, and a "Convert to task" button (moves to Quick Wins).
 
-```
-index.html        ← <script type="module" src="js/app.js">
-css/
-  tokens.css      ← :root variables (lines 1–43 of original style.css)
-  base.css        ← everything else from style.css
-js/
-  app.js          ← bootstrap only (init + render calls)
-  store.js        ← lsGet, lsSet, state vars (HABITS/D/W/M/QW), loadAll, sv, date keys
-  sync.js         ← Google Drive code (gisLoaded, requestToken, driveFind/Save/Load, buildPayload, doSync, doLoadDrive, scheduleSync)
-  ui.js           ← ckSVG/penSVG/xSVG, mkCard, mkSum, toast
-  router.js       ← sw() tab switch
-  views/
-    daily.js      ← rD, tC, aW, sW, showAddForm, closeAddForm, toggleMaxField, addHabit('daily'), delHabit
-    weekly.js     ← rW, aWk, addHabit('weekly')
-    monthly.js    ← rM, aMo, addHabit('monthly')
-    tasks.js      ← rQ, tf, da, tQ, dQ, sf (Quick Wins)
-    notes.js      ← tr, sR (shared note toggle — used by daily/weekly/monthly)
-```
+Key files to create/modify:
+- **`js/views/inbox.js`** — new view (`render`, `addItem`, `deleteItem`, `convertToTask`)
+- **`js/store.js`** — add `ht_inbox` key + `INBOX` state var + `svInbox()` helper
+- **`js/views/_all.js`** — add inbox render to `renderAll()`
+- **`js/app.js`** — register 'inbox' view; wire keyboard shortcut (Enter to add)
+- **`index.html`** — add Inbox tab + panel HTML
+- **`sw.js`** — add `js/views/inbox.js` to SHELL cache
 
-**Verification for B1.1:**
-1. `python -m http.server 8000` → open http://localhost:8000/
-2. All four tabs load, add/delete/check habits work, notes open/save, Quick Wins add/complete/delete
-3. Google Drive sync button still present (even if not tested)
-4. No JS console errors
+Storage key: `ht_inbox` → array of `{ id, text, note, createdAt, done }`
+
+**Verification for B2.1:**
+1. `python -m http.server 8000` → Inbox tab shows
+2. Type a thought, hit Enter or Add → appears in list
+3. Delete removes it; Convert to task adds it to Quick Wins and removes from Inbox
+4. Refreshing the page preserves all inbox items
 
 ---
 
@@ -48,7 +39,7 @@ js/
 | B1.1 ES module split | ✅ done | f508173 | `index.html`, `css/tokens.css`, `css/base.css`, `js/app.js`, `js/store.js`, `js/ui.js`, `js/sync.js`, `js/router.js`, `js/views/*` | Monolithic app.js → 11 ES modules; behavior-identical |
 | B1.2 Schema v2 + migration | ✅ done | 222b808 | `js/store.js`, `js/app.js` | initSchema() + migrate() before loadAll() |
 | B1.3 Full-history sync + Export/Import | ✅ done | 7e9d887 | `js/sync.js`, `js/app.js`, `index.html` | buildPayload collects all ht_* keys; Export/Import JSON buttons |
-| B1.4 PWA + Settings + scalable nav | ✅ done | *(fill after commit)* | `manifest.webmanifest`, `sw.js`, `icons/icon-192.svg`, `css/tokens.css`, `js/views/settings.js`, `js/app.js`, `index.html` | Offline app-shell, installable, theme toggle |
+| B1.4 PWA + Settings + scalable nav | ✅ done | 53bf1c2 | `manifest.webmanifest`, `sw.js`, `icons/icon-192.svg`, `css/tokens.css`, `js/views/settings.js`, `js/app.js`, `index.html` | Offline app-shell, installable, theme toggle |
 | B2.1 Brain-dump / Inbox | 🔲 todo | — | `js/views/inbox.js`, CSS | Ultra-low-friction capture |
 | B2.2 Smart Quick Wins | 🔲 todo | — | `js/views/tasks.js`, `js/store.js` | Add priority; smart sort |
 | B2.3 Eye-care Reminder | 🔲 todo | — | `js/reminders.js`, `js/views/settings.js` | Timer + Notification API |
