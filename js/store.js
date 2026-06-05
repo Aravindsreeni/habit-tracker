@@ -39,6 +39,7 @@ export let HABITS = {};
 export let D = {}, W = {}, M = {}, Q = {}, Y = {}, QW = [];
 export let INBOX = [];
 export let ROUTINE = [];
+export let AREAS = [];
 
 export function setHabits(v)  { HABITS = v; }
 export function setD(v)       { D = v; }
@@ -49,6 +50,7 @@ export function setY(v)       { Y = v; }
 export function setQW(v)      { QW = v; }
 export function setInbox(v)   { INBOX = v; }
 export function setRoutine(v) { ROUTINE = v; }
+export function setAreas(v)   { AREAS = v; }
 
 // ── localStorage helpers ───────────────────────────────────────────
 export function lsGet(key) {
@@ -188,11 +190,12 @@ export function linkLabel(link) {
 }
 
 // ── Schema version + migration ─────────────────────────────────────
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 // migrate() is idempotent and additive — it never deletes existing data.
 // v1 → v2: ensure ht_habits has a `quarterly` and `yearly` array (for Phase 3);
 //           ensure all period-log objects have a `remarks` map.
+// v2 → v3: ensure ht_areas exists (habit categories, Phase 5.3).
 function migrate(from) {
   // v1 → v2
   if (from < 2) {
@@ -215,6 +218,10 @@ function migrate(from) {
       }
     }
   }
+  // v2 → v3
+  if (from < 3) {
+    if (!Array.isArray(lsGet('ht_areas'))) lsSet('ht_areas', []);
+  }
   lsSet('ht_schema_version', SCHEMA_VERSION);
 }
 
@@ -234,6 +241,7 @@ export function loadAll() {
   QW      = lsGet('ht_qw')      || DEFAULT_QW();
   INBOX   = lsGet('ht_inbox')   || [];
   ROUTINE = lsGet('ht_routine') || [];
+  AREAS   = lsGet('ht_areas')   || [];
 
   const lastSync = lsGet('ht_lastsync');
   const el = document.getElementById('syncinfo');
@@ -253,6 +261,12 @@ export function svInbox() {
 // svRoutine: called after mutating ROUTINE
 export function svRoutine() {
   lsSet('ht_routine', ROUTINE);
+  import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
+}
+
+// svAreas: called after mutating AREAS (add/delete category)
+export function svAreas() {
+  lsSet('ht_areas', AREAS);
   import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
 }
 

@@ -1,8 +1,9 @@
-// ── stats.js — Motivation: streaks (B5.1), heatmap (B5.2), stats (B5.3) ──
+// ── stats.js — Motivation: streaks (B5.1), heatmap (B5.2), stats + areas (B5.3) ──
 // Reads the full daily history (ht_d_* keys) and rewards consistency.
 // Positive reinforcement only — a broken streak is never shamed, it's an
 // invitation to begin again.
-import { HABITS, eachDailyLog } from '../store.js';
+import { HABITS, AREAS, setAreas, svAreas, svHabits, eachDailyLog } from '../store.js';
+import { xSVG } from '../ui.js';
 
 // ── Compute helpers (kept separate from render so later batches reuse them) ──
 
@@ -78,6 +79,26 @@ export function heatmapWeeks(daySet, weeks = 53) {
   return cols;
 }
 
+// Completion rate over the last `windowDays` days (counting today back).
+// total is the window length — honest "X of the last N days" framing.
+export function completionRate(daySet, windowDays) {
+  const end = todayNum();
+  let done = 0;
+  for (let i = 0; i < windowDays; i++) if (daySet.has(end - i)) done++;
+  return { done, total: windowDays, pct: Math.round(done / windowDays * 100) };
+}
+
+// Aggregate completion across all daily habits tagged with `areaId`.
+export function areaRate(areaId, habits, sets, windowDays) {
+  const hs = habits.filter(h => h.area === areaId);
+  let done = 0, total = 0;
+  hs.forEach(h => {
+    const r = completionRate(sets[h.id], windowDays);
+    done += r.done; total += r.total;
+  });
+  return { count: hs.length, done, total, pct: total ? Math.round(done / total * 100) : 0 };
+}
+
 // ── Render ──────────────────────────────────────────────────────────
 
 function days(n) { return `${n} ${n === 1 ? 'day' : 'days'}`; }
@@ -96,22 +117,39 @@ function streakMsg(cur, best) {
 export function render() {
   const el = document.getElementById('p-stats');
   if (!el) return;
+  el.innerHTML = '';
 
   const habits = HABITS.daily || [];
-
-  el.innerHTML = `
-    <div class="sec-hdr" style="margin-top:4px">
-      <span class="sec-lbl">Streaks · Daily habits</span>
-    </div>
-    <div id="st-list"></div>`;
-
-  const list = el.querySelector('#st-list');
   if (!habits.length) {
-    list.innerHTML = '<div class="empty">Add a daily habit to start building streaks</div>';
+    el.appendChild(sectionHdr('Stats', '', '4px'));
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'Add a daily habit to start tracking streaks & stats';
+    el.appendChild(empty);
     return;
   }
 
   const sets = completedDaySets(habits);
+  renderStreaks(el, habits, sets);
+  renderStats(el, habits, sets);
+  renderAreas(el, habits, sets);
+  renderHeatmaps(el, habits, sets);
+}
+
+// A standard uppercase section header, optionally with right-aligned content.
+function sectionHdr(label, rightHTML = '', marginTop = '18px') {
+  const hdr = document.createElement('div');
+  hdr.className = 'sec-hdr';
+  hdr.style.marginTop = marginTop;
+  hdr.innerHTML = `<span class="sec-lbl">${label}</span>${rightHTML}`;
+  return hdr;
+}
+
+// ── Streaks (B5.1) ──
+function renderStreaks(el, habits, sets) {
+  el.appendChild(sectionHdr('Streaks · Daily habits', '', '4px'));
+  const list = document.createElement('div');
+  el.appendChild(list);
   habits.forEach(h => {
     const cur  = currentStreak(sets[h.id]);
     const best = longestStreak(sets[h.id]);
@@ -128,16 +166,128 @@ export function render() {
       </div>`;
     list.appendChild(c);
   });
+}
 
-  // ── Heatmap section (B5.2) ──
-  const hdr = document.createElement('div');
-  hdr.className = 'sec-hdr';
-  hdr.style.marginTop = '18px';
-  hdr.innerHTML = `
-    <span class="sec-lbl">Heatmap · Past year</span>
-    <span class="hm-legend">Less <i class="hm-cell"></i><i class="hm-cell on"></i> More</span>`;
-  el.appendChild(hdr);
+// ── Statistics (B5.3): completion rates over recent windows ──
+function rateBar(label, r) {
+  return `
+    <div class="stt-row">
+      <span class="stt-lbl">${label}</span>
+      <div class="pb"><div class="pf${r.pct >= 70 ? ' ok' : ''}" style="width:${r.pct}%"></div></div>
+      <span class="stt-val">${r.done}/${r.total}</span>
+    </div>`;
+}
+function renderStats(el, habits, sets) {
+  el.appendChild(sectionHdr('Consistency · Recent days'));
+  const list = document.createElement('div');
+  el.appendChild(list);
+  habits.forEach(h => {
+    const r30 = completionRate(sets[h.id], 30);
+    const r90 = completionRate(sets[h.id], 90);
+    const c = document.createElement('div');
+    c.className = 'hc stt-card';
+    c.innerHTML = `
+      <div class="hr">
+        <span class="hn">${esc(h.label)}</span>
+        <span class="stt-pct">${r30.pct}%<span class="stt-sub"> · 30d</span></span>
+      </div>
+      <div class="stt-bars">
+        ${rateBar('30 days', r30)}
+        ${rateBar('90 days', r90)}
+      </div>`;
+    list.appendChild(c);
+  });
+}
 
+// ── Areas (B5.3): user-defined categories + grouped completion ──
+function renderAreas(el, habits, sets) {
+  el.appendChild(sectionHdr('Areas · Group your habits'));
+  const wrap = document.createElement('div');
+  wrap.innerHTML = `
+    <div class="area-add">
+      <input class="fi" id="area-name" type="text" placeholder="New area (e.g. Health, Learning)" autocomplete="off">
+      <button class="fsv" id="area-addbtn">Add</button>
+    </div>
+    <div id="area-list"></div>
+    <div id="area-assign"></div>`;
+  el.appendChild(wrap);
+
+  _renderAreaList(habits, sets);
+  _renderAreaAssign(habits);
+
+  const nameEl = wrap.querySelector('#area-name');
+  nameEl?.addEventListener('keydown', e => { if (e.key === 'Enter') _addArea(); });
+  wrap.querySelector('#area-addbtn')?.addEventListener('click', _addArea);
+}
+
+function _renderAreaList(habits, sets) {
+  const listEl = document.getElementById('area-list');
+  if (!listEl) return;
+  if (!AREAS.length) {
+    listEl.innerHTML = '<div class="empty">No areas yet — add one above, then tag habits below</div>';
+    return;
+  }
+  listEl.innerHTML = '';
+  AREAS.forEach(a => {
+    const r = areaRate(a.id, habits, sets, 30);
+    const c = document.createElement('div');
+    c.className = 'hc area-card';
+    c.innerHTML = `
+      <div class="hr">
+        <span class="hn">${esc(a.name)}</span>
+        <span class="area-meta">${r.count} ${r.count === 1 ? 'habit' : 'habits'}${r.count ? ` · ${r.pct}% · 30d` : ''}</span>
+        <button class="hdel" title="Delete area" data-area-del="${a.id}">${xSVG()}</button>
+      </div>`;
+    listEl.appendChild(c);
+  });
+  listEl.querySelectorAll('[data-area-del]').forEach(btn => {
+    btn.onclick = () => {
+      const id = btn.dataset.areaDel;
+      setAreas(AREAS.filter(a => a.id !== id));
+      (HABITS.daily || []).forEach(h => { if (h.area === id) delete h.area; });
+      svAreas(); svHabits(); render();
+    };
+  });
+}
+
+function _renderAreaAssign(habits) {
+  const el = document.getElementById('area-assign');
+  if (!el) return;
+  if (!AREAS.length) { el.innerHTML = ''; return; }
+  el.innerHTML = '<div class="area-assign-hdr">Assign habits to areas</div>';
+  habits.forEach(h => {
+    const opts = ['<option value="">— None —</option>']
+      .concat(AREAS.map(a => `<option value="${a.id}"${h.area === a.id ? ' selected' : ''}>${esc(a.name)}</option>`))
+      .join('');
+    const row = document.createElement('div');
+    row.className = 'area-assign-row';
+    row.innerHTML = `<span class="area-hn">${esc(h.label)}</span><select class="fse" data-assign="${h.id}">${opts}</select>`;
+    el.appendChild(row);
+  });
+  el.querySelectorAll('[data-assign]').forEach(sel => {
+    sel.onchange = () => {
+      const h = (HABITS.daily || []).find(x => x.id === sel.dataset.assign);
+      if (!h) return;
+      if (sel.value) h.area = sel.value; else delete h.area;
+      svHabits(); render();
+    };
+  });
+}
+
+function _addArea() {
+  const inp = document.getElementById('area-name');
+  const name = inp?.value.trim();
+  if (!name) { inp?.focus(); return; }
+  AREAS.push({ id: 'a' + Date.now(), name });
+  svAreas();
+  render();
+  document.getElementById('area-name')?.focus();
+}
+
+// ── Heatmap (B5.2) ──
+function renderHeatmaps(el, habits, sets) {
+  el.appendChild(sectionHdr('Heatmap · Past year',
+    '<span class="hm-legend">Less <i class="hm-cell"></i><i class="hm-cell on"></i> More</span>'));
   const hmList = document.createElement('div');
   el.appendChild(hmList);
   habits.forEach(h => renderHeatmapCard(hmList, h, sets[h.id]));
