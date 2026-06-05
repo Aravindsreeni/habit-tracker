@@ -56,6 +56,28 @@ export function longestStreak(daySet) {
   return best;
 }
 
+// dayNum → 'YYYY-MM-DD' (UTC, matching how dayNum was built).
+function numToYmd(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
+
+// GitHub-style year grid for a daySet: an array of week-columns, each a length-7
+// array (rows = Mon..Sun) of { n, ymd, on } cells, or null for future padding.
+// The last column is the current week; today is its newest non-null cell.
+export function heatmapWeeks(daySet, weeks = 53) {
+  const end = todayNum();
+  const wd  = ((end % 7) + 3) % 7;            // weekday of today, Mon=0 (epoch=Thu)
+  const firstMonday = (end - wd) - (weeks - 1) * 7;
+  const cols = [];
+  for (let c = 0; c < weeks; c++) {
+    const col = [];
+    for (let r = 0; r < 7; r++) {
+      const n = firstMonday + c * 7 + r;
+      col.push(n > end ? null : { n, ymd: numToYmd(n), on: daySet.has(n) });
+    }
+    cols.push(col);
+  }
+  return cols;
+}
+
 // ── Render ──────────────────────────────────────────────────────────
 
 function days(n) { return `${n} ${n === 1 ? 'day' : 'days'}`; }
@@ -106,6 +128,72 @@ export function render() {
       </div>`;
     list.appendChild(c);
   });
+
+  // ── Heatmap section (B5.2) ──
+  const hdr = document.createElement('div');
+  hdr.className = 'sec-hdr';
+  hdr.style.marginTop = '18px';
+  hdr.innerHTML = `
+    <span class="sec-lbl">Heatmap · Past year</span>
+    <span class="hm-legend">Less <i class="hm-cell"></i><i class="hm-cell on"></i> More</span>`;
+  el.appendChild(hdr);
+
+  const hmList = document.createElement('div');
+  el.appendChild(hmList);
+  habits.forEach(h => renderHeatmapCard(hmList, h, sets[h.id]));
+}
+
+// Pitch (px) of one heatmap column = cell width + grid gap (keep in sync with CSS).
+const HM_PITCH = 14;
+const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+             'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// Month-label strip above the grid; label shown only for runs wide enough to fit.
+function monthsRow(weeks) {
+  const groups = [];
+  weeks.forEach(col => {
+    const first = col.find(c => c);
+    const m = first ? new Date(first.n * 86400000).getUTCMonth() : -1;
+    const last = groups[groups.length - 1];
+    if (last && last.month === m) last.count++;
+    else groups.push({ month: m, count: 1 });
+  });
+  return groups.map(g =>
+    `<span style="width:${g.count * HM_PITCH}px">${g.count >= 2 && g.month >= 0 ? MON[g.month] : ''}</span>`
+  ).join('');
+}
+
+// Cells in column-major order to match the grid's grid-auto-flow: column.
+function cellsGrid(weeks) {
+  let html = '';
+  weeks.forEach(col => col.forEach(cell => {
+    if (!cell) { html += '<span class="hm-cell hm-pad"></span>'; return; }
+    html += `<span class="hm-cell${cell.on ? ' on' : ''}" title="${cell.ymd}${cell.on ? ' · done ✓' : ''}"></span>`;
+  }));
+  return html;
+}
+
+function renderHeatmapCard(container, habit, daySet) {
+  const weeks = heatmapWeeks(daySet);
+  let count = 0;
+  weeks.forEach(col => col.forEach(c => { if (c && c.on) count++; }));
+
+  const card = document.createElement('div');
+  card.className = 'hc hm-card';
+  card.innerHTML = `
+    <div class="hr">
+      <span class="hn">${esc(habit.label)}</span>
+      <span class="hm-count">${count} ${count === 1 ? 'day' : 'days'} · past year</span>
+    </div>
+    <div class="hm-scroll">
+      <div class="hm-months">${monthsRow(weeks)}</div>
+      <div class="hm-grid">${cellsGrid(weeks)}</div>
+    </div>`;
+  container.appendChild(card);
+
+  // Default the scroll to the most recent weeks (today is on the right edge).
+  const sc = card.querySelector('.hm-scroll');
+  if (sc) sc.scrollLeft = sc.scrollWidth;
 }
 
 function esc(str) {
