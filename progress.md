@@ -6,55 +6,56 @@
 
 ## ▶ Resume here
 
-**Current:** B5.2 Heatmap complete (5023bbd) → start **Phase 5, Batch B5.3 — Statistics + Areas**
-(last batch of Phase 5 → finish with a phase-completion commit `chore: complete Phase 5 — Motivation`).
+**Current:** Phase 5 complete (B5.1 220e096 · B5.2 5023bbd · B5.3 d90fadd) → start
+**Phase 6 — Mental health**, Batch **B6.1 — Daily Journal**.
 
-Phase 5 is Motivation: streaks ✅ → heatmap ✅ → statistics + areas. All of it reads the full
-daily history in localStorage as `ht_d_*` keys (B5.3 also wants weekly/monthly: `ht_w_*`/`ht_m_*`).
+Phase 5 (Motivation) is fully done: the Stats tab now shows Streaks → Consistency (30/90-day
+completion rates) → Areas (categories + grouped rate) → year Heatmap, all in `js/views/stats.js`.
+Schema is now **v3** (`ht_areas`). SW cache is `ht-v8`.
 
-### What stats.js already gives you (reuse, don't re-read storage)
+### Phase 6 is Mental Health (evidence-based — read CLAUDE.md "Evidence base" table)
 
-`js/views/stats.js` (`'stats'` tab registered) exports tested compute helpers:
-- `completedDaySets(habits)` → `{ habitId: Set<dayNum> }` in one pass over `eachDailyLog`.
-  `dayNum` = `Math.floor(Date.UTC(y,m-1,d)/86400000)` (DST-safe whole-day integer).
-- `currentStreak(daySet)` / `longestStreak(daySet)`.
-- `heatmapWeeks(daySet, weeks=53)` → 53 week-columns × 7 rows (Mon..Sun) of `{n,ymd,on}` / null.
-- module-local: `isDone(habit, value)` (counter `type==='w'` done if `>0`, else checkbox `=== true`),
-  `todayNum()`, `numToYmd(n)`, `esc()`.
-- `store.js`: `dKeyFor(date)`, `eachDailyLog(cb)` (cb gets `'YYYY-MM-DD'`, logObj).
-- render() builds: Streaks section → Heatmap section. Compute is split above the `── Render ──`
-  divider. CSS: `/* ── Stats / streaks ── */` and `/* ── Heatmap ── */` in base.css.
+Sequence: B6.1 Daily Journal → B6.2 Mood check-in → B6.3 CBT Thought Record → B6.4 ABC(DE)
++ distortions. **Every mental-health batch MUST include** the "self-help tool, not a substitute
+for professional care" disclaimer + a crisis-resource pointer, and keep entries local/private
+(Design principle 3 + 5 in CLAUDE.md). Positive, non-judgemental tone throughout.
 
-### What to do next (B5.3 — Statistics + Areas)
+### What to do next (B6.1 — Daily Journal)
 
-Two things in one batch:
-1. **Statistics** — completion-rate cards per habit (and/or overall). e.g. % of days a daily
-   habit was done over the last 30 / 90 days; weekly/monthly target attainment. Reuse
-   `completedDaySets` + a date window; add small compute helpers (e.g. `completionRate(daySet,
-   windowDays)`), kept above the render divider and unit-testable in node like B5.1/B5.2.
-2. **Areas** — user-defined categories (`ht_areas` key, per CLAUDE.md storage table). Let a
-   habit be tagged with an area; group/summary stats by area. Needs `store.js` work:
-   `AREAS` state + `setAreas/svAreas` (mirror the `ROUTINE`/`svRoutine` pattern), load in
-   `loadAll()`, and a schema bump if you add a migration (v2 → v3: ensure `ht_areas` exists,
-   optionally backfill an `area` field on habits). Keep migrate() additive/idempotent.
+Three Good Things / "what went well & why" (Seligman 2005 — see evidence table). Storage key
+`ht_journal_YYYY-MM-DD` → `{ wins, lows, growth }` (per CLAUDE.md storage table).
 
-Suggested files: `js/views/stats.js` (new Statistics + Areas sections), `js/store.js`
-(AREAS state/save/load, maybe migration), possibly `index.html` if areas need an editor UI,
-`css/base.css` (`.stt-*` / `.area-*` namespaces), `sw.js` bump to `ht-v8` (shell files change).
+Plan:
+- **`js/views/journal.js`** — NEW self-rendering view (mirror inbox/routine/stats pattern:
+  `render()` reads store, paints into a `p-journal` panel). Today's entry editable; a short
+  history list of past days below (read-only or tap-to-expand). The plan notes "10:1:2 limits"
+  — cap wins at ~10, lows ~1, growth ~2 entries (gentle, encourages focusing on the positive).
+- **`js/store.js`** — journal is per-date like the daily logs; add a small helper if useful
+  (e.g. `jKey(date)` → `ht_journal_YYYY-MM-DD`) and load today's entry in `loadAll()` OR keep
+  it lazy in the view. Mirror `svRoutine`/`svAreas` for save (`svJournal`). No schema bump
+  needed unless you add migration (journal keys are additive; probably skip).
+- **`index.html`** — Journal tab + `p-journal` panel (self-rendering, empty div).
+- **`js/app.js`** — import + `registerView('journal', 'p-journal', rJournal)`.
+- **`js/views/_all.js`** — add `rJournal()` to `renderAll()`.
+- **`sw.js`** — bump to `ht-v9`; add `js/views/journal.js` to the shell SHELL array.
+- **`css/base.css`** — new `.jr-*` namespace.
 
-**Verification for B5.3:**
-1. `python -m http.server 8000` → Stats tab shows completion-rate stats + an areas summary,
-   below the existing streaks + heatmap (which must still render).
-2. Define an area, tag a habit, log some days → area/stat numbers update correctly.
-3. Node unit-test any new rate math (windowed counts, empty/edge cases) before committing.
-4. All prior tabs work; existing data preserved (migration additive). Then phase-completion commit.
+**Verification for B6.1:**
+1. `python -m http.server 8000` → Journal tab; write wins/lows/growth → persists on reload.
+2. History shows prior days. Disclaimer + crisis line visible. All prior tabs still work.
+3. `node --check` changed modules first.
 
-### Verification done so far
-- B5.1: streak math unit-tested in node (consecutive, today-blank tolerance, gap resets current
-  but preserves longest, empty=0) — all passed.
-- B5.2: `heatmapWeeks` geometry unit-tested in node (53 cols, today on right edge at correct
-  weekday row, on-cells mapped, out-of-window excluded, future padding null, Monday-first
-  contiguous columns) — all passed. Served over http: stats.js/base.css/sw.js all 200, cache `ht-v7`.
+### Stats.js helpers available to reuse later (e.g. B6.2 mood trends)
+- compute (all exported, node-tested): `completedDaySets`, `currentStreak`, `longestStreak`,
+  `heatmapWeeks`, `completionRate(daySet, windowDays)`, `areaRate(areaId, habits, sets, win)`.
+- module-local: `isDone`, `todayNum`, `numToYmd`, `dayNum`, `esc`. Render is split into
+  per-section fns (`renderStreaks/renderStats/renderAreas/renderHeatmaps`) below the
+  `── Render ──` divider. `store.js`: `dKeyFor`, `eachDailyLog`, `AREAS`/`setAreas`/`svAreas`.
+
+### Verification log (Phase 5)
+- B5.1 streak math, B5.2 `heatmapWeeks` geometry, B5.3 `completionRate`/`areaRate` — all
+  unit-tested in node (windowed counts, out-of-window exclusion, empty/edge cases, area
+  aggregation 40/60=67%) and passed. Each batch also served over http (200s, correct cache).
 
 ---
 
@@ -75,7 +76,8 @@ Suggested files: `js/views/stats.js` (new Statistics + Areas sections), `js/stor
 | B4.1 Routine builder | ✅ done | 28b7d8f | `js/views/routine.js`, `js/store.js`, `js/views/_all.js`, `js/app.js`, `index.html`, `css/base.css`, `sw.js` | Routine tab: add/tick/delete time blocks, sorted by start; ht-v5 cache |
 | B5.1 Streaks | ✅ done | 220e096 | `js/views/stats.js`, `js/store.js`, `js/views/_all.js`, `js/app.js`, `index.html`, `css/base.css`, `sw.js` | Stats tab; current+longest streak per daily habit; DST-safe day math; compute helpers split from render; ht-v6 cache |
 | B5.2 Heatmap | ✅ done | 5023bbd | `js/views/stats.js`, `css/base.css`, `sw.js` | GitHub-style year calendar per daily habit; heatmapWeeks() reuses B5.1 compute; ht-v7 cache |
-| B5.3 Statistics + Areas | 🔲 todo | — | `js/views/stats.js`, `js/store.js` | Completion rates + categories |
+| B5.3 Statistics + Areas | ✅ done | d90fadd | `js/views/stats.js`, `js/store.js`, `css/base.css`, `sw.js` | 30/90-day completion rates; ht_areas categories (schema v3); per-habit area tagging + grouped rate; ht-v8 |
+| Phase 5 complete | ✅ done | _pending_ | — | Motivation phase done (streaks + heatmap + stats + areas) |
 | B6.1 Daily Journal | 🔲 todo | — | `js/views/journal.js` | 10:1:2 limits; history view |
 | B6.2 Mood check-in | 🔲 todo | — | `js/views/mood.js` | Scale + note; disclaimer |
 | B6.3 CBT Thought Record | 🔲 todo | — | `js/views/cbt.js` | 7-column Beck worksheet |
