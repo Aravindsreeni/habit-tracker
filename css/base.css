@@ -697,6 +697,35 @@ nav {
 }
 .rt-card.done .rt-when { color: var(--t3); }
 
+/* ── Stats / streaks ── */
+.st-card.on { border-color: var(--ok-b); }
+.st-fire {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--t);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.st-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 13px 11px;
+}
+.st-best {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--t2);
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.st-msg {
+  font-size: 11px;
+  color: var(--t3);
+  text-align: right;
+}
+
 /* ── Misc ── */
 .empty {
   text-align: center;

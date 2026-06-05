@@ -67,6 +67,18 @@ export function dKey() {
   const d = new Date();
   return `ht_d_${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
 }
+// Parameterized daily key for an arbitrary Date (for walking history backwards)
+export function dKeyFor(date) {
+  return `ht_d_${date.getFullYear()}-${p2(date.getMonth() + 1)}-${p2(date.getDate())}`;
+}
+// Iterate every stored daily log: cb('YYYY-MM-DD', logObject). Used by stats.
+export function eachDailyLog(cb) {
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith('ht_d_')) continue;
+    cb(key.slice(5), lsGet(key) || {});
+  }
+}
 export function wKey() {
   const d = new Date(), t = new Date(d);
   t.setHours(0, 0, 0, 0);

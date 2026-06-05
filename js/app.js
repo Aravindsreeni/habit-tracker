@@ -10,6 +10,7 @@ import { render as rYr, showAddForm as sAFyr, closeAddForm as cAFyr, addHabit as
 import { render as rQ, setFilter, toggleForm, addTask } from './views/tasks.js';
 import { render as rInbox } from './views/inbox.js';
 import { render as rRoutine } from './views/routine.js';
+import { render as rStats } from './views/stats.js';
 import { render as rSettings, applyTheme, initRem } from './views/settings.js';
 
 // ── Register views ─────────────────────────────────────────────────
@@ -21,6 +22,7 @@ registerView('yearly',  'p-yearly',  rYr);
 registerView('wins',    'p-wins',    rQ);
 registerView('inbox',   'p-inbox',    rInbox);
 registerView('routine', 'p-routine',  rRoutine);
+registerView('stats',   'p-stats',    rStats);
 registerView('settings','p-settings', rSettings);
 
 // ── Date header ────────────────────────────────────────────────────
