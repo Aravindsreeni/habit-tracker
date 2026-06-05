@@ -6,36 +6,34 @@
 
 ## ▶ Resume here
 
-**Current:** B3.1 done (c7496d1) → next **Phase 3, Batch B3.2 — Goal linking** *(deferrable)*
+**Current:** Phase 3 complete (B3.1 c7496d1, B3.2 767dd58) → start **Phase 4, Batch B4.1 — Routine builder**
 
-B3.2 is marked deferrable in the roadmap. If skipping it, Phase 3 has no further
-mandatory work — make the phase-completion commit (`chore: complete Phase 3 — Goals`)
-and move to **Phase 4, B4.1 — Routine builder** (`js/views/routine.js`, time-blocked day).
+### What to do next (B4.1 — Time-blocked routine)
 
-### What to do next (B3.2 — Goal linking)
+A day-view of time blocks the user can add/edit/reorder, stored in `ht_routine`.
 
-Let a higher-period goal "roll up" progress from lower-period habits, so completing
-weekly/monthly habits visibly feeds the quarterly/yearly goal they belong to.
+Key files to create/modify:
+- **`js/views/routine.js`** — new view: list of time blocks `{ id, start, end, label, done? }`
+  sorted by start time; add/edit/delete; tap to mark done (positive reinforcement, no shame).
+  Export `init`/`render` + `showAddForm`/`closeAddForm`/`addBlock` following the existing
+  view conventions (see `weekly.js`/`quarterly.js` for the add-form + `window.*` global pattern).
+- **`js/store.js`** — `ROUTINE` state + `setRoutine`; `loadAll()` reads `ht_routine` (default `[]`);
+  `svRoutine()` (mirror `svInbox`); storage key already reserved in CLAUDE.md (`ht_routine`).
+- **`js/views/_all.js`** — add routine render to `renderAll()` (for sync restore).
+- **`js/app.js`** — register `'routine'` view; wire add-form/keyboard handlers.
+- **`index.html`** — Routine tab + panel + add-block form (time inputs + label).
+- **`sw.js`** — bump to `ht-v5`; add `js/views/routine.js` to the shell.
 
-Suggested approach (TBD — refine before building):
-- **`js/store.js`** — add an optional `link` field on a habit def, e.g.
-  `{ id, label, target, link: { period: 'weekly', habitId: 'readBook' } }`.
-  Helper to compute rolled-up progress from the linked period's logs.
-- **`js/views/quarterly.js` / `yearly.js`** — when a goal has a `link`, show the
-  derived count (read-only or additive) and a "fed by → Weekly: Read book" caption.
-- **Add-goal form** — optional "Link to a habit" select (populated from lower periods).
-- Keep manual counter as fallback when no link is set (don't break B3.1 behavior).
+Design notes:
+- Keep capture ≤ 1 action; default new-block start to "now" rounded, end +30 min.
+- Consider an optional `link` to a habit (reuse B3.2 `linkSources`) so a routine block can
+  tick a daily habit — but that's a stretch goal; ship the plain time-block list first.
 
-Storage keys (unchanged from B3.1):
-- `ht_q_YYYY-Q#` → `{ [habitId]: number, remarks: {} }`
-- `ht_y_YYYY`    → `{ [habitId]: number, remarks: {} }`
-
-**Verification for B3.2:**
-1. `python -m http.server 8000`
-2. Create a quarterly goal linked to a weekly habit; incrementing the weekly habit
-   updates the quarterly goal's derived progress.
-3. Unlinked goals still use the manual +/− counter exactly as in B3.1.
-4. Daily/Weekly/Monthly/Quarterly/Yearly all still work; existing data preserved.
+**Verification for B4.1:**
+1. `python -m http.server 8000` → Routine tab shows.
+2. Add a couple of time blocks; they sort by start time; mark done toggles state.
+3. Reload → blocks persist (localStorage). Export/Import + Drive sync include `ht_routine`.
+4. All prior tabs (Daily…Yearly, Quick Wins, Inbox) still work; existing data preserved.
 
 ---
 
@@ -52,7 +50,7 @@ Storage keys (unchanged from B3.1):
 | B2.2 Smart Quick Wins | ✅ done | 1091126 | `js/views/tasks.js`, `index.html`, `css/base.css` | Priority field + win-score sort |
 | B2.3 Eye-care Reminder | ✅ done | 4159999 | `js/reminders.js`, `js/views/settings.js`, `js/app.js`, `css/base.css`, `sw.js` | Configurable timer, Notification API, in-app banner, daily count |
 | B3.1 Quarterly + Yearly | ✅ done | c7496d1 | `js/views/quarterly.js`, `js/views/yearly.js`, `js/store.js`, `js/views/notes.js`, `js/views/_all.js`, `js/app.js`, `index.html`, `sw.js` | Quarterly + Yearly tabs; counter-to-target reusing weekly/monthly pattern; ht-v4 cache |
-| B3.2 Goal linking | 🔲 todo | — | TBD | Deferrable |
+| B3.2 Goal linking | ✅ done | 767dd58 | `js/store.js`, `js/views/quarterly.js`, `js/views/yearly.js`, `index.html`, `css/base.css` | Quarterly/yearly goals optionally link to a lower-period habit; progress rolled up (read-only) over the current quarter/year |
 | B4.1 Routine builder | 🔲 todo | — | `js/views/routine.js` | Time-blocked day |
 | B5.1 Streaks | 🔲 todo | — | `js/views/stats.js` | Needs full-history sync (B1.3) first |
 | B5.2 Heatmap | 🔲 todo | — | `js/views/stats.js` | Year-calendar per habit |
