@@ -6,34 +6,41 @@
 
 ## ▶ Resume here
 
-**Current:** Phase 3 complete (B3.1 c7496d1, B3.2 767dd58) → start **Phase 4, Batch B4.1 — Routine builder**
+**Current:** Phase 4 complete (B4.1 28b7d8f) → start **Phase 5, Batch B5.1 — Streaks**
 
-### What to do next (B4.1 — Time-blocked routine)
+Phase 5 is Motivation: streaks → heatmap → statistics + areas. It needs the full habit
+history that full-history sync (B1.3) already keeps in localStorage as `ht_d_*` / `ht_w_*` /
+`ht_m_*` / `ht_q_*` / `ht_y_*` keys.
 
-A day-view of time blocks the user can add/edit/reorder, stored in `ht_routine`.
+### What to do next (B5.1 — Streaks)
+
+Compute and surface current + longest streaks per daily habit (and ideally weekly/monthly),
+to reward consistency.
 
 Key files to create/modify:
-- **`js/views/routine.js`** — new view: list of time blocks `{ id, start, end, label, done? }`
-  sorted by start time; add/edit/delete; tap to mark done (positive reinforcement, no shame).
-  Export `init`/`render` + `showAddForm`/`closeAddForm`/`addBlock` following the existing
-  view conventions (see `weekly.js`/`quarterly.js` for the add-form + `window.*` global pattern).
-- **`js/store.js`** — `ROUTINE` state + `setRoutine`; `loadAll()` reads `ht_routine` (default `[]`);
-  `svRoutine()` (mirror `svInbox`); storage key already reserved in CLAUDE.md (`ht_routine`).
-- **`js/views/_all.js`** — add routine render to `renderAll()` (for sync restore).
-- **`js/app.js`** — register `'routine'` view; wire add-form/keyboard handlers.
-- **`index.html`** — Routine tab + panel + add-block form (time inputs + label).
-- **`sw.js`** — bump to `ht-v5`; add `js/views/routine.js` to the shell.
+- **`js/views/stats.js`** — NEW view (first batch of Phase 5). Register a `'stats'` tab.
+  - Read every `ht_d_YYYY-MM-DD` key from localStorage; for each daily habit id, build the
+    set of dates it was completed (checkbox `=== true`, or counter `> 0`).
+  - `currentStreak(habit)` = consecutive days up to today; `longestStreak(habit)` = max run.
+  - Render a card per daily habit: 🔥 current streak + best streak. Celebrate, never shame
+    (e.g. "Best yet!" when current === longest and > 0).
+  - There may be a helper worth adding to `store.js`: `allKeys(prefix)` to enumerate logs,
+    and `dKeyFor(date)` (parameterized version of `dKey()`) for walking days backwards.
+- **`js/store.js`** — add `dKeyFor(date)` (or reuse a small date-format helper); optional
+  `eachDailyLog(cb)` iterator. Keep helpers small.
+- **`js/views/_all.js`** — add stats render to `renderAll()`.
+- **`js/app.js`** — register `'stats'` view + import.
+- **`index.html`** — Stats tab + `p-stats` panel (self-rendering like inbox/routine).
+- **`sw.js`** — bump to `ht-v6`; add `js/views/stats.js` to the shell.
 
-Design notes:
-- Keep capture ≤ 1 action; default new-block start to "now" rounded, end +30 min.
-- Consider an optional `link` to a habit (reuse B3.2 `linkSources`) so a routine block can
-  tick a daily habit — but that's a stretch goal; ship the plain time-block list first.
+Note: B5.2 (heatmap) and B5.3 (statistics + areas) build on the same `stats.js` view,
+so structure it to grow (separate compute helpers from render).
 
-**Verification for B4.1:**
-1. `python -m http.server 8000` → Routine tab shows.
-2. Add a couple of time blocks; they sort by start time; mark done toggles state.
-3. Reload → blocks persist (localStorage). Export/Import + Drive sync include `ht_routine`.
-4. All prior tabs (Daily…Yearly, Quick Wins, Inbox) still work; existing data preserved.
+**Verification for B5.1:**
+1. `python -m http.server 8000` → Stats tab shows a streak card per daily habit.
+2. Manually seed a few `ht_d_*` keys (or log several days) → current/longest streak update.
+3. A gap in days resets the current streak but preserves the longest.
+4. All prior tabs still work; existing data preserved.
 
 ---
 
@@ -51,7 +58,7 @@ Design notes:
 | B2.3 Eye-care Reminder | ✅ done | 4159999 | `js/reminders.js`, `js/views/settings.js`, `js/app.js`, `css/base.css`, `sw.js` | Configurable timer, Notification API, in-app banner, daily count |
 | B3.1 Quarterly + Yearly | ✅ done | c7496d1 | `js/views/quarterly.js`, `js/views/yearly.js`, `js/store.js`, `js/views/notes.js`, `js/views/_all.js`, `js/app.js`, `index.html`, `sw.js` | Quarterly + Yearly tabs; counter-to-target reusing weekly/monthly pattern; ht-v4 cache |
 | B3.2 Goal linking | ✅ done | 767dd58 | `js/store.js`, `js/views/quarterly.js`, `js/views/yearly.js`, `index.html`, `css/base.css` | Quarterly/yearly goals optionally link to a lower-period habit; progress rolled up (read-only) over the current quarter/year |
-| B4.1 Routine builder | 🔲 todo | — | `js/views/routine.js` | Time-blocked day |
+| B4.1 Routine builder | ✅ done | 28b7d8f | `js/views/routine.js`, `js/store.js`, `js/views/_all.js`, `js/app.js`, `index.html`, `css/base.css`, `sw.js` | Routine tab: add/tick/delete time blocks, sorted by start; ht-v5 cache |
 | B5.1 Streaks | 🔲 todo | — | `js/views/stats.js` | Needs full-history sync (B1.3) first |
 | B5.2 Heatmap | 🔲 todo | — | `js/views/stats.js` | Year-calendar per habit |
 | B5.3 Statistics + Areas | 🔲 todo | — | `js/views/stats.js`, `js/store.js` | Completion rates + categories |
