@@ -103,6 +103,76 @@ export function yName() {
   return String(new Date().getFullYear());
 }
 
+// ── Goal linking (B3.2): roll lower-period habit logs up into a goal ──
+export const PERIOD_RANK = { daily: 0, weekly: 1, monthly: 2, quarterly: 3, yearly: 4 };
+
+// Thursday of an ISO week — matches the Thursday-based week number in wKey()
+function isoWeekThursday(year, week) {
+  const jan4    = new Date(year, 0, 4);
+  const jan4Dow = jan4.getDay() || 7;            // 1..7 (Mon..Sun)
+  const mon1    = new Date(jan4);
+  mon1.setDate(jan4.getDate() - jan4Dow + 1);    // Monday of ISO week 1
+  const thu = new Date(mon1);
+  thu.setDate(mon1.getDate() + (week - 1) * 7 + 3);
+  return thu;
+}
+// Representative Date for a stored period-log key, used to bucket it into a parent period
+function keyToDate(key, period) {
+  const body = key.replace(/^ht_[a-z]_/, '');
+  if (period === 'daily')     { const [y, m, d] = body.split('-').map(Number);  return new Date(y, m - 1, d); }
+  if (period === 'weekly')    { const [y, w]    = body.split('-W').map(Number); return isoWeekThursday(y, w); }
+  if (period === 'monthly')   { const [y, m]    = body.split('-').map(Number);  return new Date(y, m - 1, 1); }
+  if (period === 'quarterly') { const [y, q]    = body.split('-Q').map(Number); return new Date(y, (q - 1) * 3, 1); }
+  return null;
+}
+// [start, end) date range for the current quarter / year
+export function quarterRange() {
+  const d = new Date(), q = Math.floor(d.getMonth() / 3);
+  return [new Date(d.getFullYear(), q * 3, 1), new Date(d.getFullYear(), q * 3 + 3, 1)];
+}
+export function yearRange() {
+  const y = new Date().getFullYear();
+  return [new Date(y, 0, 1), new Date(y + 1, 0, 1)];
+}
+// Sum a habit's logged values across all `period` logs whose date is within [start, end)
+function sumLinked(period, habitId, start, end) {
+  const prefix = { daily: 'ht_d_', weekly: 'ht_w_', monthly: 'ht_m_', quarterly: 'ht_q_' }[period];
+  if (!prefix) return 0;
+  let total = 0;
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith(prefix)) continue;
+    const date = keyToDate(key, period);
+    if (!date || date < start || date >= end) continue;
+    const v = (lsGet(key) || {})[habitId];
+    if (typeof v === 'number') total += v;
+    else if (v === true)       total += 1;
+  }
+  return total;
+}
+// Derived progress for a linked goal in the current parent period
+export function linkProgress(parentPeriod, link) {
+  if (!link || !link.period || !link.habitId) return 0;
+  const [start, end] = parentPeriod === 'yearly' ? yearRange() : quarterRange();
+  return sumLinked(link.period, link.habitId, start, end);
+}
+// Habits eligible to feed a goal of `parentPeriod` (strictly lower period rank)
+export function linkSources(parentPeriod) {
+  const rank = PERIOD_RANK[parentPeriod], out = [];
+  ['daily', 'weekly', 'monthly', 'quarterly'].forEach(p => {
+    if (PERIOD_RANK[p] >= rank) return;
+    (HABITS[p] || []).forEach(h => out.push({ period: p, habitId: h.id, label: h.label }));
+  });
+  return out;
+}
+// Human caption for a goal's link, e.g. "Weekly · Go for a walk"
+export function linkLabel(link) {
+  if (!link || !link.period) return '';
+  const cap = link.period.charAt(0).toUpperCase() + link.period.slice(1);
+  const h = (HABITS[link.period] || []).find(x => x.id === link.habitId);
+  return `${cap} · ${h ? h.label : link.habitId}`;
+}
+
 // ── Schema version + migration ─────────────────────────────────────
 const SCHEMA_VERSION = 2;
 

@@ -104,6 +104,11 @@
       <input class="fi" id="fn-quarterly" type="text" placeholder="Goal name">
       <input class="fnum" id="ft-quarterly" type="number" min="1" max="99" value="1" placeholder="Target / quarter">
     </div>
+    <div class="frow">
+      <select class="fse" id="fl-quarterly" style="flex:1">
+        <option value="">No link — manual counter</option>
+      </select>
+    </div>
     <div class="fact">
       <button class="fcx" onclick="closeAddForm('quarterly')">Cancel</button>
       <button class="fsv" onclick="addHabit('quarterly')">Add</button>
@@ -123,6 +128,11 @@
     <div class="frow">
       <input class="fi" id="fn-yearly" type="text" placeholder="Goal name">
       <input class="fnum" id="ft-yearly" type="number" min="1" max="365" value="1" placeholder="Target / year">
+    </div>
+    <div class="frow">
+      <select class="fse" id="fl-yearly" style="flex:1">
+        <option value="">No link — manual counter</option>
+      </select>
     </div>
     <div class="fact">
       <button class="fcx" onclick="closeAddForm('yearly')">Cancel</button>

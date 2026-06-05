@@ -265,6 +265,12 @@ nav {
 .pf.ok {
   background: var(--ok-b);
 }
+.lcap {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--t3);
+  letter-spacing: 0.01em;
+}
 .dots {
   display: flex;
   gap: 5px;
