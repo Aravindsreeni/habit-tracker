@@ -38,15 +38,17 @@ export const DEFAULT_QW = () => [
 export let HABITS = {};
 export let D = {}, W = {}, M = {}, Q = {}, Y = {}, QW = [];
 export let INBOX = [];
+export let ROUTINE = [];
 
-export function setHabits(v) { HABITS = v; }
-export function setD(v)      { D = v; }
-export function setW(v)      { W = v; }
-export function setM(v)      { M = v; }
-export function setQ(v)      { Q = v; }
-export function setY(v)      { Y = v; }
-export function setQW(v)     { QW = v; }
-export function setInbox(v)  { INBOX = v; }
+export function setHabits(v)  { HABITS = v; }
+export function setD(v)       { D = v; }
+export function setW(v)       { W = v; }
+export function setM(v)       { M = v; }
+export function setQ(v)       { Q = v; }
+export function setY(v)       { Y = v; }
+export function setQW(v)      { QW = v; }
+export function setInbox(v)   { INBOX = v; }
+export function setRoutine(v) { ROUTINE = v; }
 
 // ── localStorage helpers ───────────────────────────────────────────
 export function lsGet(key) {
@@ -217,8 +219,9 @@ export function loadAll() {
   M = lsGet(mKey()) || {};  if (!M.remarks)  M.remarks  = {};
   Q = lsGet(qKey()) || {};  if (!Q.remarks)  Q.remarks  = {};
   Y = lsGet(yKey()) || {};  if (!Y.remarks)  Y.remarks  = {};
-  QW    = lsGet('ht_qw')    || DEFAULT_QW();
-  INBOX = lsGet('ht_inbox') || [];
+  QW      = lsGet('ht_qw')      || DEFAULT_QW();
+  INBOX   = lsGet('ht_inbox')   || [];
+  ROUTINE = lsGet('ht_routine') || [];
 
   const lastSync = lsGet('ht_lastsync');
   const el = document.getElementById('syncinfo');
@@ -232,6 +235,12 @@ export function loadAll() {
 // svInbox: called after mutating INBOX
 export function svInbox() {
   lsSet('ht_inbox', INBOX);
+  import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
+}
+
+// svRoutine: called after mutating ROUTINE
+export function svRoutine() {
+  lsSet('ht_routine', ROUTINE);
   import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
 }
 

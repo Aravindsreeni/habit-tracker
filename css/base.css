@@ -665,6 +665,38 @@ nav {
   flex-shrink: 0;
 }
 
+/* ── Routine ── */
+.rt-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+.rt-time {
+  background: var(--s);
+  border: 0.5px solid var(--b);
+  border-radius: var(--rm);
+  padding: 6px 8px;
+  font-size: 13px;
+  color: var(--t);
+  font-family: inherit;
+  outline: none;
+}
+.rt-time:focus { border-color: var(--b2); }
+.rt-add .fi { flex: 1; min-width: 140px; }
+.rt-dash { color: var(--t3); margin: 0 1px; }
+.rt-card { margin-bottom: 7px; }
+.rt-when {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--t2);
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-right: 9px;
+}
+.rt-card.done .rt-when { color: var(--t3); }
+
 /* ── Misc ── */
 .empty {
   text-align: center;
