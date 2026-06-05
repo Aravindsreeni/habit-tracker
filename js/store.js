@@ -16,6 +16,14 @@ export const DEFAULT_HABITS = {
     { id: 'chapter', label: 'Complete chapter of book', target: 14 },
     { id: 'desk',    label: 'Arrange desk',             target: 2  },
     { id: 'hobby',   label: 'Try new hobby',            target: 5  }
+  ],
+  quarterly: [
+    { id: 'books', label: 'Read 3 books',      target: 3 },
+    { id: 'trip',  label: 'Plan a short trip', target: 1 }
+  ],
+  yearly: [
+    { id: 'skill',   label: 'Learn a new skill',     target: 1 },
+    { id: 'checkup', label: 'Annual health checkup', target: 1 }
   ]
 };
 
@@ -28,13 +36,15 @@ export const DEFAULT_QW = () => [
 
 // ── Mutable app state ──────────────────────────────────────────────
 export let HABITS = {};
-export let D = {}, W = {}, M = {}, QW = [];
+export let D = {}, W = {}, M = {}, Q = {}, Y = {}, QW = [];
 export let INBOX = [];
 
 export function setHabits(v) { HABITS = v; }
 export function setD(v)      { D = v; }
 export function setW(v)      { W = v; }
 export function setM(v)      { M = v; }
+export function setQ(v)      { Q = v; }
+export function setY(v)      { Y = v; }
 export function setQW(v)     { QW = v; }
 export function setInbox(v)  { INBOX = v; }
 
@@ -75,6 +85,22 @@ export function wRange() {
 }
 export function mName() {
   return new Date().toLocaleDateString('en-IN', { month: 'long', year: 'numeric' });
+}
+export function qKey() {
+  const d = new Date();
+  const q = Math.floor(d.getMonth() / 3) + 1;
+  return `ht_q_${d.getFullYear()}-Q${q}`;
+}
+export function yKey() {
+  return `ht_y_${new Date().getFullYear()}`;
+}
+export function qName() {
+  const d = new Date();
+  const q = Math.floor(d.getMonth() / 3) + 1;
+  return `Q${q} ${d.getFullYear()}`;
+}
+export function yName() {
+  return String(new Date().getFullYear());
 }
 
 // ── Schema version + migration ─────────────────────────────────────
@@ -119,6 +145,8 @@ export function loadAll() {
   D = lsGet(dKey()) || {};  if (!D.remarks)  D.remarks  = {};
   W = lsGet(wKey()) || {};  if (!W.remarks)  W.remarks  = {};
   M = lsGet(mKey()) || {};  if (!M.remarks)  M.remarks  = {};
+  Q = lsGet(qKey()) || {};  if (!Q.remarks)  Q.remarks  = {};
+  Y = lsGet(yKey()) || {};  if (!Y.remarks)  Y.remarks  = {};
   QW    = lsGet('ht_qw')    || DEFAULT_QW();
   INBOX = lsGet('ht_inbox') || [];
 
@@ -143,11 +171,13 @@ export function svHabits() {
   import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
 }
 
-// sv: called by views after mutating state; key = 'd'|'w'|'m'|'q' or section name
+// sv: called by views after mutating state; key = section name or short code
 export function sv(section) {
-  if      (section === 'd' || section === 'daily')   lsSet(dKey(),   D);
-  else if (section === 'w' || section === 'weekly')  lsSet(wKey(),   W);
-  else if (section === 'm' || section === 'monthly') lsSet(mKey(),   M);
-  else if (section === 'q' || section === 'wins')    lsSet('ht_qw',  QW);
+  if      (section === 'd'   || section === 'daily')     lsSet(dKey(),   D);
+  else if (section === 'w'   || section === 'weekly')    lsSet(wKey(),   W);
+  else if (section === 'm'   || section === 'monthly')   lsSet(mKey(),   M);
+  else if (section === 'qt'  || section === 'quarterly') lsSet(qKey(),   Q);
+  else if (section === 'y'   || section === 'yearly')    lsSet(yKey(),   Y);
+  else if (section === 'q'   || section === 'wins')      lsSet('ht_qw',  QW);
   import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
 }

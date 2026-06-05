@@ -22,6 +22,8 @@
   <button class="tab" data-tab="daily"   onclick="sw('daily')">Daily</button>
   <button class="tab" data-tab="weekly"  onclick="sw('weekly')">Weekly</button>
   <button class="tab" data-tab="monthly" onclick="sw('monthly')">Monthly</button>
+  <button class="tab" data-tab="quarterly" onclick="sw('quarterly')">Quarterly</button>
+  <button class="tab" data-tab="yearly"  onclick="sw('yearly')">Yearly</button>
   <button class="tab" data-tab="wins"    onclick="sw('wins')">Quick Wins</button>
   <button class="tab" data-tab="inbox"   onclick="sw('inbox')">Inbox</button>
   <button class="tab" data-tab="settings" onclick="sw('settings')">⚙ Settings</button>
@@ -88,6 +90,46 @@
     </div>
   </div>
   <div id="ml"></div>
+</div>
+
+<!-- QUARTERLY -->
+<div class="pnl" id="p-quarterly">
+  <div id="qtsum" class="sm"></div>
+  <div class="sec-hdr">
+    <span class="sec-lbl" id="qtlbl"></span>
+    <button class="sec-add" onclick="showAddForm('quarterly')">+ Add goal</button>
+  </div>
+  <div class="ahfrm" id="af-quarterly">
+    <div class="frow">
+      <input class="fi" id="fn-quarterly" type="text" placeholder="Goal name">
+      <input class="fnum" id="ft-quarterly" type="number" min="1" max="99" value="1" placeholder="Target / quarter">
+    </div>
+    <div class="fact">
+      <button class="fcx" onclick="closeAddForm('quarterly')">Cancel</button>
+      <button class="fsv" onclick="addHabit('quarterly')">Add</button>
+    </div>
+  </div>
+  <div id="qtl"></div>
+</div>
+
+<!-- YEARLY -->
+<div class="pnl" id="p-yearly">
+  <div id="yrsum" class="sm"></div>
+  <div class="sec-hdr">
+    <span class="sec-lbl" id="yrlbl"></span>
+    <button class="sec-add" onclick="showAddForm('yearly')">+ Add goal</button>
+  </div>
+  <div class="ahfrm" id="af-yearly">
+    <div class="frow">
+      <input class="fi" id="fn-yearly" type="text" placeholder="Goal name">
+      <input class="fnum" id="ft-yearly" type="number" min="1" max="365" value="1" placeholder="Target / year">
+    </div>
+    <div class="fact">
+      <button class="fcx" onclick="closeAddForm('yearly')">Cancel</button>
+      <button class="fsv" onclick="addHabit('yearly')">Add</button>
+    </div>
+  </div>
+  <div id="yrl"></div>
 </div>
 
 <!-- QUICK WINS -->

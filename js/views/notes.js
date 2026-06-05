@@ -1,5 +1,5 @@
 // ── notes.js — shared note toggle + save (used by all habit views) ─
-import { D, W, M, sv } from '../store.js';
+import { D, W, M, Q, Y, sv } from '../store.js';
 import { openNote } from '../ui.js';
 
 // Toggle note panel open/closed
@@ -7,7 +7,7 @@ export function tr(key) { openNote(key); }
 
 // Save note on blur; section = 'daily'|'weekly'|'monthly'
 export function sR(section, id, v) {
-  const map = { daily: D, weekly: W, monthly: M };
+  const map = { daily: D, weekly: W, monthly: M, quarterly: Q, yearly: Y };
   const obj = map[section];
   if (!obj) return;
   if (!obj.remarks) obj.remarks = {};

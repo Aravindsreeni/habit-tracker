@@ -5,6 +5,8 @@ import { registerView, sw } from './router.js';
 import { render as rD, showAddForm as sAFd, closeAddForm as cAFd, addHabit as aHd } from './views/daily.js';
 import { render as rW, showAddForm as sAFw, closeAddForm as cAFw, addHabit as aHw } from './views/weekly.js';
 import { render as rM, showAddForm as sAFm, closeAddForm as cAFm, addHabit as aHm } from './views/monthly.js';
+import { render as rQt, showAddForm as sAFqt, closeAddForm as cAFqt, addHabit as aHqt } from './views/quarterly.js';
+import { render as rYr, showAddForm as sAFyr, closeAddForm as cAFyr, addHabit as aHyr } from './views/yearly.js';
 import { render as rQ, setFilter, toggleForm, addTask } from './views/tasks.js';
 import { render as rInbox } from './views/inbox.js';
 import { render as rSettings, applyTheme, initRem } from './views/settings.js';
@@ -13,6 +15,8 @@ import { render as rSettings, applyTheme, initRem } from './views/settings.js';
 registerView('daily',   'p-daily',   rD);
 registerView('weekly',  'p-weekly',  rW);
 registerView('monthly', 'p-monthly', rM);
+registerView('quarterly','p-quarterly', rQt);
+registerView('yearly',  'p-yearly',  rYr);
 registerView('wins',    'p-wins',    rQ);
 registerView('inbox',   'p-inbox',    rInbox);
 registerView('settings','p-settings', rSettings);
@@ -25,9 +29,9 @@ document.getElementById('hdr').textContent = new Date().toLocaleDateString('en-I
 // ── Keyboard shortcuts ─────────────────────────────────────────────
 document.getElementById('qfn')?.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
 
-['daily', 'weekly', 'monthly'].forEach(s => {
+['daily', 'weekly', 'monthly', 'quarterly', 'yearly'].forEach(s => {
   const inp = document.getElementById(`fn-${s}`);
-  const addFns = { daily: aHd, weekly: aHw, monthly: aHm };
+  const addFns = { daily: aHd, weekly: aHw, monthly: aHm, quarterly: aHqt, yearly: aHyr };
   if (inp) inp.addEventListener('keydown', e => { if (e.key === 'Enter') addFns[s](); });
 });
 
@@ -42,15 +46,15 @@ window.gisLoaded = gisLoaded;
 
 // ── Expose add-form handlers so HTML onclick attrs work ────────────
 window.showAddForm = (section) => {
-  const fns = { daily: sAFd, weekly: sAFw, monthly: sAFm };
+  const fns = { daily: sAFd, weekly: sAFw, monthly: sAFm, quarterly: sAFqt, yearly: sAFyr };
   fns[section]?.();
 };
 window.closeAddForm = (section) => {
-  const fns = { daily: cAFd, weekly: cAFw, monthly: cAFm };
+  const fns = { daily: cAFd, weekly: cAFw, monthly: cAFm, quarterly: cAFqt, yearly: cAFyr };
   fns[section]?.();
 };
 window.addHabit = (section) => {
-  const fns = { daily: aHd, weekly: aHw, monthly: aHm };
+  const fns = { daily: aHd, weekly: aHw, monthly: aHm, quarterly: aHqt, yearly: aHyr };
   fns[section]?.();
 };
 
@@ -59,7 +63,7 @@ applyTheme();   // apply saved theme before paint (avoids flash)
 initSchema();   // run migration before loading data
 loadAll();
 initRem();      // start reminder timers
-rD(); rW(); rM(); rQ();
+rD(); rW(); rM(); rQt(); rYr(); rQ();
 
 // Activate the wins tab on load (same as original default)
 sw('wins');
