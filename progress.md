@@ -6,42 +6,36 @@
 
 ## ▶ Resume here
 
-**Current:** Phase 2 complete → start **Phase 3, Batch B3.1**
+**Current:** B3.1 done (c7496d1) → next **Phase 3, Batch B3.2 — Goal linking** *(deferrable)*
 
-### What to do next (B3.1 — Quarterly + Yearly goal views)
+B3.2 is marked deferrable in the roadmap. If skipping it, Phase 3 has no further
+mandatory work — make the phase-completion commit (`chore: complete Phase 3 — Goals`)
+and move to **Phase 4, B4.1 — Routine builder** (`js/views/routine.js`, time-blocked day).
 
-Add Quarterly and Yearly tabs, reusing the weekly/monthly counter-to-target pattern.
+### What to do next (B3.2 — Goal linking)
 
-Key files to create/modify:
-- **`js/store.js`** — add `qKey()`, `yKey()`, `qName()`, `yName()` date helpers;
-  `Q` and `Y` state vars; `setQ/setY`; `svQ/svY`; `loadAll()` reads `ht_q_*` + `ht_y_*`
-  Also add `quarterly: []` + `yearly: []` to `DEFAULT_HABITS` and in migration ensure they exist.
-- **`js/views/quarterly.js`** — new view (copy weekly pattern; counter-to-target + summary)
-- **`js/views/yearly.js`**    — new view (same)
-- **`js/views/_all.js`**      — add quarterly + yearly render to `renderAll()`
-- **`js/app.js`**             — register 'quarterly' + 'yearly' views
-- **`index.html`**            — add Quarterly + Yearly tabs + panels + add-habit forms
-- **`sw.js`**                 — ht-v4 cache; add quarterly.js + yearly.js
+Let a higher-period goal "roll up" progress from lower-period habits, so completing
+weekly/monthly habits visibly feeds the quarterly/yearly goal they belong to.
 
-Storage keys:
+Suggested approach (TBD — refine before building):
+- **`js/store.js`** — add an optional `link` field on a habit def, e.g.
+  `{ id, label, target, link: { period: 'weekly', habitId: 'readBook' } }`.
+  Helper to compute rolled-up progress from the linked period's logs.
+- **`js/views/quarterly.js` / `yearly.js`** — when a goal has a `link`, show the
+  derived count (read-only or additive) and a "fed by → Weekly: Read book" caption.
+- **Add-goal form** — optional "Link to a habit" select (populated from lower periods).
+- Keep manual counter as fallback when no link is set (don't break B3.1 behavior).
+
+Storage keys (unchanged from B3.1):
 - `ht_q_YYYY-Q#` → `{ [habitId]: number, remarks: {} }`
 - `ht_y_YYYY`    → `{ [habitId]: number, remarks: {} }`
 
-Quarter key formula (similar to ISO week key):
-```js
-function qKey() {
-  const d = new Date();
-  const q = Math.floor(d.getMonth() / 3) + 1;
-  return `ht_q_${d.getFullYear()}-Q${q}`;
-}
-```
-
-**Verification for B3.1:**
-1. `python -m http.server 8000` → Quarterly + Yearly tabs show
-2. Add a quarterly habit (e.g. "Read 3 books"), counter increments/decrements
-3. Add a yearly habit, summary bar updates
-4. Daily/Weekly/Monthly still work identically
-5. Existing localStorage data is preserved
+**Verification for B3.2:**
+1. `python -m http.server 8000`
+2. Create a quarterly goal linked to a weekly habit; incrementing the weekly habit
+   updates the quarterly goal's derived progress.
+3. Unlinked goals still use the manual +/− counter exactly as in B3.1.
+4. Daily/Weekly/Monthly/Quarterly/Yearly all still work; existing data preserved.
 
 ---
 
@@ -57,7 +51,7 @@ function qKey() {
 | B2.1 Brain-dump / Inbox | ✅ done | a102690 | `js/views/inbox.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `css/base.css`, `sw.js` | Inbox tab with capture, note, done, convert-to-task |
 | B2.2 Smart Quick Wins | ✅ done | 1091126 | `js/views/tasks.js`, `index.html`, `css/base.css` | Priority field + win-score sort |
 | B2.3 Eye-care Reminder | ✅ done | 4159999 | `js/reminders.js`, `js/views/settings.js`, `js/app.js`, `css/base.css`, `sw.js` | Configurable timer, Notification API, in-app banner, daily count |
-| B3.1 Quarterly + Yearly | 🔲 todo | — | `js/views/quarterly.js`, `js/views/yearly.js`, `js/store.js` | Reuse weekly/monthly pattern |
+| B3.1 Quarterly + Yearly | ✅ done | c7496d1 | `js/views/quarterly.js`, `js/views/yearly.js`, `js/store.js`, `js/views/notes.js`, `js/views/_all.js`, `js/app.js`, `index.html`, `sw.js` | Quarterly + Yearly tabs; counter-to-target reusing weekly/monthly pattern; ht-v4 cache |
 | B3.2 Goal linking | 🔲 todo | — | TBD | Deferrable |
 | B4.1 Routine builder | 🔲 todo | — | `js/views/routine.js` | Time-blocked day |
 | B5.1 Streaks | 🔲 todo | — | `js/views/stats.js` | Needs full-history sync (B1.3) first |
