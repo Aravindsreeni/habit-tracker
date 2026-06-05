@@ -6,49 +6,55 @@
 
 ## ▶ Resume here
 
-**Current:** B5.1 Streaks complete (220e096) → start **Phase 5, Batch B5.2 — Heatmap**
+**Current:** B5.2 Heatmap complete (5023bbd) → start **Phase 5, Batch B5.3 — Statistics + Areas**
+(last batch of Phase 5 → finish with a phase-completion commit `chore: complete Phase 5 — Motivation`).
 
-Phase 5 is Motivation: streaks ✅ → heatmap → statistics + areas. All of it reads the full
-daily history kept in localStorage as `ht_d_*` keys (and weekly/monthly for later).
+Phase 5 is Motivation: streaks ✅ → heatmap ✅ → statistics + areas. All of it reads the full
+daily history in localStorage as `ht_d_*` keys (B5.3 also wants weekly/monthly: `ht_w_*`/`ht_m_*`).
 
-### B5.1 recap (so the next batch can lean on it)
+### What stats.js already gives you (reuse, don't re-read storage)
 
-`js/views/stats.js` already exists and the `'stats'` tab is registered. It exports reusable,
-**already-tested** compute helpers that B5.2 should reuse instead of re-reading storage:
+`js/views/stats.js` (`'stats'` tab registered) exports tested compute helpers:
 - `completedDaySets(habits)` → `{ habitId: Set<dayNum> }` in one pass over `eachDailyLog`.
   `dayNum` = `Math.floor(Date.UTC(y,m-1,d)/86400000)` (DST-safe whole-day integer).
 - `currentStreak(daySet)` / `longestStreak(daySet)`.
-- `store.js` gained `dKeyFor(date)` and `eachDailyLog(cb)` (cb gets `'YYYY-MM-DD'`, logObj).
-- `isDone(habit, value)` (module-local): counter (`type==='w'`) done if `> 0`, else checkbox `=== true`.
-- Render is split from compute (the render section starts at the `── Render ──` divider).
-  CSS lives under `/* ── Stats / streaks ── */` in base.css (`.st-card/.st-fire/.st-foot/...`).
+- `heatmapWeeks(daySet, weeks=53)` → 53 week-columns × 7 rows (Mon..Sun) of `{n,ymd,on}` / null.
+- module-local: `isDone(habit, value)` (counter `type==='w'` done if `>0`, else checkbox `=== true`),
+  `todayNum()`, `numToYmd(n)`, `esc()`.
+- `store.js`: `dKeyFor(date)`, `eachDailyLog(cb)` (cb gets `'YYYY-MM-DD'`, logObj).
+- render() builds: Streaks section → Heatmap section. Compute is split above the `── Render ──`
+  divider. CSS: `/* ── Stats / streaks ── */` and `/* ── Heatmap ── */` in base.css.
 
-### What to do next (B5.2 — Heatmap)
+### What to do next (B5.3 — Statistics + Areas)
 
-A year-calendar (GitHub-style) of completion per daily habit, to make consistency visible.
+Two things in one batch:
+1. **Statistics** — completion-rate cards per habit (and/or overall). e.g. % of days a daily
+   habit was done over the last 30 / 90 days; weekly/monthly target attainment. Reuse
+   `completedDaySets` + a date window; add small compute helpers (e.g. `completionRate(daySet,
+   windowDays)`), kept above the render divider and unit-testable in node like B5.1/B5.2.
+2. **Areas** — user-defined categories (`ht_areas` key, per CLAUDE.md storage table). Let a
+   habit be tagged with an area; group/summary stats by area. Needs `store.js` work:
+   `AREAS` state + `setAreas/svAreas` (mirror the `ROUTINE`/`svRoutine` pattern), load in
+   `loadAll()`, and a schema bump if you add a migration (v2 → v3: ensure `ht_areas` exists,
+   optionally backfill an `area` field on habits). Keep migrate() additive/idempotent.
 
-Suggested approach:
-- Add a render-only section to `stats.js` (do NOT duplicate compute — reuse `completedDaySets`).
-  Consider a small `daySetFor(habit)` or just call `completedDaySets` once and pass the Set in.
-- For each daily habit, render ~52 weeks × 7 days of cells (today back one year). Each cell is
-  on/off (or intensity if a counter). Use the existing `dayNum` math to test `daySet.has(n)`.
-  Map columns = weeks, rows = weekday; align so the last column ends at today.
-- New CSS namespace (e.g. `.hm-*`) — keep cells tiny (≈11px) and use `--ok` tones for "done".
-  Tooltip per cell = the date (+ value). Mind dark/light tokens.
-- Keep it lean (no build step). A wrapper that scrolls horizontally on narrow screens is fine.
-- `sw.js`: bump to `ht-v7` only if you add a new file (stats.js is already cached) — otherwise
-  no shell change needed since stats.js is already listed.
+Suggested files: `js/views/stats.js` (new Statistics + Areas sections), `js/store.js`
+(AREAS state/save/load, maybe migration), possibly `index.html` if areas need an editor UI,
+`css/base.css` (`.stt-*` / `.area-*` namespaces), `sw.js` bump to `ht-v8` (shell files change).
 
-**Verification for B5.2:**
-1. `python -m http.server 8000` → Stats tab shows a year heatmap per daily habit beneath/above
-   the streak cards.
-2. Seed/scatter several `ht_d_*` days → corresponding cells light up on the right dates.
-3. Hover a cell → shows its date. Streak cards from B5.1 still render; all prior tabs work.
+**Verification for B5.3:**
+1. `python -m http.server 8000` → Stats tab shows completion-rate stats + an areas summary,
+   below the existing streaks + heatmap (which must still render).
+2. Define an area, tag a habit, log some days → area/stat numbers update correctly.
+3. Node unit-test any new rate math (windowed counts, empty/edge cases) before committing.
+4. All prior tabs work; existing data preserved (migration additive). Then phase-completion commit.
 
-### B5.1 verification (done)
-- Algorithm unit-tested in node: consecutive run, today-blank tolerance, gap resets current but
-  preserves longest, empty = 0 — all passed.
-- Served over http: Stats tab + `p-stats` panel present, `stats.js` 200, sw cache `ht-v6`.
+### Verification done so far
+- B5.1: streak math unit-tested in node (consecutive, today-blank tolerance, gap resets current
+  but preserves longest, empty=0) — all passed.
+- B5.2: `heatmapWeeks` geometry unit-tested in node (53 cols, today on right edge at correct
+  weekday row, on-cells mapped, out-of-window excluded, future padding null, Monday-first
+  contiguous columns) — all passed. Served over http: stats.js/base.css/sw.js all 200, cache `ht-v7`.
 
 ---
 
@@ -68,7 +74,7 @@ Suggested approach:
 | B3.2 Goal linking | ✅ done | 767dd58 | `js/store.js`, `js/views/quarterly.js`, `js/views/yearly.js`, `index.html`, `css/base.css` | Quarterly/yearly goals optionally link to a lower-period habit; progress rolled up (read-only) over the current quarter/year |
 | B4.1 Routine builder | ✅ done | 28b7d8f | `js/views/routine.js`, `js/store.js`, `js/views/_all.js`, `js/app.js`, `index.html`, `css/base.css`, `sw.js` | Routine tab: add/tick/delete time blocks, sorted by start; ht-v5 cache |
 | B5.1 Streaks | ✅ done | 220e096 | `js/views/stats.js`, `js/store.js`, `js/views/_all.js`, `js/app.js`, `index.html`, `css/base.css`, `sw.js` | Stats tab; current+longest streak per daily habit; DST-safe day math; compute helpers split from render; ht-v6 cache |
-| B5.2 Heatmap | 🔲 todo | — | `js/views/stats.js` | Year-calendar per habit |
+| B5.2 Heatmap | ✅ done | 5023bbd | `js/views/stats.js`, `css/base.css`, `sw.js` | GitHub-style year calendar per daily habit; heatmapWeeks() reuses B5.1 compute; ht-v7 cache |
 | B5.3 Statistics + Areas | 🔲 todo | — | `js/views/stats.js`, `js/store.js` | Completion rates + categories |
 | B6.1 Daily Journal | 🔲 todo | — | `js/views/journal.js` | 10:1:2 limits; history view |
 | B6.2 Mood check-in | 🔲 todo | — | `js/views/mood.js` | Scale + note; disclaimer |
