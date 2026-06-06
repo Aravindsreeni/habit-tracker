@@ -1,4 +1,5 @@
 // ── router.js — tab switch + view registry ─────────────────────────
+import { refreshIcons } from './icons.js';
 
 // Map of tab-id → { panel id, render fn }
 const _views = {};
@@ -16,6 +17,7 @@ export function sw(tab) {
   if (v) {
     document.getElementById(v.panelId)?.classList.add('on');
     v.renderFn?.();
+    refreshIcons();   // swap any <i data-lucide> placeholders left by a render
   }
 }
 

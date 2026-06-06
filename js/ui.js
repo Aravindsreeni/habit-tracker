@@ -1,9 +1,10 @@
 // ── ui.js — shared UI helpers: icons, cards, toast ────────────────
+import { icon } from './icons.js';
 
-// ── Icons ──────────────────────────────────────────────────────────
-export const ckSVG  = () => `<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-export const penSVG = () => `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 9.5V11H3.5L9.5 5L8 3.5L2 9.5Z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/><path d="M8 3.5L9.5 2L11 3.5L9.5 5L8 3.5Z" stroke="currentColor" stroke-width="1.3" fill="none" stroke-linejoin="round"/></svg>`;
-export const xSVG   = () => `<svg width="9" height="9" viewBox="0 0 9 9" fill="none"><path d="M1.5 1.5L7.5 7.5M7.5 1.5L1.5 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+// ── Icons (Lucide, via icons.js) ───────────────────────────────────
+export const ckSVG  = () => icon('check',  { size: 14 });
+export const penSVG = () => icon('pencil', { size: 14 });
+export const xSVG   = () => icon('x',      { size: 14 });
 
 // ── Toast ──────────────────────────────────────────────────────────
 let _toastTimer = null;

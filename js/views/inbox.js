@@ -1,7 +1,7 @@
 // ── inbox.js — Brain-Dump / Inbox view ────────────────────────────
 // Frictionless thought/task capture. Items can be converted to Quick Wins.
 import { INBOX, setInbox, svInbox, QW, sv } from '../store.js';
-import { xSVG, penSVG } from '../ui.js';
+import { xSVG, penSVG, ckSVG } from '../ui.js';
 
 let noteOpenId = null;
 
@@ -45,7 +45,7 @@ function _renderList() {
     c.innerHTML = `
       <div class="hr">
         <span class="hn${item.done ? ' sk' : ''}">${_esc(item.text)}</span>
-        <button class="qk${item.done ? ' dn' : ''}" title="Done" data-inb-done="${item.id}">${item.done ? `<svg width="11" height="9" viewBox="0 0 11 9" fill="none"><path d="M1 4.5L4 7.5L10 1.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>` : ''}</button>
+        <button class="qk${item.done ? ' dn' : ''}" title="Done" data-inb-done="${item.id}">${item.done ? ckSVG() : ''}</button>
         <button class="rnb${item.note ? ' noted' : ''}" title="Note" data-inb-note="${item.id}">${penSVG()}</button>
         <button class="fsv inb-conv" title="→ Task" data-inb-conv="${item.id}" style="font-size:11px;padding:2px 7px">→ Task</button>
         <button class="hdel" title="Delete" data-inb-del="${item.id}">${xSVG()}</button>
