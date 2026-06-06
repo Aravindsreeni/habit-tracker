@@ -221,7 +221,9 @@
 
 <script type="module" src="js/app.js"></script>
 <script>
-  if ('serviceWorker' in navigator) {
+  // Skip the service worker inside the Capacitor native shell — it serves the
+  // bundled assets itself, so an app-shell cache would only risk staleness.
+  if ('serviceWorker' in navigator && !window.Capacitor) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 </script>

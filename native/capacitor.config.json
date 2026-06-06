@@ -1,0 +1,14 @@
+{
+  "appId": "com.habittracker.app",
+  "appName": "Habit Tracker",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon",
+      "iconColor": "#5ea866"
+    }
+  }
+}

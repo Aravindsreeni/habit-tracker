@@ -1,0 +1,24 @@
+{
+  "name": "habit-tracker-native",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Capacitor native (iOS/Android) wrapper for the Habit Tracker PWA. The web app at the repo root stays the source of truth; `sync-web` copies it into ./www (Capacitor's webDir).",
+  "type": "module",
+  "scripts": {
+    "sync-web": "node scripts/sync-web.mjs",
+    "cap:sync": "npm run sync-web && cap sync",
+    "add:android": "npm run sync-web && cap add android",
+    "add:ios": "npm run sync-web && cap add ios",
+    "open:android": "cap open android",
+    "open:ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.0",
+    "@capacitor/core": "^8.4.0",
+    "@capacitor/ios": "^8.4.0",
+    "@capacitor/local-notifications": "^8.2.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.4.0"
+  }
+}

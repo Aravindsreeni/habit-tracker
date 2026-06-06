@@ -65,8 +65,11 @@ Phases 0–5 are complete; phases 6–8 are planned (see [Roadmap](#roadmap)).
 - **Notification API** for reminders.
 
 There is intentionally **no build step**. This keeps the project trivially deployable to a
-static host and means a long-term goal of wrapping it with **Capacitor** for native iOS/Android
-stays straightforward (keep code DOM-centric, avoid bundler-only idioms).
+static host and means wrapping it with **Capacitor** for native iOS/Android stays
+straightforward (keep code DOM-centric, avoid bundler-only idioms). That native wrapper now
+lives in [`native/`](./native/) — it mirrors this same web app into a Capacitor shell without
+changing the web build; see [`native/README.md`](./native/README.md). The root remains the
+canonical PWA and the GitHub Pages source.
 
 ---
 
@@ -347,9 +350,9 @@ writing code, skim it and keep the change consistent with the existing modules.
 | 3 | Goals hierarchy — Quarterly + Yearly, goal linking | ✅ Complete |
 | 4 | Routine builder — time-blocked day | ✅ Complete |
 | 5 | Motivation — streaks, heatmap, statistics + areas | ✅ Complete |
-| 6 | Mental health — journal, mood, CBT thought record, ABC(DE) | 🔲 Planned |
-| 7 | Mindfulness — breathing pacer + meditation timer | 🔲 Planned |
-| 8 | Native mobile — Capacitor iOS/Android wrap | 🔲 Planned |
+| 6 | Mental health — journal, mood, CBT thought record, ABC(DE) | ✅ Complete |
+| 7 | Mindfulness — breathing pacer + meditation timer | ✅ Complete |
+| 8 | Native mobile — Capacitor iOS/Android wrap | ✅ Complete |
 
 See [`progress.md`](./progress.md) for the detailed batch board and commit history.
 

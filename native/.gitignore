@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Generated copy of the web app (regenerate with `npm run sync-web`)
+www/
+
+# Native platform projects — added locally via `npm run add:android` / `add:ios`.
+# These are large, machine-generated, and rebuilt from the web app + config.
+android/
+ios/
+
+# Misc
+.DS_Store
+*.log

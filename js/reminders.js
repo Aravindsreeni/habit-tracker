@@ -146,8 +146,40 @@ function fireReminder(r) {
 export function isDue(remId) { return _due.has(remId); }
 function hideBanner(id) { _due.delete(id); }
 
-// ── Browser Notifications ──────────────────────────────────────────
+// ── Notifications (web + native bridge) ────────────────────────────
+// When running inside the Capacitor native shell (Phase 8), Capacitor injects a
+// global `window.Capacitor` with plugin proxies. We progressively enhance to the
+// LocalNotifications plugin there; in a plain browser these guards are no-ops and
+// the original web Notification path runs unchanged (no bundler import needed).
+function nativeLN() {
+  return window.Capacitor?.Plugins?.LocalNotifications || null;
+}
+
+// Fire an immediate native local notification. Returns true if handled natively.
+function nativeNotify(title, body) {
+  const LN = nativeLN();
+  if (!LN) return false;
+  try {
+    LN.schedule({
+      notifications: [{
+        id: Date.now() % 2147483647,       // 32-bit id required by the plugin
+        title,
+        body,
+        schedule: { at: new Date(Date.now() + 200) }
+      }]
+    });
+  } catch (e) { /* plugin error — fall through silently */ }
+  return true;
+}
+
 export async function requestNotificationPermission() {
+  const LN = nativeLN();
+  if (LN) {
+    try {
+      const res = await LN.requestPermissions();
+      return res?.display === 'granted' ? 'granted' : (res?.display || 'denied');
+    } catch (e) { return 'denied'; }
+  }
   if (!('Notification' in window)) return 'unsupported';
   if (Notification.permission === 'granted')  return 'granted';
   if (Notification.permission === 'denied')   return 'denied';
@@ -155,11 +187,12 @@ export async function requestNotificationPermission() {
 }
 
 function sendNotification(r) {
-  if (!('Notification' in window) || Notification.permission !== 'granted') return;
   const count = getTodayCount(r.id);
   const body  = r.label.toLowerCase().includes('eye')
     ? `Time to lubricate your eyes 👁 (${count}× today)`
     : `${r.label} — tap to dismiss`;
+  if (nativeNotify('Habit Tracker', body)) return;        // native path (Capacitor)
+  if (!('Notification' in window) || Notification.permission !== 'granted') return;
   new Notification('Habit Tracker', { body, icon: './icons/icon-192.svg' });
 }
 
