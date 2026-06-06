@@ -68,67 +68,13 @@ app icons/splash via `@capacitor/assets`; a real `appId` (currently the placehol
   `transitionDuration = secs` inline; holds reuse the prior scale (no movement). `.mf-*` CSS reuses
   `:root` tokens. Soft Web-Audio completion chime (528 Hz), fails silently if no AudioContext.
 
-### Phase 6 is Mental Health (evidence-based — read CLAUDE.md "Evidence base" table)
+### Stats.js compute helpers (node-tested, for future reuse)
+- `completedDaySets`, `currentStreak`, `longestStreak`, `heatmapWeeks`, `completionRate(daySet, windowDays)`, `areaRate(areaId, habits, sets, win)`.
+- `store.js`: `dKeyFor`, `eachDailyLog`, `AREAS`/`setAreas`/`svAreas`.
 
-Sequence: B6.1 Journal ✅ → B6.2 Mood ✅ → B6.3 Thought Record ✅ → **B6.4 ABC(DE) +
-distortions**. **Every mental-health batch MUST include** the "self-help tool, not a substitute
-for professional care" disclaimer + a crisis-resource pointer, and keep entries local/private
-(Design principle 3 + 5 in CLAUDE.md). Positive, non-judgemental tone throughout.
-
-### What to do next (B6.4 — ABC(DE) model + cognitive-distortions checklist)
-
-**Extends the existing `js/views/cbt.js` and the `ht_cbt` array** — do NOT make a new tab/store.
-Two additions (see CLAUDE.md evidence table — Ellis REBT + the 13 distortions):
-
-1. **13-item cognitive-distortions checklist** in the thought-record form. The `distortions[]`
-   field is already reserved + node-tested in `normalizeCbt` (filters to string array). Add a
-   `DISTORTIONS` const (id + label + 1-line example) and render as tappable chips/checkboxes in
-   the form (multi-select); save the selected ids onto `entry.distortions`. Show them as small
-   tags in the expanded card. 13 types per CLAUDE.md: all-or-nothing, catastrophizing,
-   overgeneralization, mental filter, mind-reading, labeling, emotional reasoning,
-   discounting-the-positive, fortune-telling, personalization, should-statements,
-   magnification/minimization, blaming. (Confirm the exact 13 against simplypsychology.org /
-   healthline.com — the CLAUDE.md row lists representative ones with "…".)
-
-2. **ABC(DE) model** as a second record framing (Ellis REBT): Activating event → Beliefs →
-   Consequences → Disputation → Effective new belief. Recommended approach: add an `entry.model`
-   discriminator (`'beck'` default for existing records | `'abcde'`) and a small mode toggle at
-   the top of the New-record form. Reuse the same storage fields where they map cleanly
-   (situation≈A, thoughts≈B, emotion≈C, balanced≈E) OR add abcde-specific keys to `normalizeCbt`
-   and branch the form/card by `model`. Keep both in the one `ht_cbt` array; default un-tagged
-   entries to `'beck'` so old records still render.
-
-Wiring for B6.4: `sw.js` bump to **`ht-v12`** (only if files change — cbt.js will); update the
-`.cbt-*` CSS for chips/toggle; extend the `normalizeCbt` node tests (distortions already
-covered — add model + any new fields). No app.js/index.html/_all.js changes needed (cbt.js
-already registered). **Phase-completion commit** after B6.4: `chore: complete Phase 6 — Mental health`.
-
-### Reuse notes (Phase 6 so far)
-- Pure node-tested exports: `journal.js`→`normalize`; `mood.js`→`normalizeMood`/`avgScore`/
-  `lastNDates(todayYmd,n)` (DST+leap safe); `cbt.js`→`normalizeCbt`/`intensityDelta`/`hasContent`.
-- **Disclaimer pattern:** every MH view has a local `disclaimerHTML()` returning the shared
-  `.jr-disc` box with **Tele-MANAS 14416** + "local emergency number". Reuse verbatim.
-- `cbt.js` view state: module-level `formOpen` + `openId`; form built in `_renderForm()`,
-  list in `_renderList()`; `TEXTCOLS` drives the textarea fields; `_card()`/`cardBody()` render
-  expanded entries. Add the distortions UI inside `_renderForm` and a tags row in `cardBody`.
-- `store.js`: `CBT` state + `setCBT`/`svCBT` (array, mirrors INBOX). Per-date helpers exist for
-  journal/mood (`jKey`/`moodKey` families) but CBT is an array.
-
-**Verification done (B6.1–B6.3):** node-tested — B6.1 `normalize` 9/9 · B6.2 trend logic 16/16
-(DST+leap) · B6.3 `normalizeCbt`/`intensityDelta`/`hasContent` 21/21. `node --check` clean on
-all changed modules; served over http — all modules 200 each batch ✅.
-
-### Stats.js helpers available to reuse later (e.g. B6.2 mood trends)
-- compute (all exported, node-tested): `completedDaySets`, `currentStreak`, `longestStreak`,
-  `heatmapWeeks`, `completionRate(daySet, windowDays)`, `areaRate(areaId, habits, sets, win)`.
-- module-local: `isDone`, `todayNum`, `numToYmd`, `dayNum`, `esc`. Render is split into
-  per-section fns (`renderStreaks/renderStats/renderAreas/renderHeatmaps`) below the
-  `── Render ──` divider. `store.js`: `dKeyFor`, `eachDailyLog`, `AREAS`/`setAreas`/`svAreas`.
-
-### Verification log (Phase 5)
-- B5.1 streak math, B5.2 `heatmapWeeks` geometry, B5.3 `completionRate`/`areaRate` — all
-  unit-tested in node (windowed counts, out-of-window exclusion, empty/edge cases, area
-  aggregation 40/60=67%) and passed. Each batch also served over http (200s, correct cache).
+### Phase 6 reuse notes (for reference)
+- Pure node-tested exports: `journal.js`→`normalize`; `mood.js`→`normalizeMood`/`avgScore`/`lastNDates`; `cbt.js`→`normalizeCbt`/`intensityDelta`/`hasContent`.
+- **Disclaimer pattern:** every MH view has a local `disclaimerHTML()` returning `.jr-disc` box with **Tele-MANAS 14416** + "local emergency number". Reuse verbatim.
 
 ---
 
@@ -169,6 +115,16 @@ all changed modules; served over http — all modules 200 each batch ✅.
 | B10.1 5-dest shell+router | ✅ done | 83f775f | `index.html`, `js/router.js`, `js/app.js`, `css/base.css`, `sw.js` | 14-tab nav → Grove bottom tabbar; 5 destination panels; registerDest(); body→flex 100dvh; ht-v15→ht-v16 |
 | B10.2 Today view | ✅ done | 0249b1d | `js/views/today.js` (new), `js/views/tasks.js`, `js/views/_all.js`, `js/app.js`, `index.html`, `sw.js` | Full Grove TodayScreen: hero ring + habit cards (.grv-check) + streak badges + counters + quickadd + routine + quick wins; ht-v16→ht-v17 |
 | Phase 10 complete | ✅ done | 0249b1d | — | 5-destination shell + Today view; user checkpoint passed ✅ |
+| B11.1 Habits destination | ✅ done | c5bf849 | `js/views/habits.js` (new), `js/views/weekly.js`, `js/views/monthly.js`, `js/views/quarterly.js`, `js/views/yearly.js`, `index.html`, `sw.js` | Self-contained Habits destination; 5-horizon segmented control (Daily·Weekly·Monthly·Quarterly·Yearly); `.grv-progress__fill--honey` in-progress bars; counter + checkbox patterns; inline add forms per horizon; linked Q/Y habits read-only badge; null guards on legacy views; ht-v17→ht-v18 |
+| Phase 11 complete | ✅ done | c5bf849 | — | Habits destination — all 5 time horizons in one Grove panel |
+| B12.1 Reflect destination | ✅ done | 522f66e | `js/views/reflect.js` (new), `index.html`, `sw.js` | Thin wrapper; Grove header + 4-tab grv-seg (Mood·Journal·Thoughts·Inbox); creates #p-mood/#p-journal/#p-cbt/#p-inbox containers; delegates to existing sub-view renders; active-only render on each call; ht-v18→ht-v19 |
+| Phase 12 complete | ✅ done | 522f66e | — | Reflect destination wrapping mood + journal + CBT + inbox |
+| B13.1 Calm destination | ✅ done | 946f636 | `js/views/calm.js` (new), `index.html`, `sw.js` | Grove header wrapper for mindfulness.js; timer-safe guard (`el.querySelector('#p-mindfulness')` check prevents destroying active breathing/meditation session); ht-v19→ht-v20 |
+| Phase 13 complete | ✅ done | 946f636 | — | Calm destination with timer-safe mindfulness wrapper |
+| B14.1 You destination | ✅ done | c6d23ad | `js/views/you.js` (new), `index.html`, `sw.js` | 2-tab wrapper (Stats·Settings); dynamic Sync & Backup card appended after settings render; imports syncTrigger/loadTrigger/exportJSON/importJSON directly and wires them in _appendSync() (avoids load-time dead-wire problem); ht-v20→ht-v21 |
+| Phase 14 complete | ✅ done | c6d23ad | — | You destination wrapping stats + settings + sync |
+| B15.1 Cleanup + voice pass | ✅ done | d81912d | `js/app.js`, `js/views/_all.js`, `progress.md` | Removed ~50 lines of dead imports/registrations/globals from app.js (rD, rW, rM, rQ, rY, keyboard shortcuts, old sync wiring); _all.js slimmed to 5 destination wrappers; progress.md Resume section updated; ht-v21→ht-v22 |
+| Phase 15 complete | ✅ done | d81912d | — | Cleanup: dead code removed, voice pass, all 15 phases COMPLETE |
 
 ---
 

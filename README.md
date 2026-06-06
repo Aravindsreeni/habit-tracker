@@ -52,6 +52,7 @@ optional Google Drive sync.
 | **Native mobile** | An optional **Capacitor** wrapper (in [`native/`](./native/)) packages this exact web app for iOS/Android, bridging reminders to native notifications — the web build is unchanged. |
 | **PWA** | Installable, works offline (app-shell cache), light/dark theme toggle. |
 | **Sync & backup** | Full-history Google Drive sync (opt-in) plus offline Export / Import JSON. |
+| **Grove design** | All 5 destinations share a unified **Grove design system** (vendored fonts, tokens, and components): Newsreader serif headings, Hanken Grotesk UI text, sage/lavender palette, consistent cards, segmented controls, and progress bars. |
 
 > The mental-health features (Journal, Mood, Thought Records) are **self-help tools, not a
 > substitute for professional care**; each carries that disclaimer plus a crisis-resource pointer,
@@ -65,6 +66,10 @@ optional Google Drive sync.
 - **Vanilla HTML + CSS + JavaScript.** No bundler, no transpiler, no npm, no `node_modules`.
 - **ES modules** (`<script type="module">`), imported with relative paths (the `.js` extension
   is required in browsers).
+- **Grove design system** — vendored in-repo at `css/grove/`; provides tokens (colors,
+  typography, spacing, elevation, motion), fonts (Newsreader, Hanken Grotesk, Spline Sans Mono),
+  and components (`.grv-card`, `.grv-check`, `.grv-seg`, `.grv-progress`, `.grv-tabbar`).
+- **Lucide icons** — vendored UMD at `js/vendor/lucide.min.js`; inline SVG via `icon()`/`refreshIcons()`.
 - **localStorage** for all persistence.
 - **Service Worker** for offline app-shell caching.
 - **Web App Manifest** for installability.
@@ -82,55 +87,85 @@ canonical PWA and the GitHub Pages source.
 
 ## Architecture
 
-The app boots from `js/app.js`, which initialises the store, registers each view with the
-router, wires up event handlers, and renders the active tab. Each feature lives in a focused
-ES module under `js/views/`. Shared concerns (state, persistence, sync, UI helpers, routing,
-reminders) live in top-level `js/` modules.
+The app boots from `js/app.js`, which initialises the store, registers five **destination
+views** with the router, and navigates to Today. Each destination is a self-contained Grove
+wrapper module under `js/views/`; feature sub-views are delegated from there. Shared concerns
+(state, persistence, sync, UI helpers, routing, reminders) live in top-level `js/` modules.
 
 ### Module map
 
 ```
-index.html            ← links manifest + SW; <script type="module" src="js/app.js">
-manifest.webmanifest  ← PWA manifest
-sw.js                 ← service worker, app-shell cache (bump CACHE version on shell changes)
-icons/                ← PWA icons
+index.html              ← app shell; 5 [data-dest-panel] divs + Grove bottom tabbar
+manifest.webmanifest
+sw.js                   ← app-shell cache; bump CACHE const on every shell-file change
+icons/                  ← PWA icons
 css/
-  tokens.css          ← :root design tokens (colors, radii) + light/dark theme overrides
-  base.css            ← layout, nav, cards, forms, per-feature styles
+  grove/                ← Grove design system (vendored)
+    styles.css          ← main entry (imports tokens + components)
+    tokens/             ← colors.css, typography.css, spacing.css, elevation.css, motion.css
+    fonts/              ← fonts.css + woff2 (Newsreader, Hanken Grotesk, Spline Sans Mono)
+    components/
+      grove-ui.css      ← .grv-card, .grv-check, .grv-seg, .grv-progress, .grv-tabbar, …
+  tokens.css            ← legacy var aliases mapped onto Grove tokens
+  base.css              ← per-feature legacy styles (.hc, .hm-*, .mf-*, .cbt-*, …)
+  grove-app.css         ← ported kit layout (.screen, .scr-head, .scr-eyebrow, .tabhost, …)
 js/
-  app.js              ← bootstrap: init store → register views → render active tab
-  store.js            ← state, localStorage, schema migration, date-key helpers, goal-linking
-  sync.js             ← Google Drive OAuth + full-history payload + Export/Import JSON
-  ui.js               ← toast(), mkCard(), mkSum(), note toggle, SVG icons
-  router.js           ← view registry + tab switching (sw())
-  reminders.js        ← recurring timer engine + Notification API (eye-care), native-aware
+  app.js                ← bootstrap: init → register 5 destination views → sw('today')
+  store.js              ← state, localStorage, schema v3, migration, date-key helpers, goal-linking
+  sync.js               ← Google Drive OAuth + full-history payload + Export/Import JSON
+  ui.js                 ← toast(), mkCard(), mkSum(), SVG helpers
+  router.js             ← registerView/registerDest/sw(); toggles [data-dest-panel] hidden attrs
+  icons.js              ← icon(name, opts) → inline SVG; refreshIcons() → lucide.createIcons()
+  reminders.js          ← recurring timer engine + Notification API, native-aware
+  vendor/
+    lucide.min.js       ← vendored Lucide icon UMD (0.453.0)
   views/
-    daily.js weekly.js monthly.js quarterly.js yearly.js
+    today.js            ← Today destination (ring, habit cards, routine, quick wins)
+    habits.js           ← Habits destination (5-horizon segmented control)
+    reflect.js          ← Reflect destination → mood.js / journal.js / cbt.js / inbox.js
+    calm.js             ← Calm destination → mindfulness.js (timer-safe re-render guard)
+    you.js              ← You destination → stats.js / settings.js + Grove Sync card
+    daily.js weekly.js monthly.js quarterly.js yearly.js  ← legacy (null-guarded)
     tasks.js inbox.js routine.js stats.js settings.js
-    journal.js mood.js cbt.js          ← mental health (journal, mood, thought records)
-    mindfulness.js                     ← breathing pacer + meditation timer
-    notes.js          ← shared note-editing behavior
-    _all.js           ← renderAll() — re-renders every view (used after sync restore)
-native/               ← Capacitor iOS/Android wrapper; see native/README.md
+    journal.js mood.js cbt.js mindfulness.js
+    notes.js            ← shared note-editing behaviour
+    _all.js             ← renderAll() — calls the 5 destination wrappers (used by sync restore)
+assets/grove/           ← Grove brand SVGs
+native/                 ← Capacitor iOS/Android wrapper; see native/README.md
 ```
+
+### 5-destination IA
+
+| Destination | Panel | Sub-views |
+|---|---|---|
+| **Today** | `#p-today` | ring hero, daily habits, routine, quick wins |
+| **Habits** | `#p-habits` | Daily · Weekly · Monthly · Quarterly · Yearly (segmented) |
+| **Reflect** | `#p-reflect` | Mood · Journal · Thoughts · Inbox (segmented) |
+| **Calm** | `#p-calm` | Breathing pacers + meditation timer |
+| **You** | `#p-you` | Stats · Settings + Sync & Backup (segmented) |
 
 ### View contract
 
-Each view module exports:
+Every view module exports:
 
-- `render()` — refresh the view's DOM from the current store state. Self-rendering views
-  (inbox, routine, stats, settings) paint into an initially-empty panel `<div>`; the older
-  views (daily/weekly/monthly/…) render into static markup already present in `index.html`.
-- Optionally `init(container)` and feature-specific handlers (e.g. `addHabit`, `showAddForm`).
+- `render()` — refreshes the view's DOM from current store state.
+  - **Destination wrappers** (`today.js`, `habits.js`, `reflect.js`, `calm.js`, `you.js`) own
+    the Grove header + sub-containers; each `render()` sets the panel's `innerHTML` and calls
+    the active sub-view.
+  - **Sub-views** (`mood.js`, `stats.js`, etc.) find their container via `document.getElementById`
+    and always guard with `if (!el) return;` at the top.
+  - **`calm.js`** additionally checks `el.querySelector('#p-mindfulness')` before rebuilding —
+    preserving an active breathing/meditation timer session across re-renders.
 
 **Conventions:**
 
-- Keep functions small (< ~40 lines) and **split compute logic from rendering** — e.g.
-  `js/views/stats.js` exports pure, unit-testable helpers (`completedDaySets`, `currentStreak`,
-  `longestStreak`, `heatmapWeeks`, `completionRate`, `areaRate`) above a `── Render ──` divider.
+- Split compute from rendering — e.g. `stats.js` exports pure, node-testable helpers
+  (`currentStreak`, `longestStreak`, `heatmapWeeks`, `completionRate`, `areaRate`) above a
+  `── Render ──` divider.
 - Follow the existing terse helper style (`dKey`, `sv`, `lsGet`, `p2`).
-- CSS uses a BEM-lite, per-feature namespace (`.hc`, `.rt-*` routine, `.st-*` streaks,
-  `.hm-*` heatmap, `.stt-*` stats, `.area-*` areas, `.inb-*` inbox).
+- Grove component classes: `.grv-card`, `.grv-check.grv-check--round`, `.grv-seg/.grv-seg__opt`,
+  `.grv-progress/.grv-progress__fill`, `.grv-tabbar/.grv-tab`, `.grv-btn`, `.grv-iconbtn`.
+- Legacy CSS uses BEM-lite, per-feature namespace (`.hc`, `.hm-*`, `.mf-*`, `.cbt-*`, etc.).
 
 ### Data flow
 
@@ -196,23 +231,45 @@ block — don't mutate older blocks.
 
 ```
 habit-tracker/
-├── index.html               # app shell + static markup for the older views
+├── index.html               # app shell; 5 destination panels + Grove tabbar
 ├── manifest.webmanifest     # PWA manifest
-├── sw.js                    # service worker (app-shell cache)
+├── sw.js                    # service worker (app-shell cache; currently ht-v22)
 ├── icons/                   # PWA icons
+├── assets/
+│   └── grove/               # Grove brand SVGs (grove-icon, grove-mark, grove-wordmark)
 ├── css/
-│   ├── tokens.css           # design tokens + themes
-│   └── base.css             # all styles
+│   ├── grove/               # Grove design system (vendored)
+│   │   ├── styles.css       # main entry
+│   │   ├── tokens/          # colors, typography, spacing, elevation, motion
+│   │   ├── fonts/           # fonts.css + woff2 files
+│   │   └── components/
+│   │       └── grove-ui.css # Grove component classes
+│   ├── tokens.css           # legacy var aliases → Grove tokens
+│   ├── base.css             # per-feature legacy styles
+│   └── grove-app.css        # ported kit layout classes
 ├── js/
-│   ├── app.js               # bootstrap
-│   ├── store.js             # state + persistence + migration
+│   ├── app.js               # bootstrap: registers 5 destinations, calls sw('today')
+│   ├── store.js             # state + persistence + schema migration
 │   ├── sync.js              # Drive sync + Export/Import
-│   ├── ui.js                # shared UI helpers
-│   ├── router.js            # tab switching
-│   ├── reminders.js         # reminder engine
-│   └── views/               # one module per feature
+│   ├── ui.js                # shared UI helpers (toast, mkCard, …)
+│   ├── router.js            # registerView/registerDest/sw()
+│   ├── icons.js             # icon() + refreshIcons() (Lucide wrapper)
+│   ├── reminders.js         # reminder engine + Notification API
+│   ├── vendor/
+│   │   └── lucide.min.js    # vendored Lucide UMD (0.453.0)
+│   └── views/
+│       ├── today.js         # Today destination (self-contained)
+│       ├── habits.js        # Habits destination (5-horizon segmented)
+│       ├── reflect.js       # Reflect destination wrapper
+│       ├── calm.js          # Calm destination wrapper
+│       ├── you.js           # You destination wrapper
+│       ├── daily.js weekly.js monthly.js quarterly.js yearly.js  # legacy (null-guarded)
+│       ├── mood.js journal.js cbt.js mindfulness.js              # feature sub-views
+│       ├── stats.js settings.js tasks.js inbox.js routine.js     # feature sub-views
+│       ├── notes.js         # shared note-editing behaviour
+│       └── _all.js          # renderAll() (called by sync restore)
 ├── native/                  # optional Capacitor iOS/Android wrapper (see native/README.md)
-└── README.md               # this file
+└── README.md
 ```
 
 ---
@@ -246,7 +303,7 @@ node -e '/* import or inline a helper and assert outputs */'
 ```
 
 > **Service worker note:** the SW caches the app shell. After changing a cached file, bump the
-> `CACHE` constant in `sw.js` (e.g. `ht-v8` → `ht-v9`) so returning users fetch the fresh copy.
+> `CACHE` constant in `sw.js` (currently `ht-v22`) so returning users fetch the fresh copy.
 > During local dev, use your browser's "Update on reload" / "Bypass for network" devtools option.
 
 ---
