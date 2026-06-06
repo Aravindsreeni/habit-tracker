@@ -6,24 +6,35 @@
 
 ## ▶ Resume here
 
-**Current:** Phase 7 — Mindfulness **COMPLETE** ✅ (B7.1 Breathing + meditation d945e42 ·
-phase-completion below). **Next up: Phase 8 — Native mobile, Batch B8.1** (Capacitor iOS/Android
-wrap of these exact files).
+**Current:** Phase 8 — Native mobile **COMPLETE** ✅ (B8.1 Capacitor wrap 208063d ·
+phase-completion below). **🎉 All planned phases (0–8) are now complete** — no further batch is
+queued. The roadmap in CLAUDE.md / README ends at Phase 8.
 
-Phases 0–7 fully done. SW cache is now **`ht-v13`**. Schema still **v3** (no bump — mindfulness
-stores nothing; all MH keys remain additive, synced automatically since `sync.js` archives all `ht_*`).
+Phases 0–8 fully done. SW cache is now **`ht-v14`**. Schema still **v3** (the native wrap stores
+nothing new; all keys remain additive, synced automatically since `sync.js` archives all `ht_*`).
 
-### What to do next (B8.1 — Capacitor native wrap; first batch of Phase 8)
+### State of the project (for whoever picks this up next)
 
-Wrap the existing vanilla PWA in **Capacitor** for iOS/Android without changing the web code
-(CLAUDE.md "Stack & hard rules": keep DOM-centric, no bundler-only idioms). Expected shape:
-a new Capacitor project that points its `webDir` at this repo's web root (or copies it), adds
-the iOS/Android platforms, and keeps `index.html` + `js/` working as the app shell. Things to
-decide/verify when starting: where the Capacitor scaffolding lives (separate folder vs. root —
-keep GitHub Pages serving the root unchanged), how native notifications map to the current
-`reminders.js` Notification API usage, and that the service worker / offline shell still behaves
-inside the native WebView. This is the last planned phase. No mental-health disclaimer concerns;
-follow the same commit/verify discipline.
+The web app is a complete, offline-first PWA (root = canonical source + GitHub Pages site). The
+native iOS/Android wrapper lives in **`native/`** (Capacitor) and mirrors the root web app into
+its `webDir` via `npm run sync-web`; it does **not** change the web build. See
+`native/README.md` for build steps.
+
+Possible future work (none planned/required): commit-free CI for the native build; **background /
+app-closed reminder scheduling** (currently only foreground reminders are bridged to
+`@capacitor/local-notifications` — true background firing means pre-scheduling notifications with
+the OS rather than the in-page `setInterval` timer, see `native/README.md` → Notifications); native
+app icons/splash via `@capacitor/assets`; a real `appId` (currently the placeholder
+`com.habittracker.app`).
+
+### Native wrap notes (B8.1, for reference)
+- `native/` is self-contained and git-ignores the generated parts (`node_modules/`, `www/`,
+  `android/`, `ios/`); only `package.json`, `package-lock.json`, `capacitor.config.json`,
+  `scripts/sync-web.mjs`, `.gitignore`, `README.md` are committed.
+- Native-notification bridge is **additive + runtime-guarded** in `js/reminders.js`: it uses the
+  injected global `window.Capacitor?.Plugins?.LocalNotifications` (no bundler import), so a plain
+  browser runs the original web `Notification` path unchanged. SW registration is skipped when
+  `window.Capacitor` is present (`index.html`).
 
 ### Mindfulness view notes (B7.1, for reference)
 - `js/views/mindfulness.js`: pure node-tested exports `cycleSeconds(phases)` /
@@ -125,7 +136,8 @@ all changed modules; served over http — all modules 200 each batch ✅.
 | Phase 6 complete | ✅ done | 990cc55 | — | Mental health done (journal + mood + CBT thought record + ABC(DE) + distortions) |
 | B7.1 Breathing + meditation | ✅ done | d945e42 | `js/views/mindfulness.js`, `index.html`, `js/app.js`, `js/views/_all.js`, `css/base.css`, `sw.js` | Mindfulness tab; Box 4-4-4-4 + 4-7-8 pacers (animated expand/hold/contract circle, per-phase countdown, configurable cycles) + meditation countdown (1–20 min, start/pause/resume/reset) + soft Web-Audio chime; nothing persisted; `render()` builds once; pure `cycleSeconds`/`breathingState`/`fmtTime` node-tested 10/10; ht-v13 |
 | Phase 7 complete | ✅ done | 3527a53 | — | Mindfulness done (breathing pacer + meditation timer) |
-| B8.1 Capacitor native | 🔲 todo | — | New Capacitor project | iOS/Android wrap |
+| B8.1 Capacitor native | ✅ done | 208063d | `native/*` (package.json, capacitor.config.json, scripts/sync-web.mjs, .gitignore, README.md), `js/reminders.js`, `index.html`, `sw.js`, `README.md` | Self-contained `native/` Capacitor project (^8.4.0); `sync-web` mirrors root web app → `webDir` (root unchanged, stays GitHub Pages source); additive runtime-guarded native-notification bridge (`window.Capacitor` → @capacitor/local-notifications, web path unchanged); SW skipped in WebView; ht-v14. Platform builds run locally (Xcode/Android Studio). npm install resolves 94 pkgs |
+| Phase 8 complete | ✅ done | (below) | — | Native mobile done (Capacitor iOS/Android wrap) — **final phase; roadmap complete** |
 
 ---
 
