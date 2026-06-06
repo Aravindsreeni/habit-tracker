@@ -1,5 +1,5 @@
 // ── sw.js — Service Worker (app-shell cache, offline support) ──────
-const CACHE    = 'ht-v17';
+const CACHE    = 'ht-v18';
 const SHELL    = [
   './',
   './index.html',
@@ -35,6 +35,7 @@ const SHELL    = [
   './js/icons.js',
   './js/vendor/lucide.min.js',
   './js/views/today.js',
+  './js/views/habits.js',
   './js/views/daily.js',
   './js/views/weekly.js',
   './js/views/monthly.js',

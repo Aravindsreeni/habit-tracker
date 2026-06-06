@@ -6,6 +6,7 @@ import { wireNotes, wireDel } from './notes.js';
 const valOf = h => h.link ? linkProgress('quarterly', h.link) : (Q[h.id] || 0);
 
 export function render() {
+  if (!document.getElementById('qtl')) return;
   document.getElementById('qtlbl').textContent = qName();
 
   const hs      = HABITS.quarterly || [];

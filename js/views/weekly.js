@@ -4,6 +4,7 @@ import { mkCard, mkSum } from '../ui.js';
 import { wireNotes, wireDel } from './notes.js';
 
 export function render() {
+  if (!document.getElementById('wl')) return;
   document.getElementById('wlbl').textContent = `Week of ${wRange()}`;
 
   const hs      = HABITS.weekly;

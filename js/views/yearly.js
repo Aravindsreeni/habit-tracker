@@ -6,6 +6,7 @@ import { wireNotes, wireDel } from './notes.js';
 const valOf = h => h.link ? linkProgress('yearly', h.link) : (Y[h.id] || 0);
 
 export function render() {
+  if (!document.getElementById('yrl')) return;
   document.getElementById('yrlbl').textContent = yName();
 
   const hs      = HABITS.yearly || [];

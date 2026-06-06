@@ -4,6 +4,7 @@ import { mkCard, mkSum } from '../ui.js';
 import { wireNotes, wireDel } from './notes.js';
 
 export function render() {
+  if (!document.getElementById('ml')) return;
   document.getElementById('mlbl').textContent = mName();
 
   const hs      = HABITS.monthly;
