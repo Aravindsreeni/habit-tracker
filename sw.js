@@ -1,15 +1,39 @@
 // ── sw.js — Service Worker (app-shell cache, offline support) ──────
-const CACHE    = 'ht-v14';
+const CACHE    = 'ht-v15';
 const SHELL    = [
   './',
   './index.html',
+  // CSS — Grove design system
+  './css/grove/styles.css',
+  './css/grove/components/grove-ui.css',
+  './css/grove/tokens/colors.css',
+  './css/grove/tokens/typography.css',
+  './css/grove/tokens/spacing.css',
+  './css/grove/tokens/elevation.css',
+  './css/grove/tokens/motion.css',
+  './css/grove/fonts/fonts.css',
+  './css/grove/fonts/hankengrotesk-400.woff2',
+  './css/grove/fonts/hankengrotesk-500.woff2',
+  './css/grove/fonts/hankengrotesk-600.woff2',
+  './css/grove/fonts/hankengrotesk-700.woff2',
+  './css/grove/fonts/newsreader-400.woff2',
+  './css/grove/fonts/newsreader-400i.woff2',
+  './css/grove/fonts/newsreader-500.woff2',
+  './css/grove/fonts/newsreader-500i.woff2',
+  './css/grove/fonts/newsreader-600.woff2',
+  './css/grove/fonts/splinesansmono-400.woff2',
+  './css/grove/fonts/splinesansmono-500.woff2',
   './css/tokens.css',
   './css/base.css',
+  './css/grove-app.css',
+  // JS — app modules
   './js/app.js',
   './js/store.js',
   './js/ui.js',
   './js/sync.js',
   './js/router.js',
+  './js/icons.js',
+  './js/vendor/lucide.min.js',
   './js/views/daily.js',
   './js/views/weekly.js',
   './js/views/monthly.js',
@@ -27,8 +51,14 @@ const SHELL    = [
   './js/views/mindfulness.js',
   './js/views/settings.js',
   './js/reminders.js',
+  // Manifest + icons
   './manifest.webmanifest',
-  './icons/icon-192.svg'
+  './icons/icon-192.svg',
+  // Grove brand SVGs
+  './assets/grove/grove-icon.svg',
+  './assets/grove/grove-mark.svg',
+  './assets/grove/grove-mark-mono.svg',
+  './assets/grove/grove-wordmark.svg'
 ];
 
 self.addEventListener('install', e => {
