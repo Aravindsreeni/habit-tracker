@@ -6,12 +6,48 @@
 
 ## ▶ Resume here
 
-**Current:** Phase 8 — Native mobile **COMPLETE** ✅ (B8.1 Capacitor wrap 208063d ·
-phase-completion below). **🎉 All planned phases (0–8) are now complete** — no further batch is
-queued. The roadmap in CLAUDE.md / README ends at Phase 8.
+**Current initiative: Grove re-skin (Phases 9–15)** — plan at
+`C:\Users\91949\.claude\plans\i-ve-added-a-design-iterative-sparrow.md`. Re-skin + re-IA the
+14-tab app onto the **Grove** design system (calm "sunlit room": cream paper, sage, Newsreader +
+Hanken Grotesk, Lucide), regrouping 14 features into **5 destinations: Today · Habits · Reflect ·
+Calm · You**. **Visual + IA only** — no changes to `store.js`/`sync.js`/data model/`ht_*` keys.
 
-Phases 0–8 fully done. SW cache is now **`ht-v14`**. Schema still **v3** (the native wrap stores
-nothing new; all keys remain additive, synced automatically since `sync.js` archives all `ht_*`).
+> ⚠️ The Grove design kit is vendored **in-repo at `habit-tracker/grove-design/`** (NOT
+> `.claude/skills/` as the plan text says — it was never tracked; copy assets *from there*).
+> `grove-design/ui_kits/grove-app/` has the screen JSX (`screens-track.jsx`, `screens-care.jsx`,
+> `app.jsx`, `ui.jsx`) + `kit.css` to port from. `grove-design/` itself is still untracked.
+
+**Phase 9 — Grove foundation: IN PROGRESS.** Done so far this session:
+- **B9.1** ✅ `15a933f` — vendored Grove into `css/grove/**` (styles + fonts + tokens + grove-ui.css)
+  and `assets/grove/*.svg`; linked `css/grove/styles.css` first in `index.html`.
+- **B9.2** ✅ `cff5d0c` — `css/tokens.css` rewritten to **alias legacy var names** (`--bg --s
+  --card --b --b2 --t/-2/-3 --ok* --warn-b --info-b --danger --r --rm`) onto Grove tokens; Grove
+  owns light/dark via `[data-theme]`. `body` font → `--font-ui`. `theme-color`/manifest →
+  Grove paper `#faf8f3`; manifest icon → `assets/grove/grove-icon.svg`. `settings.js` `_setTheme`
+  resolves `theme:'system'` → `data-theme` via `matchMedia` (+ live `onchange`).
+- **B9.3** ✅ `30a358d` — vendored `lucide@0.453.0` UMD → `js/vendor/lucide.min.js` (loaded before
+  app.js); new `js/icons.js` (`icon(name,{size,stroke,active,cls,label})` inline-SVG +
+  `refreshIcons()`); `ui.js` `ckSVG/penSVG/xSVG` → Lucide `check/pencil/x`; fixed inbox.js:48 dup
+  checkmark; `router.sw()` calls `refreshIcons()` after each render.
+
+**⏭ NEXT: B9.4 then B9.5 (finish Phase 9).**
+- **B9.4** — create `css/grove-app.css` ported from `grove-design/ui_kits/grove-app/kit.css`,
+  **dropping demo chrome** (`.kit-stage`, `.phone`, `.statusbar`) and adapting for a real
+  responsive viewport. Link it in `index.html` **after** `css/base.css`. Keep classes listed in
+  the plan B9.4 (`.screen`, `.scr-*`, `.hero*`, `.ring*`, `.habit*/.counter*`, `.quickadd`,
+  `.jr-item`, `.disclaimer`, `.breathe-*`, `.med-clock`, `.heatmap*`, `.rate-row`, `.tabhost`,
+  etc.). Respect `prefers-reduced-motion`.
+- **B9.5** — add **all** new files to `SHELL` in `sw.js` (the 13 woff2 + 5 tokens +
+  grove-ui.css + styles.css + grove-app.css + lucide.min.js + icons.js + assets/grove svgs) and
+  bump `CACHE` **`ht-v14 → ht-v15`**. Then phase-completion commit `chore: complete Phase 9 — Grove foundation`.
+
+> 🚨 **SW NOT YET BUMPED** — still `ht-v14`, and the new grove/lucide files are **not in SHELL**.
+> Online serving works fine; **offline cache is stale** until B9.5. Do B9.5 before relying on PWA.
+
+After Phase 9 → **Phase 10 (B10.1 shell+router to 5 destinations, B10.2 Today view)**, then serve,
+screenshot **Today**, and **show the user** (first checkpoint) before Habits/Reflect/Calm/You.
+
+Schema still **v3**. SW cache **`ht-v14`** (bump pending in B9.5).
 
 ### State of the project (for whoever picks this up next)
 
@@ -137,7 +173,12 @@ all changed modules; served over http — all modules 200 each batch ✅.
 | B7.1 Breathing + meditation | ✅ done | d945e42 | `js/views/mindfulness.js`, `index.html`, `js/app.js`, `js/views/_all.js`, `css/base.css`, `sw.js` | Mindfulness tab; Box 4-4-4-4 + 4-7-8 pacers (animated expand/hold/contract circle, per-phase countdown, configurable cycles) + meditation countdown (1–20 min, start/pause/resume/reset) + soft Web-Audio chime; nothing persisted; `render()` builds once; pure `cycleSeconds`/`breathingState`/`fmtTime` node-tested 10/10; ht-v13 |
 | Phase 7 complete | ✅ done | 3527a53 | — | Mindfulness done (breathing pacer + meditation timer) |
 | B8.1 Capacitor native | ✅ done | 208063d | `native/*` (package.json, capacitor.config.json, scripts/sync-web.mjs, .gitignore, README.md), `js/reminders.js`, `index.html`, `sw.js`, `README.md` | Self-contained `native/` Capacitor project (^8.4.0); `sync-web` mirrors root web app → `webDir` (root unchanged, stays GitHub Pages source); additive runtime-guarded native-notification bridge (`window.Capacitor` → @capacitor/local-notifications, web path unchanged); SW skipped in WebView; ht-v14. Platform builds run locally (Xcode/Android Studio). npm install resolves 94 pkgs |
-| Phase 8 complete | ✅ done | a6e474a | — | Native mobile done (Capacitor iOS/Android wrap) — **final phase; roadmap complete** |
+| Phase 8 complete | ✅ done | a6e474a | — | Native mobile done (Capacitor iOS/Android wrap) |
+| B9.1 Vendor Grove DS | ✅ done | 15a933f | `css/grove/**` (new), `assets/grove/*.svg` (new), `index.html` | Copied Grove styles/fonts/tokens/grove-ui.css from `grove-design/`; linked `css/grove/styles.css` first |
+| B9.2 Token remap | ✅ done | cff5d0c | `css/tokens.css`, `css/base.css`, `js/views/settings.js`, `index.html`, `manifest.webmanifest` | Legacy var names aliased onto Grove tokens; body→`--font-ui`; paper `#faf8f3`; `theme:'system'`→`data-theme` via matchMedia |
+| B9.3 Lucide + icons | ✅ done | 30a358d | `js/vendor/lucide.min.js` (new), `js/icons.js` (new), `js/ui.js`, `js/router.js`, `js/views/inbox.js`, `index.html` | Vendored lucide 0.453.0 UMD; `icon()`+`refreshIcons()`; check/pencil/x swapped; dup checkmark fixed |
+| B9.4 Port kit layout CSS | ⏳ next | — | `css/grove-app.css` (new), `index.html` | Port `kit.css` minus demo chrome; link after base.css |
+| B9.5 SW + cache bump | ⏳ todo | — | `sw.js` | Add all new files to SHELL; bump `ht-v14→ht-v15`; phase-completion commit |
 
 ---
 
