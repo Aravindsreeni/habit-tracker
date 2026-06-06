@@ -1,25 +1,30 @@
-// ── router.js — tab switch + view registry ─────────────────────────
+// ── router.js — destination switch + view registry ─────────────────
 import { refreshIcons } from './icons.js';
 
-// Map of tab-id → { panel id, render fn }
-const _views = {};
+const _views  = {};          // viewId → { panelId, renderFn }
+const _dests  = {};          // dest   → [viewId, ...]
 
-export function registerView(tabId, panelId, renderFn) {
-  _views[tabId] = { panelId, renderFn };
+export function registerView(viewId, panelId, renderFn) {
+  _views[viewId] = { panelId, renderFn };
 }
 
-export function sw(tab) {
-  document.querySelectorAll('.tab').forEach(b =>
-    b.classList.toggle('on', b.dataset.tab === tab)
-  );
-  document.querySelectorAll('.pnl').forEach(p => p.classList.remove('on'));
-  const v = _views[tab];
-  if (v) {
-    document.getElementById(v.panelId)?.classList.add('on');
-    v.renderFn?.();
-    refreshIcons();   // swap any <i data-lucide> placeholders left by a render
-  }
+export function registerDest(dest, viewIds) {
+  _dests[dest] = viewIds;
 }
 
-// Expose globally so inline onclick="sw(...)" still works during transition
+export function sw(dest) {
+  // Show only the target destination
+  document.querySelectorAll('[data-dest-panel]').forEach(p => {
+    p.hidden = p.dataset.destPanel !== dest;
+  });
+  // Update tab bar aria-selected
+  document.querySelectorAll('.grv-tab[data-dest]').forEach(b => {
+    b.setAttribute('aria-selected', b.dataset.dest === dest ? 'true' : 'false');
+  });
+  // Render all views registered for this destination
+  (_dests[dest] || []).forEach(id => _views[id]?.renderFn?.());
+  refreshIcons();
+}
+
+// Expose globally for inline onclick="sw('today')" in the tab bar
 window.sw = sw;

@@ -1,7 +1,7 @@
 // ── app.js — bootstrap ─────────────────────────────────────────────
 import { loadAll, initSchema } from './store.js';
 import { gisLoaded, syncTrigger, loadTrigger, exportJSON, importJSON } from './sync.js';
-import { registerView, sw } from './router.js';
+import { registerView, registerDest, sw } from './router.js';
 import { render as rD, showAddForm as sAFd, closeAddForm as cAFd, addHabit as aHd } from './views/daily.js';
 import { render as rW, showAddForm as sAFw, closeAddForm as cAFw, addHabit as aHw } from './views/weekly.js';
 import { render as rM, showAddForm as sAFm, closeAddForm as cAFm, addHabit as aHm } from './views/monthly.js';
@@ -18,23 +18,31 @@ import { render as rMindful } from './views/mindfulness.js';
 import { render as rSettings, applyTheme, initRem } from './views/settings.js';
 
 // ── Register views ─────────────────────────────────────────────────
-registerView('daily',   'p-daily',   rD);
-registerView('weekly',  'p-weekly',  rW);
-registerView('monthly', 'p-monthly', rM);
-registerView('quarterly','p-quarterly', rQt);
-registerView('yearly',  'p-yearly',  rYr);
-registerView('wins',    'p-wins',    rQ);
-registerView('inbox',   'p-inbox',    rInbox);
-registerView('routine', 'p-routine',  rRoutine);
-registerView('stats',   'p-stats',    rStats);
-registerView('journal', 'p-journal',  rJournal);
-registerView('mood',    'p-mood',     rMood);
-registerView('cbt',     'p-cbt',      rCbt);
+registerView('daily',       'p-daily',       rD);
+registerView('weekly',      'p-weekly',      rW);
+registerView('monthly',     'p-monthly',     rM);
+registerView('quarterly',   'p-quarterly',   rQt);
+registerView('yearly',      'p-yearly',      rYr);
+registerView('wins',        'p-wins',        rQ);
+registerView('inbox',       'p-inbox',       rInbox);
+registerView('routine',     'p-routine',     rRoutine);
+registerView('stats',       'p-stats',       rStats);
+registerView('journal',     'p-journal',     rJournal);
+registerView('mood',        'p-mood',        rMood);
+registerView('cbt',         'p-cbt',         rCbt);
 registerView('mindfulness', 'p-mindfulness', rMindful);
-registerView('settings','p-settings', rSettings);
+registerView('settings',    'p-settings',    rSettings);
+
+// ── Register 5 destinations ────────────────────────────────────────
+registerDest('today',   ['daily', 'wins', 'routine']);
+registerDest('habits',  ['weekly', 'monthly', 'quarterly', 'yearly']);
+registerDest('reflect', ['inbox', 'journal', 'mood', 'cbt']);
+registerDest('calm',    ['mindfulness']);
+registerDest('you',     ['stats', 'settings']);
 
 // ── Date header ────────────────────────────────────────────────────
-document.getElementById('hdr').textContent = new Date().toLocaleDateString('en-IN', {
+const _hdr = document.getElementById('hdr');
+if (_hdr) _hdr.textContent = new Date().toLocaleDateString('en-IN', {
   weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
 });
 
@@ -75,7 +83,6 @@ applyTheme();   // apply saved theme before paint (avoids flash)
 initSchema();   // run migration before loading data
 loadAll();
 initRem();      // start reminder timers
-rD(); rW(); rM(); rQt(); rYr(); rQ();
 
-// Activate the wins tab on load (same as original default)
-sw('wins');
+// Activate Today destination on load; sw() renders all views within it
+sw('today');

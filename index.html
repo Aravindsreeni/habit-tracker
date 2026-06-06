@@ -15,211 +15,229 @@
 </head>
 <body>
 
-<header class="site-header">
-  <div class="site-title">Habit Tracker</div>
-  <div id="hdr" class="site-sub"></div>
-</header>
+<!-- Scrollable app content -->
+<div class="screen">
 
-<nav>
-  <button class="tab" data-tab="daily"   onclick="sw('daily')">Daily</button>
-  <button class="tab" data-tab="weekly"  onclick="sw('weekly')">Weekly</button>
-  <button class="tab" data-tab="monthly" onclick="sw('monthly')">Monthly</button>
-  <button class="tab" data-tab="quarterly" onclick="sw('quarterly')">Quarterly</button>
-  <button class="tab" data-tab="yearly"  onclick="sw('yearly')">Yearly</button>
-  <button class="tab" data-tab="wins"    onclick="sw('wins')">Quick Wins</button>
-  <button class="tab" data-tab="inbox"   onclick="sw('inbox')">Inbox</button>
-  <button class="tab" data-tab="routine" onclick="sw('routine')">Routine</button>
-  <button class="tab" data-tab="stats"   onclick="sw('stats')">Stats</button>
-  <button class="tab" data-tab="journal" onclick="sw('journal')">Journal</button>
-  <button class="tab" data-tab="mood"    onclick="sw('mood')">Mood</button>
-  <button class="tab" data-tab="cbt"     onclick="sw('cbt')">Thought Records</button>
-  <button class="tab" data-tab="mindfulness" onclick="sw('mindfulness')">Mindfulness</button>
-  <button class="tab" data-tab="settings" onclick="sw('settings')">⚙ Settings</button>
-</nav>
-
-<!-- DAILY -->
-<div class="pnl" id="p-daily">
-  <div class="sec-hdr">
-    <span class="sec-lbl">Today</span>
-    <button class="sec-add" onclick="showAddForm('daily')">+ Add habit</button>
-  </div>
-  <div class="ahfrm" id="af-daily">
-    <div class="frow">
-      <input class="fi" id="fn-daily" type="text" placeholder="Habit name">
-      <select class="fse" id="ft-daily" onchange="toggleMaxField()">
-        <option value="c">Checkbox</option>
-        <option value="w">Counter</option>
-      </select>
-      <input class="fnum" id="fm-daily" type="number" min="1" max="100" value="8" style="display:none" placeholder="Max">
+  <!-- ── TODAY ──────────────────────────────────────────────────── -->
+  <div data-dest-panel="today">
+    <div class="scr-head">
+      <p id="hdr" class="scr-eyebrow"></p>
+      <h1 class="scr-greet"><em>Good to see you.</em></h1>
     </div>
-    <div class="fact">
-      <button class="fcx" onclick="closeAddForm('daily')">Cancel</button>
-      <button class="fsv" onclick="addHabit('daily')">Add</button>
-    </div>
-  </div>
-  <div id="dl"></div>
-</div>
 
-<!-- WEEKLY -->
-<div class="pnl" id="p-weekly">
-  <div id="wsum" class="sm"></div>
-  <div class="sec-hdr">
-    <span class="sec-lbl" id="wlbl"></span>
-    <button class="sec-add" onclick="showAddForm('weekly')">+ Add habit</button>
-  </div>
-  <div class="ahfrm" id="af-weekly">
-    <div class="frow">
-      <input class="fi" id="fn-weekly" type="text" placeholder="Habit name">
-      <input class="fnum" id="ft-weekly" type="number" min="1" max="7" value="3" placeholder="Days / week">
+    <!-- Daily habits -->
+    <div class="pnl on" id="p-daily">
+      <div class="sec-hdr">
+        <span class="sec-lbl">Today</span>
+        <button class="sec-add" onclick="showAddForm('daily')">+ Add habit</button>
+      </div>
+      <div class="ahfrm" id="af-daily">
+        <div class="frow">
+          <input class="fi" id="fn-daily" type="text" placeholder="Habit name">
+          <select class="fse" id="ft-daily" onchange="toggleMaxField()">
+            <option value="c">Checkbox</option>
+            <option value="w">Counter</option>
+          </select>
+          <input class="fnum" id="fm-daily" type="number" min="1" max="100" value="8" style="display:none" placeholder="Max">
+        </div>
+        <div class="fact">
+          <button class="fcx" onclick="closeAddForm('daily')">Cancel</button>
+          <button class="fsv" onclick="addHabit('daily')">Add</button>
+        </div>
+      </div>
+      <div id="dl"></div>
     </div>
-    <div class="fact">
-      <button class="fcx" onclick="closeAddForm('weekly')">Cancel</button>
-      <button class="fsv" onclick="addHabit('weekly')">Add</button>
+
+    <!-- Routine -->
+    <div class="pnl on" id="p-routine"></div>
+
+    <!-- Quick Wins -->
+    <div class="pnl on" id="p-wins">
+      <div class="qbar">
+        <div class="fg">
+          <button class="fb on" onclick="sf('all')">All</button>
+          <button class="fb" onclick="sf('pending')">Pending</button>
+          <button class="fb" onclick="sf('done')">Done</button>
+        </div>
+        <button class="addb" onclick="tf()">+ Add task</button>
+      </div>
+      <div class="qfrm" id="qaf">
+        <div class="frow">
+          <input class="fi" id="qfn" type="text" placeholder="What needs to be done?">
+          <select class="fse" id="qfpri">
+            <option value="high">🔴 High</option>
+            <option value="med" selected>🟡 Med</option>
+            <option value="low">🟢 Low</option>
+          </select>
+          <select class="fse" id="qfe">
+            <option value="5">5 min</option>
+            <option value="10" selected>10 min</option>
+            <option value="30">30 min</option>
+          </select>
+        </div>
+        <div class="fact">
+          <button class="fcx" onclick="tf()">Cancel</button>
+          <button class="fsv" onclick="da()">Add</button>
+        </div>
+      </div>
+      <div id="ql"></div>
     </div>
-  </div>
-  <div id="wl"></div>
-</div>
+  </div><!-- /today -->
 
-<!-- MONTHLY -->
-<div class="pnl" id="p-monthly">
-  <div id="msum" class="sm"></div>
-  <div class="sec-hdr">
-    <span class="sec-lbl" id="mlbl"></span>
-    <button class="sec-add" onclick="showAddForm('monthly')">+ Add habit</button>
-  </div>
-  <div class="ahfrm" id="af-monthly">
-    <div class="frow">
-      <input class="fi" id="fn-monthly" type="text" placeholder="Habit name">
-      <input class="fnum" id="ft-monthly" type="number" min="1" max="31" value="7" placeholder="Days / month">
+  <!-- ── HABITS ─────────────────────────────────────────────────── -->
+  <div data-dest-panel="habits" hidden>
+
+    <!-- Weekly -->
+    <div class="pnl on" id="p-weekly">
+      <div id="wsum" class="sm"></div>
+      <div class="sec-hdr">
+        <span class="sec-lbl" id="wlbl"></span>
+        <button class="sec-add" onclick="showAddForm('weekly')">+ Add habit</button>
+      </div>
+      <div class="ahfrm" id="af-weekly">
+        <div class="frow">
+          <input class="fi" id="fn-weekly" type="text" placeholder="Habit name">
+          <input class="fnum" id="ft-weekly" type="number" min="1" max="7" value="3" placeholder="Days / week">
+        </div>
+        <div class="fact">
+          <button class="fcx" onclick="closeAddForm('weekly')">Cancel</button>
+          <button class="fsv" onclick="addHabit('weekly')">Add</button>
+        </div>
+      </div>
+      <div id="wl"></div>
     </div>
-    <div class="fact">
-      <button class="fcx" onclick="closeAddForm('monthly')">Cancel</button>
-      <button class="fsv" onclick="addHabit('monthly')">Add</button>
+
+    <!-- Monthly -->
+    <div class="pnl on" id="p-monthly">
+      <div id="msum" class="sm"></div>
+      <div class="sec-hdr">
+        <span class="sec-lbl" id="mlbl"></span>
+        <button class="sec-add" onclick="showAddForm('monthly')">+ Add habit</button>
+      </div>
+      <div class="ahfrm" id="af-monthly">
+        <div class="frow">
+          <input class="fi" id="fn-monthly" type="text" placeholder="Habit name">
+          <input class="fnum" id="ft-monthly" type="number" min="1" max="31" value="7" placeholder="Days / month">
+        </div>
+        <div class="fact">
+          <button class="fcx" onclick="closeAddForm('monthly')">Cancel</button>
+          <button class="fsv" onclick="addHabit('monthly')">Add</button>
+        </div>
+      </div>
+      <div id="ml"></div>
     </div>
-  </div>
-  <div id="ml"></div>
-</div>
 
-<!-- QUARTERLY -->
-<div class="pnl" id="p-quarterly">
-  <div id="qtsum" class="sm"></div>
-  <div class="sec-hdr">
-    <span class="sec-lbl" id="qtlbl"></span>
-    <button class="sec-add" onclick="showAddForm('quarterly')">+ Add goal</button>
-  </div>
-  <div class="ahfrm" id="af-quarterly">
-    <div class="frow">
-      <input class="fi" id="fn-quarterly" type="text" placeholder="Goal name">
-      <input class="fnum" id="ft-quarterly" type="number" min="1" max="99" value="1" placeholder="Target / quarter">
+    <!-- Quarterly -->
+    <div class="pnl on" id="p-quarterly">
+      <div id="qtsum" class="sm"></div>
+      <div class="sec-hdr">
+        <span class="sec-lbl" id="qtlbl"></span>
+        <button class="sec-add" onclick="showAddForm('quarterly')">+ Add goal</button>
+      </div>
+      <div class="ahfrm" id="af-quarterly">
+        <div class="frow">
+          <input class="fi" id="fn-quarterly" type="text" placeholder="Goal name">
+          <input class="fnum" id="ft-quarterly" type="number" min="1" max="99" value="1" placeholder="Target / quarter">
+        </div>
+        <div class="frow">
+          <select class="fse" id="fl-quarterly" style="flex:1">
+            <option value="">No link — manual counter</option>
+          </select>
+        </div>
+        <div class="fact">
+          <button class="fcx" onclick="closeAddForm('quarterly')">Cancel</button>
+          <button class="fsv" onclick="addHabit('quarterly')">Add</button>
+        </div>
+      </div>
+      <div id="qtl"></div>
     </div>
-    <div class="frow">
-      <select class="fse" id="fl-quarterly" style="flex:1">
-        <option value="">No link — manual counter</option>
-      </select>
+
+    <!-- Yearly -->
+    <div class="pnl on" id="p-yearly">
+      <div id="yrsum" class="sm"></div>
+      <div class="sec-hdr">
+        <span class="sec-lbl" id="yrlbl"></span>
+        <button class="sec-add" onclick="showAddForm('yearly')">+ Add goal</button>
+      </div>
+      <div class="ahfrm" id="af-yearly">
+        <div class="frow">
+          <input class="fi" id="fn-yearly" type="text" placeholder="Goal name">
+          <input class="fnum" id="ft-yearly" type="number" min="1" max="365" value="1" placeholder="Target / year">
+        </div>
+        <div class="frow">
+          <select class="fse" id="fl-yearly" style="flex:1">
+            <option value="">No link — manual counter</option>
+          </select>
+        </div>
+        <div class="fact">
+          <button class="fcx" onclick="closeAddForm('yearly')">Cancel</button>
+          <button class="fsv" onclick="addHabit('yearly')">Add</button>
+        </div>
+      </div>
+      <div id="yrl"></div>
     </div>
-    <div class="fact">
-      <button class="fcx" onclick="closeAddForm('quarterly')">Cancel</button>
-      <button class="fsv" onclick="addHabit('quarterly')">Add</button>
+
+  </div><!-- /habits -->
+
+  <!-- ── REFLECT ────────────────────────────────────────────────── -->
+  <div data-dest-panel="reflect" hidden>
+    <div class="pnl on" id="p-inbox"></div>
+    <div class="pnl on" id="p-journal"></div>
+    <div class="pnl on" id="p-mood"></div>
+    <div class="pnl on" id="p-cbt"></div>
+  </div><!-- /reflect -->
+
+  <!-- ── CALM ───────────────────────────────────────────────────── -->
+  <div data-dest-panel="calm" hidden>
+    <div class="pnl on" id="p-mindfulness"></div>
+  </div><!-- /calm -->
+
+  <!-- ── YOU ────────────────────────────────────────────────────── -->
+  <div data-dest-panel="you" hidden>
+    <div class="pnl on" id="p-stats"></div>
+    <div class="pnl on" id="p-settings"></div>
+    <div class="syncsec">
+      <div class="sync-row">
+        <button class="syncbtn" id="syncbtn">↑ Sync to Drive</button>
+        <button class="syncbtn" id="loadbtn">↓ Load from Drive</button>
+      </div>
+      <div class="sync-row">
+        <button class="syncbtn" id="exportbtn">⬇ Export JSON</button>
+        <button class="syncbtn" id="importbtn">⬆ Import JSON</button>
+      </div>
+      <div class="syncinfo" id="syncinfo">Sync to Google Drive to access your habits from any device.</div>
     </div>
-  </div>
-  <div id="qtl"></div>
-</div>
+  </div><!-- /you -->
 
-<!-- YEARLY -->
-<div class="pnl" id="p-yearly">
-  <div id="yrsum" class="sm"></div>
-  <div class="sec-hdr">
-    <span class="sec-lbl" id="yrlbl"></span>
-    <button class="sec-add" onclick="showAddForm('yearly')">+ Add goal</button>
-  </div>
-  <div class="ahfrm" id="af-yearly">
-    <div class="frow">
-      <input class="fi" id="fn-yearly" type="text" placeholder="Goal name">
-      <input class="fnum" id="ft-yearly" type="number" min="1" max="365" value="1" placeholder="Target / year">
-    </div>
-    <div class="frow">
-      <select class="fse" id="fl-yearly" style="flex:1">
-        <option value="">No link — manual counter</option>
-      </select>
-    </div>
-    <div class="fact">
-      <button class="fcx" onclick="closeAddForm('yearly')">Cancel</button>
-      <button class="fsv" onclick="addHabit('yearly')">Add</button>
-    </div>
-  </div>
-  <div id="yrl"></div>
-</div>
-
-<!-- QUICK WINS -->
-<div class="pnl" id="p-wins">
-  <div class="qbar">
-    <div class="fg">
-      <button class="fb on" onclick="sf('all')">All</button>
-      <button class="fb" onclick="sf('pending')">Pending</button>
-      <button class="fb" onclick="sf('done')">Done</button>
-    </div>
-    <button class="addb" onclick="tf()">+ Add task</button>
-  </div>
-  <div class="qfrm" id="qaf">
-    <div class="frow">
-      <input class="fi" id="qfn" type="text" placeholder="What needs to be done?">
-      <select class="fse" id="qfpri">
-        <option value="high">🔴 High</option>
-        <option value="med" selected>🟡 Med</option>
-        <option value="low">🟢 Low</option>
-      </select>
-      <select class="fse" id="qfe">
-        <option value="5">5 min</option>
-        <option value="10" selected>10 min</option>
-        <option value="30">30 min</option>
-      </select>
-    </div>
-    <div class="fact">
-      <button class="fcx" onclick="tf()">Cancel</button>
-      <button class="fsv" onclick="da()">Add</button>
-    </div>
-  </div>
-  <div id="ql"></div>
-</div>
-
-<!-- INBOX -->
-<div class="pnl" id="p-inbox"></div>
-
-<!-- ROUTINE -->
-<div class="pnl" id="p-routine"></div>
-
-<!-- STATS -->
-<div class="pnl" id="p-stats"></div>
-
-<!-- JOURNAL -->
-<div class="pnl" id="p-journal"></div>
-
-<!-- MOOD -->
-<div class="pnl" id="p-mood"></div>
-
-<!-- CBT THOUGHT RECORDS -->
-<div class="pnl" id="p-cbt"></div>
-
-<!-- MINDFULNESS -->
-<div class="pnl" id="p-mindfulness"></div>
-
-<!-- SETTINGS -->
-<div class="pnl" id="p-settings"></div>
-
-<!-- SYNC -->
-<div class="syncsec">
-  <div class="sync-row">
-    <button class="syncbtn" id="syncbtn">↑ Sync to Drive</button>
-    <button class="syncbtn" id="loadbtn">↓ Load from Drive</button>
-  </div>
-  <div class="sync-row">
-    <button class="syncbtn" id="exportbtn">⬇ Export JSON</button>
-    <button class="syncbtn" id="importbtn">⬆ Import JSON</button>
-  </div>
-  <div class="syncinfo" id="syncinfo">Sync to Google Drive to access your habits from any device.</div>
-</div>
+</div><!-- /.screen -->
 
 <div id="toast"></div>
+
+<!-- Fixed bottom tab bar -->
+<div class="tabhost">
+  <nav class="grv-tabbar" role="tablist" aria-label="Main navigation">
+    <button class="grv-tab" role="tab" data-dest="today" aria-selected="true" onclick="sw('today')">
+      <i data-lucide="sun" width="20" height="20" stroke-width="1.9"></i>
+      Today
+    </button>
+    <button class="grv-tab" role="tab" data-dest="habits" aria-selected="false" onclick="sw('habits')">
+      <i data-lucide="circle-check" width="20" height="20" stroke-width="1.9"></i>
+      Habits
+    </button>
+    <button class="grv-tab" role="tab" data-dest="reflect" aria-selected="false" onclick="sw('reflect')">
+      <i data-lucide="book-open" width="20" height="20" stroke-width="1.9"></i>
+      Reflect
+    </button>
+    <button class="grv-tab" role="tab" data-dest="calm" aria-selected="false" onclick="sw('calm')">
+      <i data-lucide="wind" width="20" height="20" stroke-width="1.9"></i>
+      Calm
+    </button>
+    <button class="grv-tab" role="tab" data-dest="you" aria-selected="false" onclick="sw('you')">
+      <i data-lucide="bar-chart-3" width="20" height="20" stroke-width="1.9"></i>
+      You
+    </button>
+  </nav>
+</div>
 
 <script src="js/vendor/lucide.min.js"></script>
 <script type="module" src="js/app.js"></script>
