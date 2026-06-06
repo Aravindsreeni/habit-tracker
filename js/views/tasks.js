@@ -27,6 +27,7 @@ export function render() {
   });
 
   const el = document.getElementById('ql');
+  if (!el) return;
   el.innerHTML = '';
 
   if (!list.length) {

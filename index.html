@@ -20,68 +20,7 @@
 
   <!-- ── TODAY ──────────────────────────────────────────────────── -->
   <div data-dest-panel="today">
-    <div class="scr-head">
-      <p id="hdr" class="scr-eyebrow"></p>
-      <h1 class="scr-greet"><em>Good to see you.</em></h1>
-    </div>
-
-    <!-- Daily habits -->
-    <div class="pnl on" id="p-daily">
-      <div class="sec-hdr">
-        <span class="sec-lbl">Today</span>
-        <button class="sec-add" onclick="showAddForm('daily')">+ Add habit</button>
-      </div>
-      <div class="ahfrm" id="af-daily">
-        <div class="frow">
-          <input class="fi" id="fn-daily" type="text" placeholder="Habit name">
-          <select class="fse" id="ft-daily" onchange="toggleMaxField()">
-            <option value="c">Checkbox</option>
-            <option value="w">Counter</option>
-          </select>
-          <input class="fnum" id="fm-daily" type="number" min="1" max="100" value="8" style="display:none" placeholder="Max">
-        </div>
-        <div class="fact">
-          <button class="fcx" onclick="closeAddForm('daily')">Cancel</button>
-          <button class="fsv" onclick="addHabit('daily')">Add</button>
-        </div>
-      </div>
-      <div id="dl"></div>
-    </div>
-
-    <!-- Routine -->
-    <div class="pnl on" id="p-routine"></div>
-
-    <!-- Quick Wins -->
-    <div class="pnl on" id="p-wins">
-      <div class="qbar">
-        <div class="fg">
-          <button class="fb on" onclick="sf('all')">All</button>
-          <button class="fb" onclick="sf('pending')">Pending</button>
-          <button class="fb" onclick="sf('done')">Done</button>
-        </div>
-        <button class="addb" onclick="tf()">+ Add task</button>
-      </div>
-      <div class="qfrm" id="qaf">
-        <div class="frow">
-          <input class="fi" id="qfn" type="text" placeholder="What needs to be done?">
-          <select class="fse" id="qfpri">
-            <option value="high">🔴 High</option>
-            <option value="med" selected>🟡 Med</option>
-            <option value="low">🟢 Low</option>
-          </select>
-          <select class="fse" id="qfe">
-            <option value="5">5 min</option>
-            <option value="10" selected>10 min</option>
-            <option value="30">30 min</option>
-          </select>
-        </div>
-        <div class="fact">
-          <button class="fcx" onclick="tf()">Cancel</button>
-          <button class="fsv" onclick="da()">Add</button>
-        </div>
-      </div>
-      <div id="ql"></div>
-    </div>
+    <div class="pnl on" id="p-today"></div>
   </div><!-- /today -->
 
   <!-- ── HABITS ─────────────────────────────────────────────────── -->
