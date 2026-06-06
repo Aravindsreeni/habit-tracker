@@ -6,56 +6,63 @@
 
 ## ▶ Resume here
 
-**Current:** Phase 6 — Mental health. **B6.1 Journal** (c0eea32) + **B6.2 Mood** (5b74e0b)
-done → next is Batch **B6.3 — CBT Thought Record**.
+**Current:** Phase 6 — Mental health. **B6.1 Journal** (c0eea32) · **B6.2 Mood** (5b74e0b) ·
+**B6.3 CBT Thought Record** (b887809) done → next is Batch **B6.4 — ABC(DE) + distortions**
+(last batch of Phase 6, then a phase-completion commit).
 
-Phase 5 (Motivation) fully done. B6.1 Journal + B6.2 Mood now ship. SW cache is now **`ht-v10`**.
-Schema still **v3** (no bump — journal/mood keys are additive, synced automatically since
-`sync.js` archives all `ht_*`).
+Phase 5 (Motivation) fully done. B6.1 Journal + B6.2 Mood + B6.3 Thought Records now ship.
+SW cache is now **`ht-v11`**. Schema still **v3** (no bump — journal/mood/cbt keys are additive,
+synced automatically since `sync.js` archives all `ht_*`).
 
 ### Phase 6 is Mental Health (evidence-based — read CLAUDE.md "Evidence base" table)
 
-Sequence: B6.1 Journal ✅ → B6.2 Mood ✅ → **B6.3 CBT Thought Record** → B6.4 ABC(DE) +
-distortions. **Every mental-health batch MUST include** the "self-help tool, not a substitute
+Sequence: B6.1 Journal ✅ → B6.2 Mood ✅ → B6.3 Thought Record ✅ → **B6.4 ABC(DE) +
+distortions**. **Every mental-health batch MUST include** the "self-help tool, not a substitute
 for professional care" disclaimer + a crisis-resource pointer, and keep entries local/private
 (Design principle 3 + 5 in CLAUDE.md). Positive, non-judgemental tone throughout.
 
-### What to do next (B6.3 — CBT Thought Record)
+### What to do next (B6.4 — ABC(DE) model + cognitive-distortions checklist)
 
-Beck's **7-column** cognitive-restructuring worksheet (see CLAUDE.md evidence table — typical
-20–40% emotion-intensity drop after completion). Columns: **Situation → Automatic thought(s)
-→ Emotion(s) + intensity % → Evidence for → Evidence against → Balanced/alternative thought →
-Re-rate emotion %**. Storage key **`ht_cbt`** = an **array** of entries (NOT per-date — per
-CLAUDE.md storage table `ht_cbt` is the "CBT log entries array" shared by B6.3 + B6.4). New
-`js/views/cbt.js` + `cbt` tab/panel.
+**Extends the existing `js/views/cbt.js` and the `ht_cbt` array** — do NOT make a new tab/store.
+Two additions (see CLAUDE.md evidence table — Ellis REBT + the 13 distortions):
 
-Plan:
-- **`js/views/cbt.js`** — NEW view. A "+ New thought record" form that walks the 7 columns
-  (a multi-field form, not one-tap — this is reflective). Saved entries listed newest-first,
-  tap-to-expand (reuse the journal history pattern). Show the intensity before→after delta as
-  positive reinforcement ("emotion eased 70%→30%"). Add an `id` + `createdAt` per entry.
-- **`js/store.js`** — `CBT` mutable state + `setCBT`/`svCBT` (array in `ht_cbt`, mirror
-  INBOX/`svInbox`). Load `CBT = lsGet('ht_cbt') || []` in `loadAll()`.
-- **`index.html`** — CBT tab + `p-cbt` panel (place after Mood, before Settings).
-- **`js/app.js`** — import + `registerView('cbt', 'p-cbt', rCbt)`.
-- **`js/views/_all.js`** — add `rCbt()` to `renderAll()`.
-- **`sw.js`** — bump to **`ht-v11`**; add `js/views/cbt.js` to SHELL.
-- **`css/base.css`** — new `.cbt-*` namespace.
-- **Pure logic to node-test:** an entry `normalize`/validation + the before→after intensity
-  delta calc. NOTE B6.4 will extend this same `cbt.js`/`ht_cbt` with ABC(DE) + a 13-item
-  cognitive-distortions checklist — leave room (e.g. an optional `distortions[]` field).
+1. **13-item cognitive-distortions checklist** in the thought-record form. The `distortions[]`
+   field is already reserved + node-tested in `normalizeCbt` (filters to string array). Add a
+   `DISTORTIONS` const (id + label + 1-line example) and render as tappable chips/checkboxes in
+   the form (multi-select); save the selected ids onto `entry.distortions`. Show them as small
+   tags in the expanded card. 13 types per CLAUDE.md: all-or-nothing, catastrophizing,
+   overgeneralization, mental filter, mind-reading, labeling, emotional reasoning,
+   discounting-the-positive, fortune-telling, personalization, should-statements,
+   magnification/minimization, blaming. (Confirm the exact 13 against simplypsychology.org /
+   healthline.com — the CLAUDE.md row lists representative ones with "…".)
 
-### Reuse notes (B6.1 / B6.2)
-- Pure exports: `journal.js` → `normalize(raw)`; `mood.js` → `normalizeMood`, `avgScore`,
-  `lastNDates(todayYmd, n)` (DST/leap-safe — reusable for any windowed trend). All node-tested.
-- Disclaimer: copy `disclaimerHTML()` + the `.jr-disc` styling (mood reuses the `jr-disc`
-  class). Keep Tele-MANAS 14416 + "local emergency number" wording.
-- `store.js` per-date helpers: `jKey`/`eachJournal`/`svJournal`, `moodKey`/`eachMood`/`svMood`.
-  (B6.3 `ht_cbt` is an array, so mirror INBOX/`svInbox` instead.)
+2. **ABC(DE) model** as a second record framing (Ellis REBT): Activating event → Beliefs →
+   Consequences → Disputation → Effective new belief. Recommended approach: add an `entry.model`
+   discriminator (`'beck'` default for existing records | `'abcde'`) and a small mode toggle at
+   the top of the New-record form. Reuse the same storage fields where they map cleanly
+   (situation≈A, thoughts≈B, emotion≈C, balanced≈E) OR add abcde-specific keys to `normalizeCbt`
+   and branch the form/card by `model`. Keep both in the one `ht_cbt` array; default un-tagged
+   entries to `'beck'` so old records still render.
 
-**Verification done:** B6.1 `normalize()` 9/9, B6.2 `normalizeMood`/`avgScore`/`lastNDates`
-16/16 (incl. DST + leap year) — all node-tested ✅. `node --check` clean; served over http,
-all modules 200 ✅.
+Wiring for B6.4: `sw.js` bump to **`ht-v12`** (only if files change — cbt.js will); update the
+`.cbt-*` CSS for chips/toggle; extend the `normalizeCbt` node tests (distortions already
+covered — add model + any new fields). No app.js/index.html/_all.js changes needed (cbt.js
+already registered). **Phase-completion commit** after B6.4: `chore: complete Phase 6 — Mental health`.
+
+### Reuse notes (Phase 6 so far)
+- Pure node-tested exports: `journal.js`→`normalize`; `mood.js`→`normalizeMood`/`avgScore`/
+  `lastNDates(todayYmd,n)` (DST+leap safe); `cbt.js`→`normalizeCbt`/`intensityDelta`/`hasContent`.
+- **Disclaimer pattern:** every MH view has a local `disclaimerHTML()` returning the shared
+  `.jr-disc` box with **Tele-MANAS 14416** + "local emergency number". Reuse verbatim.
+- `cbt.js` view state: module-level `formOpen` + `openId`; form built in `_renderForm()`,
+  list in `_renderList()`; `TEXTCOLS` drives the textarea fields; `_card()`/`cardBody()` render
+  expanded entries. Add the distortions UI inside `_renderForm` and a tags row in `cardBody`.
+- `store.js`: `CBT` state + `setCBT`/`svCBT` (array, mirrors INBOX). Per-date helpers exist for
+  journal/mood (`jKey`/`moodKey` families) but CBT is an array.
+
+**Verification done (B6.1–B6.3):** node-tested — B6.1 `normalize` 9/9 · B6.2 trend logic 16/16
+(DST+leap) · B6.3 `normalizeCbt`/`intensityDelta`/`hasContent` 21/21. `node --check` clean on
+all changed modules; served over http — all modules 200 each batch ✅.
 
 ### Stats.js helpers available to reuse later (e.g. B6.2 mood trends)
 - compute (all exported, node-tested): `completedDaySets`, `currentStreak`, `longestStreak`,
@@ -92,7 +99,7 @@ all modules 200 ✅.
 | Phase 5 complete | ✅ done | 28dab9b | — | Motivation phase done (streaks + heatmap + stats + areas) |
 | B6.1 Daily Journal | ✅ done | c0eea32 | `js/views/journal.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `sw.js`, `css/base.css` | 🌟/🌧️/🌱 sections, 10:1:2 caps; ht_journal_YYYY-MM-DD `{wins[],lows[],growth[]}`; tap-to-expand history; disclaimer + Tele-MANAS; pure `normalize()` node-tested; ht-v9 |
 | B6.2 Mood check-in | ✅ done | 5b74e0b | `js/views/mood.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `sw.js`, `css/base.css` | One-tap 5-pt scale 😞–😄 + note; ht_mood_YYYY-MM-DD `{score,note}`; 14-day trend bars + avg; non-judgemental caption; `moodKey`/`eachMood`/`svMood`; pure normalizeMood/avgScore/lastNDates node-tested 16/16; ht-v10 |
-| B6.3 CBT Thought Record | 🔲 todo | — | `js/views/cbt.js` | 7-column Beck worksheet |
+| B6.3 CBT Thought Record | ✅ done | b887809 | `js/views/cbt.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `sw.js`, `css/base.css` | Beck 7-column worksheet; `ht_cbt` array; newest-first tap-to-expand; before→after intensity delta badge + footnote; `CBT`/`setCBT`/`svCBT`; pure normalizeCbt/intensityDelta/hasContent node-tested 21/21; `distortions[]` reserved for B6.4; ht-v11 |
 | B6.4 ABC(DE) + distortions | 🔲 todo | — | `js/views/cbt.js` | Ellis model + 13-item checklist |
 | B7.1 Breathing + meditation | 🔲 todo | — | `js/views/mindfulness.js` | Box/4-7-8 pacer |
 | B8.1 Capacitor native | 🔲 todo | — | New Capacitor project | iOS/Android wrap |
