@@ -93,6 +93,18 @@ export function eachJournal(cb) {
     cb(key.slice(11), lsGet(key) || {});
   }
 }
+// Mood (B6.2) — per-date check-in { score, note }, like daily logs.
+export function moodKey(date = new Date()) {
+  return `ht_mood_${date.getFullYear()}-${p2(date.getMonth() + 1)}-${p2(date.getDate())}`;
+}
+// Iterate every stored mood entry: cb('YYYY-MM-DD', entryObject).
+export function eachMood(cb) {
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith('ht_mood_')) continue;
+    cb(key.slice(8), lsGet(key) || {});
+  }
+}
 export function wKey() {
   const d = new Date(), t = new Date(d);
   t.setHours(0, 0, 0, 0);
@@ -285,6 +297,12 @@ export function svAreas() {
 // svJournal: save one date's journal entry, keyed by 'YYYY-MM-DD'.
 export function svJournal(ymd, entry) {
   lsSet('ht_journal_' + ymd, entry);
+  import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
+}
+
+// svMood: save one date's mood check-in, keyed by 'YYYY-MM-DD'.
+export function svMood(ymd, entry) {
+  lsSet('ht_mood_' + ymd, entry);
   import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
 }
 

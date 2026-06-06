@@ -985,3 +985,97 @@ nav {
   line-height: 1.55;
 }
 .jr-disc b { color: var(--t); }
+
+/* ── Mood (B6.2) ── */
+.md-intro {
+  font-size: 12px;
+  color: var(--t2);
+  line-height: 1.5;
+  margin: 0 2px 12px;
+}
+.md-scale {
+  display: flex;
+  gap: 6px;
+}
+.md-face {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 2px 8px;
+  background: var(--card);
+  border: 0.5px solid var(--b);
+  border-radius: var(--r);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+.md-face:hover { border-color: var(--b2); }
+.md-face.on {
+  border-color: var(--ok-b);
+  background: var(--ok-bg);
+}
+.md-emoji {
+  font-size: 22px;
+  line-height: 1;
+  filter: grayscale(0.35);
+  transition: filter 0.15s;
+}
+.md-face.on .md-emoji { filter: none; }
+.md-lbl {
+  font-size: 10px;
+  color: var(--t2);
+}
+.md-face.on .md-lbl { color: var(--t); font-weight: 500; }
+.md-note { margin-top: 10px; min-height: 52px; }
+
+/* Trend */
+.md-trend-card { padding: 12px 13px 13px; }
+.md-trend-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 11px;
+}
+.md-trend-avg {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--t);
+}
+.md-trend-sub { font-size: 11px; font-weight: 400; color: var(--t3); }
+.md-trend-cnt {
+  font-size: 11px;
+  color: var(--t2);
+  white-space: nowrap;
+}
+.md-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 64px;
+}
+.md-bar-wrap {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+}
+.md-bar {
+  width: 100%;
+  border-radius: 3px 3px 1px 1px;
+  min-height: 5px;
+  background: var(--ok);
+}
+.md-bar.none { background: var(--b); }
+.md-bar.s1 { background: #c06a4a; }
+.md-bar.s2 { background: #c79a4a; }
+.md-bar.s3 { background: var(--t3); }
+.md-bar.s4 { background: var(--ok); opacity: 0.8; }
+.md-bar.s5 { background: var(--ok); }
+.md-trend-msg {
+  font-size: 11px;
+  color: var(--t2);
+  line-height: 1.5;
+  margin-top: 11px;
+}

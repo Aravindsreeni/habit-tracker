@@ -9,7 +9,8 @@ import { render as rInbox } from './inbox.js';
 import { render as rRoutine } from './routine.js';
 import { render as rStats } from './stats.js';
 import { render as rJournal } from './journal.js';
+import { render as rMood } from './mood.js';
 
 export function renderAll() {
-  rD(); rW(); rM(); rQt(); rYr(); rQ(); rInbox(); rRoutine(); rStats(); rJournal();
+  rD(); rW(); rM(); rQt(); rYr(); rQ(); rInbox(); rRoutine(); rStats(); rJournal(); rMood();
 }
