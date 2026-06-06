@@ -202,9 +202,10 @@ function disclaimerHTML() {
   return `
     <div class="jr-disc">
       <b>A self-help tool, not a substitute for professional care.</b>
-      Journaling supports wellbeing but isn't therapy. If you're struggling or in
-      crisis, please reach out — e.g. <b>Tele-MANAS 14416</b> (India, 24×7) or your
-      local emergency number. Your entries stay private on this device.
+      Journaling supports wellbeing but isn't therapy. If you'd like to speak with
+      a therapist, <a href="https://oppam.me" target="_blank" rel="noopener"><b>Oppam</b></a>
+      offers 24×7 online counselling. In a crisis, reach <b>Tele-MANAS 14416</b> (India, 24×7)
+      or your local emergency number. Your entries stay private on this device.
     </div>`;
 }
 

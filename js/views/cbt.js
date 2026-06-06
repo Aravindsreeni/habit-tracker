@@ -385,9 +385,10 @@ function disclaimerHTML() {
     <div class="jr-disc">
       <b>A self-help tool, not a substitute for professional care.</b>
       Thought records (CBT) and the ABC(DE) model (REBT) are self-help techniques, not therapy
-      or diagnosis. If you're struggling or in crisis, please reach out — e.g.
-      <b>Tele-MANAS 14416</b> (India, 24×7) or your local emergency number. Your records stay
-      private on this device.
+      or diagnosis. If you'd like to speak with a therapist,
+      <a href="https://oppam.me" target="_blank" rel="noopener"><b>Oppam</b></a>
+      offers 24×7 online counselling. In a crisis, reach <b>Tele-MANAS 14416</b> (India, 24×7)
+      or your local emergency number. Your records stay private on this device.
     </div>`;
 }
 

@@ -141,7 +141,7 @@ function _renderTrend() {
 function trendMsg(avg, count) {
   if (!count) return 'Check in daily to start seeing your mood trend. 🌱';
   if (avg !== null && avg <= 2) {
-    return 'Some heavy days lately — be gentle with yourself. Support is below if you need it. 💛';
+    return 'Some heavy days lately — be gentle with yourself. Consider talking to someone at <a href="https://oppam.me" target="_blank" rel="noopener">oppam.me</a>. 💛';
   }
   if (avg !== null && avg >= 4) return 'A brighter stretch — good to see. ✨';
   return 'Thanks for checking in — noticing is the first step. 🌱';
@@ -159,9 +159,10 @@ function disclaimerHTML() {
   return `
     <div class="jr-disc">
       <b>A self-help tool, not a substitute for professional care.</b>
-      Mood tracking builds awareness but isn't a diagnosis. If you're struggling or
-      in crisis, please reach out — e.g. <b>Tele-MANAS 14416</b> (India, 24×7) or your
-      local emergency number. Your check-ins stay private on this device.
+      Mood tracking builds awareness but isn't a diagnosis. If you'd like to speak with
+      a therapist, <a href="https://oppam.me" target="_blank" rel="noopener"><b>Oppam</b></a>
+      offers 24×7 online counselling. In a crisis, reach <b>Tele-MANAS 14416</b> (India, 24×7)
+      or your local emergency number. Your check-ins stay private on this device.
     </div>`;
 }
 
