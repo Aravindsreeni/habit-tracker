@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" fill="none" role="img" aria-label="Grove app icon">
+  <rect width="192" height="192" rx="44" fill="#e7f0e7"></rect>
+  <path d="M96 150 C96 116 96 100 96 84" stroke="#54755d" stroke-width="9" stroke-linecap="round"></path>
+  <path d="M96 96 C90 66 68 48 36 45 C36 75 56 99 96 102 Z" fill="#729a7c"></path>
+  <path d="M96 78 C102 50 123 33 150 33 C150 60 132 81 96 84 Z" fill="#8fae90"></path>
+</svg>

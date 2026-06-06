@@ -1,0 +1,154 @@
+/* ── Grove · Color tokens ──────────────────────────────────────────
+   A calm, warm, nature-led palette. Earthy and desaturated — never
+   loud. Sage = growth & done, clay = warmth & energy, lavender =
+   calm & mindfulness, sky = focus, honey = gentle attention.
+   Colours are authored in oklch (with hex references in comments).
+   ------------------------------------------------------------------ */
+
+:root {
+  /* ── Neutrals — warm paper & ink ── */
+  --paper:        oklch(0.985 0.008 90);   /* #faf8f3  app background        */
+  --paper-sunk:   oklch(0.962 0.011 88);   /* #f0ece3  recessed wells        */
+  --surface:      oklch(1 0 0);            /* #ffffff  raised card           */
+  --surface-2:    oklch(0.978 0.009 88);   /* #f6f2ea  subtle inner surface  */
+  --overlay:      oklch(0.30 0.015 70 / 0.34); /* scrim behind dialogs       */
+
+  --ink:          oklch(0.31 0.014 68);    /* #34302a  primary text          */
+  --ink-2:        oklch(0.50 0.013 68);    /* #6c665c  secondary text        */
+  --ink-3:        oklch(0.66 0.011 70);    /* #9a948a  tertiary / muted      */
+  --ink-inverse:  oklch(0.985 0.008 90);   /* text on dark fills             */
+
+  --line:         oklch(0.905 0.008 85);   /* #e7e1d8  hairline border       */
+  --line-2:       oklch(0.845 0.010 82);   /* #d2cabd  stronger border       */
+
+  /* ── Sage — primary, growth, completion ── */
+  --sage:         oklch(0.60 0.058 150);   /* #729a7c  primary               */
+  --sage-deep:    oklch(0.47 0.055 150);   /* #54755d  pressed / text-on-tint*/
+  --sage-soft:    oklch(0.955 0.022 150);  /* #e7f0e7  tint background        */
+  --sage-line:    oklch(0.82 0.045 150);   /* tint border                    */
+
+  /* ── Clay — warmth, energy, secondary accent ── */
+  --clay:         oklch(0.66 0.090 46);    /* #c4886a                        */
+  --clay-deep:    oklch(0.54 0.085 44);    /* #9c6044                        */
+  --clay-soft:    oklch(0.957 0.026 56);   /* #f6ebe1                        */
+  --clay-line:    oklch(0.84 0.060 52);
+
+  /* ── Lavender — calm, mindfulness ── */
+  --lavender:      oklch(0.66 0.062 290);  /* #9892bd                        */
+  --lavender-deep: oklch(0.52 0.062 290);  /* #6f679a                        */
+  --lavender-soft: oklch(0.957 0.022 290); /* #ece9f3                        */
+  --lavender-line: oklch(0.84 0.045 290);
+
+  /* ── Sky — focus, information ── */
+  --sky:          oklch(0.68 0.060 240);   /* #7f9bc0                        */
+  --sky-deep:     oklch(0.54 0.062 240);   /* #56759c                        */
+  --sky-soft:     oklch(0.957 0.022 240);  /* #e6edf4                        */
+  --sky-line:     oklch(0.84 0.045 240);
+
+  /* ── Honey — gentle attention, reminders ── */
+  --honey:        oklch(0.78 0.085 78);    /* #d6a85f                        */
+  --honey-deep:   oklch(0.60 0.082 70);    /* #9c7536                        */
+  --honey-soft:   oklch(0.963 0.030 82);   /* #f7eedb                        */
+  --honey-line:   oklch(0.86 0.060 80);
+
+  /* ── Rose — low moods & gentle "remove"; never an alarm ── */
+  --rose:         oklch(0.60 0.105 28);    /* #bf6a5a                        */
+  --rose-deep:    oklch(0.49 0.105 28);    /* #9b4d3f                        */
+  --rose-soft:    oklch(0.957 0.026 32);   /* #f6e8e4                        */
+  --rose-line:    oklch(0.83 0.060 30);
+
+  /* ── Semantic aliases ── */
+  --text-primary:    var(--ink);
+  --text-secondary:  var(--ink-2);
+  --text-muted:      var(--ink-3);
+  --text-on-accent:  var(--ink-inverse);
+
+  --bg-app:          var(--paper);
+  --bg-sunk:         var(--paper-sunk);
+  --surface-card:    var(--surface);
+  --surface-inset:   var(--surface-2);
+
+  --border-subtle:   var(--line);
+  --border-default:  var(--line-2);
+
+  --accent-primary:  var(--sage);
+  --accent-press:    var(--sage-deep);
+
+  --positive:        var(--sage);
+  --positive-soft:   var(--sage-soft);
+  --attention:       var(--honey-deep);
+  --attention-soft:  var(--honey-soft);
+  --info:            var(--sky-deep);
+  --info-soft:       var(--sky-soft);
+  --calm:            var(--lavender-deep);
+  --calm-soft:       var(--lavender-soft);
+  --warm:            var(--clay-deep);
+  --warm-soft:       var(--clay-soft);
+  --danger:          var(--rose-deep);
+  --danger-soft:     var(--rose-soft);
+
+  /* ── Mood scale (1→5, low→bright) — used by the mood check-in ── */
+  --mood-1: oklch(0.62 0.075 250);   /* heavy   — muted blue   */
+  --mood-2: oklch(0.66 0.062 290);   /* low     — lavender     */
+  --mood-3: oklch(0.72 0.030 95);    /* neutral — soft taupe   */
+  --mood-4: oklch(0.74 0.078 120);   /* good    — fresh green  */
+  --mood-5: oklch(0.80 0.090 95);    /* bright  — warm honey   */
+
+  /* ── Focus ring ── */
+  --ring: oklch(0.60 0.058 150 / 0.55);
+}
+
+/* ── Dark theme — warm charcoal, lifted accents ── */
+[data-theme="dark"] {
+  --paper:        oklch(0.225 0.010 70);   /* #2a2723 */
+  --paper-sunk:   oklch(0.185 0.009 70);   /* #211e1b */
+  --surface:      oklch(0.265 0.011 70);   /* #332f2a */
+  --surface-2:    oklch(0.305 0.011 70);   /* #3c372f */
+  --overlay:      oklch(0.12 0.010 70 / 0.55);
+
+  --ink:          oklch(0.925 0.012 85);   /* #ece6db */
+  --ink-2:        oklch(0.72 0.012 80);    /* #aaa298 */
+  --ink-3:        oklch(0.55 0.011 78);    /* #7c756b */
+  --ink-inverse:  oklch(0.225 0.010 70);
+
+  --line:         oklch(0.345 0.010 72);
+  --line-2:       oklch(0.42 0.011 72);
+
+  --sage:         oklch(0.70 0.062 150);
+  --sage-deep:    oklch(0.80 0.055 150);
+  --sage-soft:    oklch(0.34 0.035 150);
+  --sage-line:    oklch(0.46 0.050 150);
+
+  --clay:         oklch(0.72 0.085 50);
+  --clay-deep:    oklch(0.80 0.075 52);
+  --clay-soft:    oklch(0.34 0.040 50);
+  --clay-line:    oklch(0.46 0.060 50);
+
+  --lavender:      oklch(0.74 0.065 290);
+  --lavender-deep: oklch(0.82 0.060 290);
+  --lavender-soft: oklch(0.34 0.035 290);
+  --lavender-line: oklch(0.47 0.050 290);
+
+  --sky:          oklch(0.74 0.062 240);
+  --sky-deep:     oklch(0.82 0.058 240);
+  --sky-soft:     oklch(0.34 0.035 240);
+  --sky-line:     oklch(0.47 0.050 240);
+
+  --honey:        oklch(0.82 0.085 80);
+  --honey-deep:   oklch(0.86 0.080 82);
+  --honey-soft:   oklch(0.35 0.045 80);
+  --honey-line:   oklch(0.50 0.060 80);
+
+  --rose:         oklch(0.68 0.100 30);
+  --rose-deep:    oklch(0.76 0.090 30);
+  --rose-soft:    oklch(0.34 0.045 30);
+  --rose-line:    oklch(0.48 0.060 30);
+
+  --mood-1: oklch(0.70 0.070 250);
+  --mood-2: oklch(0.74 0.060 290);
+  --mood-3: oklch(0.74 0.028 95);
+  --mood-4: oklch(0.78 0.072 120);
+  --mood-5: oklch(0.84 0.085 95);
+
+  --ring: oklch(0.70 0.062 150 / 0.6);
+}

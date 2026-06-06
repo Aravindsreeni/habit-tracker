@@ -1,0 +1,16 @@
+/* ══════════════════════════════════════════════════════════════════
+   Grove — Design System · global entry point
+   A calm habit & wellbeing OS. Consumers link THIS file only.
+   Contains @import lines exclusively (no rules) — every token and
+   font-face below ships to consuming projects.
+   ══════════════════════════════════════════════════════════════════ */
+
+@import url("./fonts/fonts.css");
+
+@import url("./tokens/colors.css");
+@import url("./tokens/typography.css");
+@import url("./tokens/spacing.css");
+@import url("./tokens/elevation.css");
+@import url("./tokens/motion.css");
+
+@import url("./components/grove-ui.css");

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 232 64" fill="none" role="img" aria-label="Grove">
+  <path d="M22 52 C22 42 22 37 22 31" stroke="#54755d" stroke-width="3" stroke-linecap="round"></path>
+  <path d="M22 35 C20.5 26 14 21 5 20 C5 29 11 36 22 37 Z" fill="#729a7c"></path>
+  <path d="M22 30 C24 22 30 17 38 17 C38 25 33 31 22 32 Z" fill="#8fae90"></path>
+  <text x="52" y="46" font-family="Newsreader, Georgia, serif" font-size="40" font-weight="500" fill="#34302a" letter-spacing="-0.5">Grove</text>
+</svg>

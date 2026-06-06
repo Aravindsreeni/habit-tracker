@@ -1,0 +1,26 @@
+/* ── Grove · Motion tokens ─────────────────────────────────────────
+   Motion in Grove is calm and breath-like: gentle ease-outs, nothing
+   snappy or bouncy. Transitions are short for feedback, long and soft
+   for ambient guidance (the breathing pacer). Always honour
+   prefers-reduced-motion — décor animates, content never gates on it.
+   ------------------------------------------------------------------ */
+
+:root {
+  /* ── Durations ── */
+  --dur-instant: 80ms;    /* @kind other */
+  --dur-fast:    160ms;   /* @kind other */
+  --dur-base:    240ms;   /* @kind other */
+  --dur-slow:    420ms;   /* @kind other */
+  --dur-breath:  4000ms;  /* @kind other */
+
+  /* ── Easing — soft, organic ── */
+  --ease-out:   cubic-bezier(0.22, 0.61, 0.36, 1);   /* @kind other */
+  --ease-in-out: cubic-bezier(0.45, 0, 0.25, 1);     /* @kind other */
+  --ease-calm:  cubic-bezier(0.37, 0, 0.18, 1);      /* @kind other */
+
+  /* ── Composed transitions ── */
+  --transition-colors: color var(--dur-fast) var(--ease-out),
+                       background-color var(--dur-fast) var(--ease-out),
+                       border-color var(--dur-fast) var(--ease-out);
+  --transition-transform: transform var(--dur-fast) var(--ease-out);
+}
