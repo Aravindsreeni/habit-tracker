@@ -37,7 +37,7 @@ optional Google Drive sync.
 
 ## Features
 
-Phases 0–5 are complete; phases 6–8 are planned (see [Roadmap](#roadmap)).
+All phases (0–8) are complete (see [Roadmap](#roadmap)).
 
 | Area | What you get |
 |---|---|
@@ -48,8 +48,18 @@ Phases 0–5 are complete; phases 6–8 are planned (see [Roadmap](#roadmap)).
 | **Routine builder** | Time-blocked daily plan: add blocks, tick them off, auto-sorted by start time. |
 | **Stats** | **Streaks** (current + longest per daily habit), a GitHub-style **year heatmap**, **30/90-day completion rates**, and user-defined **Areas** (categories) with grouped completion. |
 | **Eye-care reminder** | Configurable 20-20-20 timer using the Notification API, with an in-app banner and daily count. |
+| **Journal** *(Phase 6)* | A private daily journal with *what went well & why* (wins), lows, and growth sections — based on the *Three Good Things* exercise. Tap-to-expand history; entries stay on-device. |
+| **Mood check-in** *(Phase 6)* | One-tap 5-point daily mood (😞–😄) with an optional note and a 14-day trend. Non-judgemental — there's no "good" score to chase. |
+| **Thought Records (CBT)** *(Phase 6)* | Beck 7-column cognitive-restructuring worksheet, the Ellis **ABC(DE)** framing, and a 13-item cognitive-distortions checklist; shows the before→after emotion-intensity change. |
+| **Mindfulness** *(Phase 7)* | Box (4-4-4-4) and 4-7-8 **breathing pacers** with an animated expand/hold/contract guide and configurable cycles, plus a **meditation countdown timer** and a soft completion chime. Nothing is stored. |
+| **Native mobile** *(Phase 8)* | An optional **Capacitor** wrapper (in [`native/`](./native/)) packages this exact web app for iOS/Android, bridging reminders to native notifications — the web build is unchanged. |
 | **PWA** | Installable, works offline (app-shell cache), light/dark theme toggle. |
 | **Sync & backup** | Full-history Google Drive sync (opt-in) plus offline Export / Import JSON. |
+
+> The mental-health features (Journal, Mood, Thought Records) are **self-help tools, not a
+> substitute for professional care**; each carries that disclaimer plus a crisis-resource pointer,
+> and all entries stay local (and the owner's Drive only). See the
+> [Evidence base](#evidence-base-mental-health-features) below.
 
 ---
 
@@ -96,12 +106,15 @@ js/
   sync.js             ← Google Drive OAuth + full-history payload + Export/Import JSON
   ui.js               ← toast(), mkCard(), mkSum(), note toggle, SVG icons
   router.js           ← view registry + tab switching (sw())
-  reminders.js        ← recurring timer engine + Notification API (eye-care)
+  reminders.js        ← recurring timer engine + Notification API (eye-care), native-aware
   views/
     daily.js weekly.js monthly.js quarterly.js yearly.js
     tasks.js inbox.js routine.js stats.js settings.js
+    journal.js mood.js cbt.js          ← mental health (Phase 6)
+    mindfulness.js                     ← breathing pacer + meditation timer (Phase 7)
     notes.js          ← shared note-editing behavior
     _all.js           ← renderAll() — re-renders every view (used after sync restore)
+native/               ← Capacitor iOS/Android wrapper (Phase 8); see native/README.md
 ```
 
 ### View contract
@@ -153,7 +166,9 @@ user action → view handler mutates in-memory state (e.g. HABITS, ROUTINE, AREA
 | `ht_reminders` | reminder configs |
 | `ht_settings` | user prefs (theme, reminder defaults) |
 | `ht_lastsync` | last Drive sync timestamp |
-| `ht_journal_YYYY-MM-DD`, `ht_mood_YYYY-MM-DD`, `ht_cbt` | reserved for Phase 6 (mental health) |
+| `ht_journal_YYYY-MM-DD` | daily journal `{ wins[], lows[], growth[] }` (Phase 6) |
+| `ht_mood_YYYY-MM-DD` | daily mood check-in `{ score, note }` (Phase 6) |
+| `ht_cbt` | CBT/REBT thought-record array (Phase 6) |
 
 ### Schema versioning & migration
 
@@ -288,7 +303,7 @@ creates (`habit-tracker-backup.json`) — it cannot see the rest of your Drive.
   anywhere unless you explicitly sign in and sync.
 - **You own your data.** Export a full JSON backup anytime; import it on any device.
 - **Drive sync is opt-in** and uses the narrow `drive.file` scope.
-- **Mental-health entries** (Phase 6, planned) are designed to stay local + the owner's Drive
+- **Mental-health entries** (Journal, Mood, Thought Records) stay local + the owner's Drive
   only, and ship with a "self-help tool, not a substitute for professional care" disclaimer
   plus a crisis-resource pointer.
 - The OAuth **client ID is not a secret** (it's a public identifier and safe to commit); there
@@ -360,7 +375,7 @@ See [`progress.md`](./progress.md) for the detailed batch board and commit histo
 
 ## Evidence base (mental-health features)
 
-Planned Phase 6 features are grounded in published methods:
+The Phase 6 mental-health features are grounded in published methods:
 
 | Feature | Method | Source |
 |---|---|---|
