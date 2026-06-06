@@ -81,6 +81,18 @@ export function eachDailyLog(cb) {
     cb(key.slice(5), lsGet(key) || {});
   }
 }
+// Journal (B6.1) — per-date entry { wins[], lows[], growth[] }, like daily logs.
+export function jKey(date = new Date()) {
+  return `ht_journal_${date.getFullYear()}-${p2(date.getMonth() + 1)}-${p2(date.getDate())}`;
+}
+// Iterate every stored journal entry: cb('YYYY-MM-DD', entryObject).
+export function eachJournal(cb) {
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (!key || !key.startsWith('ht_journal_')) continue;
+    cb(key.slice(11), lsGet(key) || {});
+  }
+}
 export function wKey() {
   const d = new Date(), t = new Date(d);
   t.setHours(0, 0, 0, 0);
@@ -267,6 +279,12 @@ export function svRoutine() {
 // svAreas: called after mutating AREAS (add/delete category)
 export function svAreas() {
   lsSet('ht_areas', AREAS);
+  import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
+}
+
+// svJournal: save one date's journal entry, keyed by 'YYYY-MM-DD'.
+export function svJournal(ymd, entry) {
+  lsSet('ht_journal_' + ymd, entry);
   import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
 }
 

@@ -1,5 +1,5 @@
 // ── sw.js — Service Worker (app-shell cache, offline support) ──────
-const CACHE    = 'ht-v8';
+const CACHE    = 'ht-v9';
 const SHELL    = [
   './',
   './index.html',
@@ -21,6 +21,7 @@ const SHELL    = [
   './js/views/inbox.js',
   './js/views/routine.js',
   './js/views/stats.js',
+  './js/views/journal.js',
   './js/views/settings.js',
   './js/reminders.js',
   './manifest.webmanifest',

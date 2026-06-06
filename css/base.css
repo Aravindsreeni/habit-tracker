@@ -872,3 +872,116 @@ nav {
 #toast.on {
   opacity: 1;
 }
+
+/* ── Journal (B6.1) ── */
+.jr-intro {
+  font-size: 12px;
+  color: var(--t2);
+  line-height: 1.5;
+  margin: 0 2px 12px;
+}
+.jr-card { padding: 12px 13px 13px; }
+.jr-sec-hdr {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.jr-sec-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--t);
+}
+.jr-sec-count {
+  font-size: 11px;
+  color: var(--t3);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.jr-hint {
+  font-size: 11px;
+  color: var(--t3);
+  margin-top: 3px;
+  line-height: 1.45;
+}
+.jr-items { margin: 9px 0 4px; }
+.jr-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  padding: 5px 0;
+  border-top: 0.5px solid var(--b);
+}
+.jr-item:first-child { border-top: 0; }
+.jr-bull { color: var(--ok); font-size: 13px; line-height: 1.5; flex-shrink: 0; }
+.jr-text {
+  flex: 1;
+  font-size: 13px;
+  color: var(--t);
+  line-height: 1.5;
+  min-width: 0;
+  word-break: break-word;
+}
+.jr-blank {
+  font-size: 12px;
+  color: var(--t3);
+  padding: 4px 0 2px;
+}
+.jr-full {
+  font-size: 12px;
+  color: var(--ok);
+  padding: 6px 0 2px;
+}
+.jr-add {
+  display: flex;
+  gap: 6px;
+  margin-top: 9px;
+}
+.jr-add .fi { flex: 1; }
+
+/* History */
+.jr-hist .jr-hist-hdr { cursor: pointer; }
+.jr-hist-meta {
+  font-size: 11px;
+  color: var(--t2);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.jr-caret {
+  font-size: 10px;
+  color: var(--t3);
+  flex-shrink: 0;
+  width: 10px;
+  text-align: center;
+}
+.jr-hist-body {
+  padding: 2px 13px 12px;
+  border-top: 0.5px solid var(--b);
+}
+.jr-hist-sec { margin-top: 10px; }
+.jr-hist-lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--t2);
+  margin-bottom: 4px;
+}
+.jr-hist-item {
+  font-size: 13px;
+  color: var(--t);
+  line-height: 1.5;
+  padding: 2px 0 2px 4px;
+  word-break: break-word;
+}
+
+/* Disclaimer + crisis pointer */
+.jr-disc {
+  margin: 20px 2px 4px;
+  padding: 11px 13px;
+  border: 0.5px solid var(--info-b);
+  border-radius: var(--rm);
+  background: var(--s);
+  font-size: 11px;
+  color: var(--t2);
+  line-height: 1.55;
+}
+.jr-disc b { color: var(--t); }

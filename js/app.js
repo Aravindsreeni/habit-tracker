@@ -11,6 +11,7 @@ import { render as rQ, setFilter, toggleForm, addTask } from './views/tasks.js';
 import { render as rInbox } from './views/inbox.js';
 import { render as rRoutine } from './views/routine.js';
 import { render as rStats } from './views/stats.js';
+import { render as rJournal } from './views/journal.js';
 import { render as rSettings, applyTheme, initRem } from './views/settings.js';
 
 // ── Register views ─────────────────────────────────────────────────
@@ -23,6 +24,7 @@ registerView('wins',    'p-wins',    rQ);
 registerView('inbox',   'p-inbox',    rInbox);
 registerView('routine', 'p-routine',  rRoutine);
 registerView('stats',   'p-stats',    rStats);
+registerView('journal', 'p-journal',  rJournal);
 registerView('settings','p-settings', rSettings);
 
 // ── Date header ────────────────────────────────────────────────────

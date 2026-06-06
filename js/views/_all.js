@@ -8,7 +8,8 @@ import { render as rQ } from './tasks.js';
 import { render as rInbox } from './inbox.js';
 import { render as rRoutine } from './routine.js';
 import { render as rStats } from './stats.js';
+import { render as rJournal } from './journal.js';
 
 export function renderAll() {
-  rD(); rW(); rM(); rQt(); rYr(); rQ(); rInbox(); rRoutine(); rStats();
+  rD(); rW(); rM(); rQt(); rYr(); rQ(); rInbox(); rRoutine(); rStats(); rJournal();
 }
