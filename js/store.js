@@ -40,6 +40,7 @@ export let D = {}, W = {}, M = {}, Q = {}, Y = {}, QW = [];
 export let INBOX = [];
 export let ROUTINE = [];
 export let AREAS = [];
+export let CBT = [];
 
 export function setHabits(v)  { HABITS = v; }
 export function setD(v)       { D = v; }
@@ -51,6 +52,7 @@ export function setQW(v)      { QW = v; }
 export function setInbox(v)   { INBOX = v; }
 export function setRoutine(v) { ROUTINE = v; }
 export function setAreas(v)   { AREAS = v; }
+export function setCBT(v)     { CBT = v; }
 
 // ── localStorage helpers ───────────────────────────────────────────
 export function lsGet(key) {
@@ -266,6 +268,7 @@ export function loadAll() {
   INBOX   = lsGet('ht_inbox')   || [];
   ROUTINE = lsGet('ht_routine') || [];
   AREAS   = lsGet('ht_areas')   || [];
+  CBT     = lsGet('ht_cbt')     || [];
 
   const lastSync = lsGet('ht_lastsync');
   const el = document.getElementById('syncinfo');
@@ -303,6 +306,12 @@ export function svJournal(ymd, entry) {
 // svMood: save one date's mood check-in, keyed by 'YYYY-MM-DD'.
 export function svMood(ymd, entry) {
   lsSet('ht_mood_' + ymd, entry);
+  import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
+}
+
+// svCBT: called after mutating CBT (the ht_cbt thought-record array).
+export function svCBT() {
+  lsSet('ht_cbt', CBT);
   import('./sync.js').then(m => m.scheduleSync()).catch(() => {});
 }
 
