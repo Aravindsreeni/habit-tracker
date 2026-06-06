@@ -6,44 +6,42 @@
 
 ## ▶ Resume here
 
-**Current:** Phase 5 complete (B5.1 220e096 · B5.2 5023bbd · B5.3 d90fadd) → start
-**Phase 6 — Mental health**, Batch **B6.1 — Daily Journal**.
+**Current:** Phase 6 — Mental health. **B6.1 Daily Journal done** (c0eea32) →
+next is Batch **B6.2 — Mood check-in**.
 
-Phase 5 (Motivation) is fully done: the Stats tab now shows Streaks → Consistency (30/90-day
-completion rates) → Areas (categories + grouped rate) → year Heatmap, all in `js/views/stats.js`.
-Schema is now **v3** (`ht_areas`). SW cache is `ht-v8`.
+Phase 5 (Motivation) fully done. **B6.1 Daily Journal** now ships: Journal tab + `p-journal`
+panel in `js/views/journal.js` — three sections (🌟 wins · 🌧️ lows · 🌱 growth) with gentle
+**10:1:2** caps, per-date storage `ht_journal_YYYY-MM-DD` → `{ wins[], lows[], growth[] }`,
+tap-to-expand history of past days, self-help disclaimer + Tele-MANAS 14416 crisis pointer.
+SW cache is now **`ht-v9`**. Schema still **v3** (no bump — journal keys are additive, synced
+automatically since `sync.js` archives all `ht_*`).
 
 ### Phase 6 is Mental Health (evidence-based — read CLAUDE.md "Evidence base" table)
 
-Sequence: B6.1 Daily Journal → B6.2 Mood check-in → B6.3 CBT Thought Record → B6.4 ABC(DE)
-+ distortions. **Every mental-health batch MUST include** the "self-help tool, not a substitute
-for professional care" disclaimer + a crisis-resource pointer, and keep entries local/private
-(Design principle 3 + 5 in CLAUDE.md). Positive, non-judgemental tone throughout.
+Sequence: B6.1 Daily Journal ✅ → **B6.2 Mood check-in** → B6.3 CBT Thought Record → B6.4
+ABC(DE) + distortions. **Every mental-health batch MUST include** the "self-help tool, not a
+substitute for professional care" disclaimer + a crisis-resource pointer, and keep entries
+local/private (Design principle 3 + 5 in CLAUDE.md). Positive, non-judgemental tone throughout.
 
-### What to do next (B6.1 — Daily Journal)
+### What to do next (B6.2 — Mood check-in)
 
-Three Good Things / "what went well & why" (Seligman 2005 — see evidence table). Storage key
-`ht_journal_YYYY-MM-DD` → `{ wins, lows, growth }` (per CLAUDE.md storage table).
+A quick daily mood scale + optional note. Storage key `ht_mood_YYYY-MM-DD` → `{ score, note }`
+(per CLAUDE.md storage table). Show a short trend (the stats.js compute helpers listed below
+are reusable for windowed trends). New `js/views/mood.js` + `mood` tab/panel; wire through
+app.js, _all.js, sw.js (bump **ht-v10**), css `.md-*` namespace. Reuse the journal disclaimer
+pattern (`disclaimerHTML()` style) + crisis pointer. **Pure logic to node-test:** mood
+averaging / trend bucketing.
 
-Plan:
-- **`js/views/journal.js`** — NEW self-rendering view (mirror inbox/routine/stats pattern:
-  `render()` reads store, paints into a `p-journal` panel). Today's entry editable; a short
-  history list of past days below (read-only or tap-to-expand). The plan notes "10:1:2 limits"
-  — cap wins at ~10, lows ~1, growth ~2 entries (gentle, encourages focusing on the positive).
-- **`js/store.js`** — journal is per-date like the daily logs; add a small helper if useful
-  (e.g. `jKey(date)` → `ht_journal_YYYY-MM-DD`) and load today's entry in `loadAll()` OR keep
-  it lazy in the view. Mirror `svRoutine`/`svAreas` for save (`svJournal`). No schema bump
-  needed unless you add migration (journal keys are additive; probably skip).
-- **`index.html`** — Journal tab + `p-journal` panel (self-rendering, empty div).
-- **`js/app.js`** — import + `registerView('journal', 'p-journal', rJournal)`.
-- **`js/views/_all.js`** — add `rJournal()` to `renderAll()`.
-- **`sw.js`** — bump to `ht-v9`; add `js/views/journal.js` to the shell SHELL array.
-- **`css/base.css`** — new `.jr-*` namespace.
+### Journal (B6.1) reuse notes
+- `js/views/journal.js` exports pure **`normalize(raw)`** → `{ wins:[], lows:[], growth:[] }`
+  (tolerant of legacy string shape + garbage; node-tested 9/9). Disclaimer lives in
+  `disclaimerHTML()` — copy the wording/`.jr-disc` styling for mood/CBT.
+- `store.js`: `jKey(date)`, `eachJournal(cb)`, `svJournal(ymd, entry)` mirror the daily-log
+  helpers; the same per-date pattern fits `ht_mood_*`.
 
-**Verification for B6.1:**
-1. `python -m http.server 8000` → Journal tab; write wins/lows/growth → persists on reload.
-2. History shows prior days. Disclaimer + crisis line visible. All prior tabs still work.
-3. `node --check` changed modules first.
+**Verification for B6.1 (done):** node --check on all changed modules ✅; `normalize()`
+unit-tested in node (null/garbage/legacy-string/blank-drop/non-string-drop/full-shape) 9/9 ✅;
+served over http — `/`, `journal.js`, `app.js`, `index.html`, `sw.js`, `base.css` all 200 ✅.
 
 ### Stats.js helpers available to reuse later (e.g. B6.2 mood trends)
 - compute (all exported, node-tested): `completedDaySets`, `currentStreak`, `longestStreak`,
@@ -78,7 +76,7 @@ Plan:
 | B5.2 Heatmap | ✅ done | 5023bbd | `js/views/stats.js`, `css/base.css`, `sw.js` | GitHub-style year calendar per daily habit; heatmapWeeks() reuses B5.1 compute; ht-v7 cache |
 | B5.3 Statistics + Areas | ✅ done | d90fadd | `js/views/stats.js`, `js/store.js`, `css/base.css`, `sw.js` | 30/90-day completion rates; ht_areas categories (schema v3); per-habit area tagging + grouped rate; ht-v8 |
 | Phase 5 complete | ✅ done | 28dab9b | — | Motivation phase done (streaks + heatmap + stats + areas) |
-| B6.1 Daily Journal | 🔲 todo | — | `js/views/journal.js` | 10:1:2 limits; history view |
+| B6.1 Daily Journal | ✅ done | c0eea32 | `js/views/journal.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `sw.js`, `css/base.css` | 🌟/🌧️/🌱 sections, 10:1:2 caps; ht_journal_YYYY-MM-DD `{wins[],lows[],growth[]}`; tap-to-expand history; disclaimer + Tele-MANAS; pure `normalize()` node-tested; ht-v9 |
 | B6.2 Mood check-in | 🔲 todo | — | `js/views/mood.js` | Scale + note; disclaimer |
 | B6.3 CBT Thought Record | 🔲 todo | — | `js/views/cbt.js` | 7-column Beck worksheet |
 | B6.4 ABC(DE) + distortions | 🔲 todo | — | `js/views/cbt.js` | Ellis model + 13-item checklist |
