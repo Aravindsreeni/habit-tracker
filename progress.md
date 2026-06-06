@@ -17,37 +17,27 @@ Calm · You**. **Visual + IA only** — no changes to `store.js`/`sync.js`/data 
 > `grove-design/ui_kits/grove-app/` has the screen JSX (`screens-track.jsx`, `screens-care.jsx`,
 > `app.jsx`, `ui.jsx`) + `kit.css` to port from. `grove-design/` itself is still untracked.
 
-**Phase 9 — Grove foundation: IN PROGRESS.** Done so far this session:
-- **B9.1** ✅ `15a933f` — vendored Grove into `css/grove/**` (styles + fonts + tokens + grove-ui.css)
-  and `assets/grove/*.svg`; linked `css/grove/styles.css` first in `index.html`.
-- **B9.2** ✅ `cff5d0c` — `css/tokens.css` rewritten to **alias legacy var names** (`--bg --s
-  --card --b --b2 --t/-2/-3 --ok* --warn-b --info-b --danger --r --rm`) onto Grove tokens; Grove
-  owns light/dark via `[data-theme]`. `body` font → `--font-ui`. `theme-color`/manifest →
-  Grove paper `#faf8f3`; manifest icon → `assets/grove/grove-icon.svg`. `settings.js` `_setTheme`
-  resolves `theme:'system'` → `data-theme` via `matchMedia` (+ live `onchange`).
-- **B9.3** ✅ `30a358d` — vendored `lucide@0.453.0` UMD → `js/vendor/lucide.min.js` (loaded before
-  app.js); new `js/icons.js` (`icon(name,{size,stroke,active,cls,label})` inline-SVG +
-  `refreshIcons()`); `ui.js` `ckSVG/penSVG/xSVG` → Lucide `check/pencil/x`; fixed inbox.js:48 dup
-  checkmark; `router.sw()` calls `refreshIcons()` after each render.
+**Phases 9 & 10 COMPLETE ✅** (commits 380ef04 → 0249b1d). Today renders with Grove skin,
+ring, habits, routine, quick wins; all 5 destinations navigable via Grove bottom tabbar.
 
-**⏭ NEXT: B9.4 then B9.5 (finish Phase 9).**
-- **B9.4** — create `css/grove-app.css` ported from `grove-design/ui_kits/grove-app/kit.css`,
-  **dropping demo chrome** (`.kit-stage`, `.phone`, `.statusbar`) and adapting for a real
-  responsive viewport. Link it in `index.html` **after** `css/base.css`. Keep classes listed in
-  the plan B9.4 (`.screen`, `.scr-*`, `.hero*`, `.ring*`, `.habit*/.counter*`, `.quickadd`,
-  `.jr-item`, `.disclaimer`, `.breathe-*`, `.med-clock`, `.heatmap*`, `.rate-row`, `.tabhost`,
-  etc.). Respect `prefers-reduced-motion`.
-- **B9.5** — add **all** new files to `SHELL` in `sw.js` (the 13 woff2 + 5 tokens +
-  grove-ui.css + styles.css + grove-app.css + lucide.min.js + icons.js + assets/grove svgs) and
-  bump `CACHE` **`ht-v14 → ht-v15`**. Then phase-completion commit `chore: complete Phase 9 — Grove foundation`.
+**⏭ NEXT: Phase 11 — Habits destination (B11.1)**
 
-> 🚨 **SW NOT YET BUMPED** — still `ht-v14`, and the new grove/lucide files are **not in SHELL**.
-> Online serving works fine; **offline cache is stale** until B9.5. Do B9.5 before relying on PWA.
+> ✅ User checkpoint passed — Today view screenshotted and confirmed (see B10.2 commit).
+> Server still running at `python -m http.server 8000` from `habit-tracker/`.
 
-After Phase 9 → **Phase 10 (B10.1 shell+router to 5 destinations, B10.2 Today view)**, then serve,
-screenshot **Today**, and **show the user** (first checkpoint) before Habits/Reflect/Calm/You.
+**B11.1** — New `js/views/habits.js` porting kit **HabitsScreen** (`screens-track.jsx`):
+- `.grv-seg` SegmentedControl tabs: Daily · Weekly · Monthly · Quarterly · Yearly
+- Each habit as `.grv-card` (`grv-card--done` when complete) with title + count `.grv-badge`
+  + `.grv-progress` + caption ("Complete — lovely work this week" / "N to go")
+- Quarterly/Yearly: read-only rolled-up goal-link progress via `store.linkProgress`
+- Port add-habit/add-goal flows (from `weekly/monthly/quarterly/yearly.js`) into Grove forms
+- Bump `CACHE → ht-v18`; SHELL += `habits.js`. Commit + phase-complete.
 
-Schema still **v3**. SW cache **`ht-v14`** (bump pending in B9.5).
+**Key architecture note**: `router.js` now uses `registerDest(dest, [viewIds])` + `sw(dest)` to
+toggle 5 destination panels (`data-dest-panel` attr). `today.js` is a full self-contained view.
+The `_all.js renderAll()` calls `rToday()` first for sync restore. `tasks.js` has null guard.
+
+Schema still **v3**. SW cache **`ht-v17`**.
 
 ### State of the project (for whoever picks this up next)
 
@@ -177,8 +167,12 @@ all changed modules; served over http — all modules 200 each batch ✅.
 | B9.1 Vendor Grove DS | ✅ done | 15a933f | `css/grove/**` (new), `assets/grove/*.svg` (new), `index.html` | Copied Grove styles/fonts/tokens/grove-ui.css from `grove-design/`; linked `css/grove/styles.css` first |
 | B9.2 Token remap | ✅ done | cff5d0c | `css/tokens.css`, `css/base.css`, `js/views/settings.js`, `index.html`, `manifest.webmanifest` | Legacy var names aliased onto Grove tokens; body→`--font-ui`; paper `#faf8f3`; `theme:'system'`→`data-theme` via matchMedia |
 | B9.3 Lucide + icons | ✅ done | 30a358d | `js/vendor/lucide.min.js` (new), `js/icons.js` (new), `js/ui.js`, `js/router.js`, `js/views/inbox.js`, `index.html` | Vendored lucide 0.453.0 UMD; `icon()`+`refreshIcons()`; check/pencil/x swapped; dup checkmark fixed |
-| B9.4 Port kit layout CSS | ⏳ next | — | `css/grove-app.css` (new), `index.html` | Port `kit.css` minus demo chrome; link after base.css |
-| B9.5 SW + cache bump | ⏳ todo | — | `sw.js` | Add all new files to SHELL; bump `ht-v14→ht-v15`; phase-completion commit |
+| B9.4 Port kit layout CSS | ✅ done | 380ef04 | `css/grove-app.css` (new), `index.html` | Port `kit.css` minus demo chrome; link after base.css; `.tabhost` → position:fixed; prefers-reduced-motion |
+| B9.5 SW + cache bump | ✅ done | b0ce8e4 | `sw.js` | Added 13 woff2+5 tokens+grove-ui.css+styles.css+grove-app.css+lucide+icons+4 SVGs; ht-v14→ht-v15; phase-complete commit |
+| Phase 9 complete | ✅ done | b0ce8e4 | — | Grove foundation: fonts/tokens/SVGs/layout CSS/SW shell |
+| B10.1 5-dest shell+router | ✅ done | 83f775f | `index.html`, `js/router.js`, `js/app.js`, `css/base.css`, `sw.js` | 14-tab nav → Grove bottom tabbar; 5 destination panels; registerDest(); body→flex 100dvh; ht-v15→ht-v16 |
+| B10.2 Today view | ✅ done | 0249b1d | `js/views/today.js` (new), `js/views/tasks.js`, `js/views/_all.js`, `js/app.js`, `index.html`, `sw.js` | Full Grove TodayScreen: hero ring + habit cards (.grv-check) + streak badges + counters + quickadd + routine + quick wins; ht-v16→ht-v17 |
+| Phase 10 complete | ✅ done | 0249b1d | — | 5-destination shell + Today view; user checkpoint passed ✅ |
 
 ---
 
