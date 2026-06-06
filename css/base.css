@@ -1147,3 +1147,91 @@ nav {
   color: var(--t2);
   line-height: 1.5;
 }
+
+/* ── ABC(DE) + distortions (B6.4) ── */
+/* Framework toggle */
+.cbt-modes {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.cbt-mode {
+  flex: 1;
+  padding: 7px 8px;
+  border: 0.5px solid var(--b);
+  border-radius: var(--r);
+  background: var(--card);
+  color: var(--t2);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.cbt-mode:hover { border-color: var(--b2); }
+.cbt-mode.on {
+  border-color: var(--ok-b);
+  background: var(--ok-bg);
+  color: var(--t);
+}
+.cbt-mode-hint {
+  font-size: 11px;
+  color: var(--t3);
+  line-height: 1.5;
+  margin: 0 2px 13px;
+}
+
+/* Distortion checklist chips */
+.cbt-lbl-opt { font-weight: 400; color: var(--t3); }
+.cbt-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.cbt-chip {
+  padding: 5px 10px;
+  border: 0.5px solid var(--b);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--t2);
+  font-family: inherit;
+  font-size: 11.5px;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.cbt-chip:hover { border-color: var(--b2); }
+.cbt-chip.on {
+  border-color: var(--ok-b);
+  background: var(--ok-bg);
+  color: var(--t);
+  font-weight: 500;
+}
+
+/* Model tag on the list header */
+.cbt-tagline {
+  flex-shrink: 0;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--t3);
+  padding: 2px 5px;
+  border: 0.5px solid var(--b);
+  border-radius: 4px;
+  margin-right: 7px;
+}
+
+/* Distortion tags in the expanded card */
+.cbt-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.cbt-tag {
+  font-size: 11px;
+  color: var(--t2);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--s);
+  border: 0.5px solid var(--b);
+}
