@@ -23,14 +23,12 @@ registerDest('reflect', ['reflect']);
 registerDest('calm',    ['calm']);
 registerDest('you',     ['you']);
 
-// ── Expose globals ─────────────────────────────────────────────────
-window.gisLoaded = gisLoaded;   // Google Identity Services onload callback
-
 // ── Init ───────────────────────────────────────────────────────────
 applyTheme();   // apply saved theme before paint (avoids flash)
 initSchema();   // run migration before loading data
 loadAll();
 initRem();      // start reminder timers
+gisLoaded();    // kick off GIS init (retries internally until google.accounts is ready)
 
 // Activate Today destination on load
 sw('today');
