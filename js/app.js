@@ -4,6 +4,7 @@ import { gisLoaded, syncTrigger, loadTrigger, exportJSON, importJSON } from './s
 import { registerView, registerDest, sw } from './router.js';
 import { render as rToday } from './views/today.js';
 import { render as rHabits } from './views/habits.js';
+import { render as rReflect } from './views/reflect.js';
 import { render as rD, showAddForm as sAFd, closeAddForm as cAFd, addHabit as aHd } from './views/daily.js';
 import { render as rW, showAddForm as sAFw, closeAddForm as cAFw, addHabit as aHw } from './views/weekly.js';
 import { render as rM, showAddForm as sAFm, closeAddForm as cAFm, addHabit as aHm } from './views/monthly.js';
@@ -22,6 +23,7 @@ import { render as rSettings, applyTheme, initRem } from './views/settings.js';
 // ── Register views ─────────────────────────────────────────────────
 registerView('today',       'p-today',       rToday);
 registerView('habits',      'p-habits',      rHabits);
+registerView('reflect',     'p-reflect',     rReflect);
 registerView('daily',       'p-daily',       rD);
 registerView('weekly',      'p-weekly',      rW);
 registerView('monthly',     'p-monthly',     rM);
@@ -40,7 +42,7 @@ registerView('settings',    'p-settings',    rSettings);
 // ── Register 5 destinations ────────────────────────────────────────
 registerDest('today',   ['today']);
 registerDest('habits',  ['habits']);
-registerDest('reflect', ['inbox', 'journal', 'mood', 'cbt']);
+registerDest('reflect', ['reflect']);
 registerDest('calm',    ['mindfulness']);
 registerDest('you',     ['stats', 'settings']);
 
