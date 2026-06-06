@@ -1,0 +1,280 @@
+/* ── Grove app · layout classes (real responsive viewport) ──
+   Ported from grove-design/ui_kits/grove-app/kit.css.
+   Demo chrome (.kit-stage, .phone, .statusbar) intentionally omitted. */
+
+/* ── Screen (scrollable content area) ── */
+.screen {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 6px 20px 130px;
+  scrollbar-width: none;
+}
+.screen::-webkit-scrollbar { display: none; }
+
+/* ── Screen header ── */
+.scr-head { padding: 8px 2px 18px; }
+.scr-eyebrow {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--text-muted);
+  font-weight: 700;
+}
+.scr-greet {
+  font-family: var(--font-serif);
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin-top: 6px;
+  color: var(--text-primary);
+}
+.scr-greet em { font-style: italic; color: var(--sage-deep); }
+
+.sec-eyebrow {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-eyebrow);
+  color: var(--text-muted);
+  font-weight: 700;
+  margin: 24px 2px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stack { display: flex; flex-direction: column; gap: 10px; }
+
+/* ── Habit row ── */
+.habit { display: flex; align-items: center; gap: 14px; }
+.habit__body { flex: 1; min-width: 0; }
+.habit__name { font-size: 15px; font-weight: 500; color: var(--text-primary); }
+.habit__meta {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.habit.done .habit__name { color: var(--sage-deep); }
+
+.counter { display: flex; align-items: center; gap: 10px; }
+.counter__btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border-default);
+  background: var(--surface-inset);
+  color: var(--text-primary);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+.counter__btn:active { transform: scale(0.92); }
+.counter__val {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  min-width: 46px;
+  text-align: center;
+}
+.counter__val small { color: var(--text-muted); }
+
+/* ── Today hero ── */
+.hero {
+  background:
+    radial-gradient(120% 130% at 100% 0%, var(--sage-soft), transparent 55%),
+    var(--surface-card);
+  border: 1px solid var(--sage-line);
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+}
+.hero__line {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 21px;
+  color: var(--sage-deep);
+  line-height: 1.3;
+}
+.hero__row { display: flex; align-items: center; gap: 18px; margin-top: 18px; }
+
+/* ── Progress ring ── */
+.ring { position: relative; width: 84px; height: 84px; flex-shrink: 0; }
+.ring svg { transform: rotate(-90deg); }
+.ring__num {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 22px;
+  color: var(--sage-deep);
+  line-height: 1;
+}
+.ring__num small {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 2px;
+  font-family: var(--font-ui);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Quick add ── */
+.quickadd { display: flex; gap: 8px; margin-top: 10px; }
+.quickadd input {
+  flex: 1;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--surface-inset);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-pill);
+  padding: 0 16px;
+  height: 44px;
+  outline: none;
+}
+.quickadd input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-focus);
+}
+.quickadd input::placeholder { color: var(--text-muted); }
+
+/* ── Journal items ── */
+.jr-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 8px 0;
+  border-top: 1px solid var(--border-subtle);
+}
+.jr-item:first-child { border-top: 0; }
+.jr-bull { color: var(--sage); flex-shrink: 0; margin-top: 1px; }
+.jr-text { flex: 1; font-size: 14px; line-height: 1.5; color: var(--text-primary); }
+
+/* ── Disclaimer ── */
+.disclaimer {
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface-inset);
+  border: 1px solid var(--sky-line);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+}
+.disclaimer b { color: var(--text-primary); font-weight: 600; }
+
+/* ── Breathing pacer ── */
+.breathe-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 30px 0 26px;
+}
+.breathe-orb {
+  width: 168px;
+  height: 168px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, var(--lavender-soft), var(--lavender));
+  box-shadow: 0 0 0 12px color-mix(in oklch, var(--lavender) 14%, transparent), var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: scale(0.55);
+  transition: transform var(--dur-breath) var(--ease-calm);
+}
+.breathe-orb.hold { transition-timing-function: linear; }
+.breathe-count {
+  font-family: var(--font-mono);
+  font-size: 34px;
+  color: var(--lavender-deep);
+  font-weight: 500;
+}
+.breathe-phase {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 20px;
+  color: var(--text-secondary);
+  min-height: 26px;
+}
+.breathe-cyc { font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em; }
+
+/* ── Meditation clock ── */
+.med-clock {
+  font-family: var(--font-mono);
+  font-size: 52px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+/* ── Heatmap ── */
+.heatmap { overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.heatmap::-webkit-scrollbar { display: none; }
+.heatmap__grid {
+  display: grid;
+  grid-template-rows: repeat(7, 13px);
+  grid-auto-flow: column;
+  grid-auto-columns: 13px;
+  gap: 4px;
+  min-width: max-content;
+}
+.hm-cell { width: 13px; height: 13px; border-radius: 3px; background: var(--bg-sunk); }
+.hm-cell[data-l="1"] { background: color-mix(in oklch, var(--sage) 32%, var(--bg-sunk)); }
+.hm-cell[data-l="2"] { background: color-mix(in oklch, var(--sage) 58%, var(--bg-sunk)); }
+.hm-cell[data-l="3"] { background: color-mix(in oklch, var(--sage) 82%, var(--bg-sunk)); }
+.hm-cell[data-l="4"] { background: var(--sage-deep); }
+.hm-legend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 10px;
+  justify-content: flex-end;
+}
+
+/* ── Completion rate rows ── */
+.rate-row { display: flex; align-items: center; gap: 12px; padding: 7px 0; }
+.rate-row .lbl { font-size: 13px; color: var(--text-secondary); width: 96px; flex-shrink: 0; }
+.rate-row .grv-progress { flex: 1; }
+.rate-row .val { font-family: var(--font-mono); font-size: 13px; color: var(--text-muted); width: 40px; text-align: right; }
+
+/* ── Floating tab bar host (fixed in real viewport) ── */
+.tabhost {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 0 18px env(safe-area-inset-bottom, 18px);
+  pointer-events: none;
+  background: linear-gradient(to top, var(--bg-app) 55%, transparent);
+  z-index: 100;
+}
+.tabhost .grv-tabbar { pointer-events: auto; }
+
+/* ── Row helpers ── */
+.between { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.cardtitle { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+.muted { color: var(--text-muted); font-size: 13px; }
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .breathe-orb {
+    transition: none;
+  }
+  .counter__btn:active {
+    transform: none;
+  }
+}
