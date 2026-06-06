@@ -14,6 +14,7 @@ import { render as rStats } from './views/stats.js';
 import { render as rJournal } from './views/journal.js';
 import { render as rMood } from './views/mood.js';
 import { render as rCbt } from './views/cbt.js';
+import { render as rMindful } from './views/mindfulness.js';
 import { render as rSettings, applyTheme, initRem } from './views/settings.js';
 
 // ── Register views ─────────────────────────────────────────────────
@@ -29,6 +30,7 @@ registerView('stats',   'p-stats',    rStats);
 registerView('journal', 'p-journal',  rJournal);
 registerView('mood',    'p-mood',     rMood);
 registerView('cbt',     'p-cbt',      rCbt);
+registerView('mindfulness', 'p-mindfulness', rMindful);
 registerView('settings','p-settings', rSettings);
 
 // ── Date header ────────────────────────────────────────────────────

@@ -1235,3 +1235,93 @@ nav {
   background: var(--s);
   border: 0.5px solid var(--b);
 }
+
+/* ── Mindfulness (B7.1) ── */
+.mf-seg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 2px 12px;
+}
+.mf-seg-b {
+  flex: 1;
+  min-width: 72px;
+  padding: 9px 8px;
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--t2);
+  background: var(--card);
+  border: 0.5px solid var(--b);
+  border-radius: var(--r);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.mf-seg-b:hover { border-color: var(--b2); }
+.mf-seg-b.on {
+  border-color: var(--ok-b);
+  background: var(--ok-bg);
+  color: var(--t);
+  font-weight: 500;
+}
+.mf-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 2px 14px;
+}
+.mf-row label { font-size: 12px; color: var(--t2); }
+
+.mf-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 26px 14px 22px;
+}
+.mf-circle {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ok-bg);
+  border: 1.5px solid var(--ok-b);
+  transform: scale(0.45);
+  transition: transform 0.4s ease-in-out;
+  will-change: transform;
+}
+.mf-circle.hold { border-color: var(--info-b); }
+.mf-count {
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--t);
+  font-variant-numeric: tabular-nums;
+}
+.mf-phase {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--t);
+  min-height: 20px;
+}
+.mf-cyc {
+  font-size: 11px;
+  color: var(--t3);
+  letter-spacing: 0.04em;
+}
+.mf-clock {
+  font-size: 44px;
+  font-weight: 600;
+  color: var(--t);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.mf-sub { font-size: 12px; color: var(--t2); }
+
+.mf-ctrl {
+  display: flex;
+  gap: 8px;
+  margin: 14px 2px 4px;
+}
+.mf-ctrl button { flex: 1; }
+.mf-ctrl button:disabled { opacity: 0.45; cursor: default; }
