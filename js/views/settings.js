@@ -22,9 +22,8 @@ function _setTheme(t) {
   // prefers-color-scheme block, so 'system' must be resolved here via matchMedia.
   if (t === 'dark')       root.setAttribute('data-theme', 'dark');
   else if (t === 'light') root.setAttribute('data-theme', 'light');
-  else _applySystem(root);   // 'system'
+  else _applySystem(root);
 
-  // Track OS changes only while following the system preference.
   if (window.matchMedia) {
     if (!_mq) _mq = window.matchMedia('(prefers-color-scheme: dark)');
     _mq.onchange = (t === 'system') ? () => _applySystem(root) : null;
@@ -43,9 +42,7 @@ function _applySystem(root) {
 // ── Init reminders (called once from app.js) ───────────────────────
 export function initRem() {
   initReminders(() => {
-    // Re-render the active reminder banners at the top of the page
     _renderBanners();
-    // Re-render settings if it's open (countdown update)
     if (document.getElementById('p-settings')?.classList.contains('on')) render();
   });
 }
@@ -103,76 +100,78 @@ export function render() {
   const rems  = getReminders();
 
   el.innerHTML = `
-    <div class="sec-hdr" style="margin-top:4px">
-      <span class="sec-lbl">Settings</span>
-    </div>
-
     <!-- Theme -->
-    <div class="hc" style="margin-bottom:10px">
-      <div class="hr" style="flex-wrap:wrap;gap:10px">
-        <span class="hn" style="font-size:13px">Theme</span>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
+    <div class="sec-eyebrow" style="margin-top:8px">SETTINGS</div>
+    <div class="grv-card">
+      <div class="between">
+        <span class="cardtitle" style="font-size:14px">Theme</span>
+        <div class="grv-seg" role="group" aria-label="Theme">
           ${['system','light','dark'].map(t => `
-            <button class="fsv${theme === t ? ' stg-on' : ''}" data-theme-btn="${t}"
-              style="font-size:12px;padding:4px 12px">${t.charAt(0).toUpperCase()+t.slice(1)}</button>
+            <button class="grv-seg__opt"
+              aria-selected="${theme === t ? 'true' : 'false'}"
+              data-theme-btn="${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</button>
           `).join('')}
         </div>
       </div>
     </div>
 
     <!-- Reminders -->
-    <div class="sec-hdr">
-      <span class="sec-lbl">Reminders</span>
-      <button class="sec-add" id="rem-perm-btn">Enable notifications</button>
+    <div class="sec-eyebrow">
+      REMINDERS
+      <button class="grv-btn grv-btn--sm grv-btn--secondary" id="rem-perm-btn">Enable notifications</button>
     </div>
-    <div class="stg-note">Reminders fire while this tab is open. Background notifications require the future mobile app.</div>
+    <div class="muted" style="margin:-6px 0 14px;font-size:12px">
+      Reminders fire while this tab is open. Background notifications work in the native mobile app.
+    </div>
 
-    <!-- Active reminders -->
-    ${rems.length ? rems.map(r => {
-      const rem = getRemaining(r.id);
-      const due = isDue(r.id);
-      return `<div class="hc rem-row${due ? ' rem-due' : ''}" style="margin-bottom:7px">
-        <div class="hr">
-          <span class="hn" style="font-size:13px">${r.label}</span>
-          <span class="rem-cd${due ? ' rem-cd-due' : ''}">${due ? '⏰ Due now' : _fmt(rem)}</span>
-          <button class="hdel" data-rem-del="${r.id}" title="Delete">×</button>
-        </div>
-        <div style="padding:0 13px 8px;font-size:11px;color:var(--t3)">
-          Every ${r.minutes}m · Active ${r.activeFrom}–${r.activeTo}
-          · Today: ${getTodayCount(r.id)}×
-          <label class="rem-tog">
-            <input type="checkbox" data-rem-tog="${r.id}" ${r.enabled ? 'checked' : ''}>
-            <span>On</span>
-          </label>
-        </div>
-      </div>`;
-    }).join('') : '<div class="empty" style="padding:16px 0">No reminders set</div>'}
+    <!-- Active reminders list -->
+    <div class="stack">
+      ${rems.length ? rems.map(r => {
+        const rem = getRemaining(r.id);
+        const due = isDue(r.id);
+        return `<div class="grv-card${due ? ' grv-card--done' : ''}">
+          <div class="between" style="margin-bottom:5px">
+            <span class="cardtitle" style="font-size:14px">${r.label}</span>
+            <div style="display:flex;align-items:center;gap:10px">
+              ${due
+                ? `<span class="grv-badge grv-badge--sage">⏰ Due now</span>`
+                : `<span class="muted" style="font-size:12px;font-variant-numeric:tabular-nums">${_fmt(rem)}</span>`}
+              <input type="checkbox" class="grv-switch" data-rem-tog="${r.id}"
+                ${r.enabled ? 'checked' : ''} title="Enable / disable">
+              <button class="grv-iconbtn grv-iconbtn--sm" data-rem-del="${r.id}"
+                title="Delete" style="font-size:18px;line-height:1">×</button>
+            </div>
+          </div>
+          <div class="muted" style="font-size:12px">
+            Every ${r.minutes}m · Active ${r.activeFrom}–${r.activeTo} · Today: ${getTodayCount(r.id)}×
+          </div>
+        </div>`;
+      }).join('') : `<div class="muted" style="text-align:center;padding:10px 0">No reminders set</div>`}
+    </div>
 
     <!-- Add reminder form -->
-    <div class="hc" style="margin-top:6px">
-      <div class="hr" style="flex-wrap:wrap;gap:8px">
-        <span class="hn" style="font-size:12px;color:var(--t3)">Add reminder</span>
+    <div class="grv-card" style="margin-top:12px">
+      <div class="cardtitle" style="margin-bottom:14px">Add reminder</div>
+      <div class="grv-field" style="margin-bottom:10px">
+        <input class="grv-field__input" id="rem-lbl-inp" type="text"
+          placeholder="Label (e.g. Eye drops)">
       </div>
-      <div style="padding:0 13px 12px">
-        <div class="frow" style="margin-bottom:8px">
-          <input class="fi" id="rem-lbl-inp" type="text" placeholder="Label (e.g. Eye drops)">
-        </div>
-        <div class="frow" style="margin-bottom:8px">
-          <select class="fse" id="rem-preset-sel">
-            <option value="">— Custom —</option>
-            ${PRESETS.map(p => `<option value="${p.minutes}">${p.label}</option>`).join('')}
-          </select>
-          <input class="fnum" id="rem-mins-inp" type="number" min="1" max="480" value="60" placeholder="min" style="width:70px">
-        </div>
-        <div class="frow" style="margin-bottom:8px">
-          <label style="font-size:12px;color:var(--t2);align-self:center">Active hours</label>
-          <input class="fnum" id="rem-from" type="time" value="08:00" style="width:90px">
-          <span style="font-size:12px;color:var(--t3);align-self:center">→</span>
-          <input class="fnum" id="rem-to"   type="time" value="22:00" style="width:90px">
-        </div>
-        <div class="fact">
-          <button class="fsv" id="rem-add-btn">Add reminder</button>
-        </div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <select class="grv-field__input" id="rem-preset-sel" style="flex:1">
+          <option value="">— Custom —</option>
+          ${PRESETS.map(p => `<option value="${p.minutes}">${p.label}</option>`).join('')}
+        </select>
+        <input class="grv-field__input" id="rem-mins-inp" type="number"
+          min="1" max="480" value="60" style="width:72px;text-align:center">
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <span class="muted" style="flex-shrink:0;font-size:12px">Active hours</span>
+        <input class="grv-field__input" id="rem-from" type="time" value="08:00" style="width:108px">
+        <span class="muted">→</span>
+        <input class="grv-field__input" id="rem-to"   type="time" value="22:00" style="width:108px">
+      </div>
+      <div style="display:flex;justify-content:flex-end">
+        <button class="grv-btn grv-btn--sm" id="rem-add-btn">Add reminder</button>
       </div>
     </div>`;
 
@@ -203,12 +202,16 @@ export function render() {
     import('../ui.js').then(m => m.toast(`Reminder "${label}" added ✓`));
     render();
   });
-  // Wire toggle checkboxes
+  // Wire toggle switches
   el.querySelectorAll('[data-rem-tog]').forEach(cb => {
     cb.onchange = () => { toggleReminder(cb.dataset.remTog); render(); };
   });
-  // Wire delete
+  // Wire delete buttons
   el.querySelectorAll('[data-rem-del]').forEach(btn => {
-    btn.onclick = () => { if (confirm(`Delete reminder "${getReminders().find(r=>r.id===btn.dataset.remDel)?.label}"?`)) { deleteReminder(btn.dataset.remDel); render(); } };
+    btn.onclick = () => {
+      if (confirm(`Delete reminder "${getReminders().find(r => r.id === btn.dataset.remDel)?.label}"?`)) {
+        deleteReminder(btn.dataset.remDel); render();
+      }
+    };
   });
 }
