@@ -14,14 +14,30 @@ export function applyTheme() {
   _setTheme(s.theme || 'system');
 }
 
+let _mq = null;   // cached prefers-color-scheme listener (for theme: 'system')
+
 function _setTheme(t) {
   const root = document.documentElement;
-  root.removeAttribute('data-theme');
-  if      (t === 'light') root.setAttribute('data-theme', 'light');
-  else if (t === 'dark')  root.setAttribute('data-theme', 'dark');
+  // Grove's dark theme is attribute-only ([data-theme="dark"]); there is no
+  // prefers-color-scheme block, so 'system' must be resolved here via matchMedia.
+  if (t === 'dark')       root.setAttribute('data-theme', 'dark');
+  else if (t === 'light') root.setAttribute('data-theme', 'light');
+  else _applySystem(root);   // 'system'
+
+  // Track OS changes only while following the system preference.
+  if (window.matchMedia) {
+    if (!_mq) _mq = window.matchMedia('(prefers-color-scheme: dark)');
+    _mq.onchange = (t === 'system') ? () => _applySystem(root) : null;
+  }
+
   const s = lsGet(SETTINGS_KEY) || {};
   s.theme = t;
   lsSet(SETTINGS_KEY, s);
+}
+
+function _applySystem(root) {
+  const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  root.setAttribute('data-theme', dark ? 'dark' : 'light');
 }
 
 // ── Init reminders (called once from app.js) ───────────────────────

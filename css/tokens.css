@@ -1,4 +1,10 @@
-/* ── Design tokens ───────────────────────────────────────────────── */
+/* ── Design tokens ───────────────────────────────────────────────────
+   Grove re-skin (Phase 9): the legacy token names the existing app's
+   base.css + views rely on are now thin aliases onto Grove's tokens
+   (loaded first via css/grove/styles.css). Grove owns light/dark via the
+   [data-theme] attribute, so these aliases inherit the active theme for
+   free — no media query / no duplicate dark block needed here.
+   -------------------------------------------------------------------- */
 *,*::before,*::after {
   box-sizing: border-box;
   margin: 0;
@@ -6,77 +12,36 @@
 }
 
 :root {
-  --bg: #ffffff;
-  --s: #f4f4f2;
-  --card: #ffffff;
-  --b: rgba(0, 0, 0, 0.11);
-  --b2: rgba(0, 0, 0, 0.22);
-  --t: #18180f;
-  --t2: #64645a;
-  --t3: #a8a89e;
-  --ok: #4a8e52;
-  --ok-bg: rgba(74, 142, 82, 0.1);
-  --ok-b: rgba(74, 142, 82, 0.4);
-  --warn-b: rgba(170, 120, 15, 0.55);
-  --info-b: rgba(55, 115, 185, 0.65);
-  --danger: #bc3a3a;
-  --r: 12px;
-  --rm: 8px;
+  /* surfaces */
+  --bg:   var(--paper);
+  --s:    var(--surface-2);
+  --card: var(--surface);
+
+  /* borders */
+  --b:  var(--line);
+  --b2: var(--line-2);
+
+  /* text */
+  --t:  var(--ink);
+  --t2: var(--ink-2);
+  --t3: var(--ink-3);
+
+  /* positive / done (sage) */
+  --ok:    var(--sage);
+  --ok-bg: var(--sage-soft);
+  --ok-b:  var(--sage-line);
+
+  /* attention / info / danger */
+  --warn-b: var(--honey-line);
+  --info-b: var(--sky-line);
+  --danger: var(--rose-deep);
+
+  /* radii */
+  --r:  var(--radius-md);
+  --rm: var(--radius-sm);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #161614;
-    --s: #1e1e1c;
-    --card: #1e1e1c;
-    --b: rgba(255, 255, 255, 0.09);
-    --b2: rgba(255, 255, 255, 0.2);
-    --t: #ece8e0;
-    --t2: #888880;
-    --t3: #525248;
-    --ok: #5ea866;
-    --ok-bg: rgba(94, 168, 102, 0.1);
-    --ok-b: rgba(94, 168, 102, 0.4);
-    --warn-b: rgba(190, 145, 30, 0.55);
-    --info-b: rgba(70, 130, 200, 0.65);
-    --danger: #c85050;
-  }
-}
-
-/* ── Explicit theme overrides (set by Settings view) ── */
-[data-theme="light"] {
-  --bg: #ffffff;
-  --s: #f4f4f2;
-  --card: #ffffff;
-  --b: rgba(0, 0, 0, 0.11);
-  --b2: rgba(0, 0, 0, 0.22);
-  --t: #18180f;
-  --t2: #64645a;
-  --t3: #a8a89e;
-  --ok: #4a8e52;
-  --ok-bg: rgba(74, 142, 82, 0.1);
-  --ok-b: rgba(74, 142, 82, 0.4);
-  --warn-b: rgba(170, 120, 15, 0.55);
-  --info-b: rgba(55, 115, 185, 0.65);
-  --danger: #bc3a3a;
-}
-[data-theme="dark"] {
-  --bg: #161614;
-  --s: #1e1e1c;
-  --card: #1e1e1c;
-  --b: rgba(255, 255, 255, 0.09);
-  --b2: rgba(255, 255, 255, 0.2);
-  --t: #ece8e0;
-  --t2: #888880;
-  --t3: #525248;
-  --ok: #5ea866;
-  --ok-bg: rgba(94, 168, 102, 0.1);
-  --ok-b: rgba(94, 168, 102, 0.4);
-  --warn-b: rgba(190, 145, 30, 0.55);
-  --info-b: rgba(70, 130, 200, 0.65);
-  --danger: #c85050;
-}
-/* active theme button */
+/* active theme button (Settings) */
 .stg-on {
   background: var(--t) !important;
   color: var(--bg) !important;
