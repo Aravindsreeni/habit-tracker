@@ -137,7 +137,7 @@ all changed modules; served over http — all modules 200 each batch ✅.
 | B7.1 Breathing + meditation | ✅ done | d945e42 | `js/views/mindfulness.js`, `index.html`, `js/app.js`, `js/views/_all.js`, `css/base.css`, `sw.js` | Mindfulness tab; Box 4-4-4-4 + 4-7-8 pacers (animated expand/hold/contract circle, per-phase countdown, configurable cycles) + meditation countdown (1–20 min, start/pause/resume/reset) + soft Web-Audio chime; nothing persisted; `render()` builds once; pure `cycleSeconds`/`breathingState`/`fmtTime` node-tested 10/10; ht-v13 |
 | Phase 7 complete | ✅ done | 3527a53 | — | Mindfulness done (breathing pacer + meditation timer) |
 | B8.1 Capacitor native | ✅ done | 208063d | `native/*` (package.json, capacitor.config.json, scripts/sync-web.mjs, .gitignore, README.md), `js/reminders.js`, `index.html`, `sw.js`, `README.md` | Self-contained `native/` Capacitor project (^8.4.0); `sync-web` mirrors root web app → `webDir` (root unchanged, stays GitHub Pages source); additive runtime-guarded native-notification bridge (`window.Capacitor` → @capacitor/local-notifications, web path unchanged); SW skipped in WebView; ht-v14. Platform builds run locally (Xcode/Android Studio). npm install resolves 94 pkgs |
-| Phase 8 complete | ✅ done | (below) | — | Native mobile done (Capacitor iOS/Android wrap) — **final phase; roadmap complete** |
+| Phase 8 complete | ✅ done | a6e474a | — | Native mobile done (Capacitor iOS/Android wrap) — **final phase; roadmap complete** |
 
 ---
 
