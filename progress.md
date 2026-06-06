@@ -124,7 +124,7 @@ all changed modules; served over http — all modules 200 each batch ✅.
 | B6.4 ABC(DE) + distortions | ✅ done | f62b50e | `js/views/cbt.js`, `css/base.css`, `sw.js` | Ellis REBT ABC(DE) as a 2nd framing via `entry.model` ('beck' default \| 'abcde') + form mode toggle (A=situation, B=thoughts, C=emotion+%, D=new `disputation`, E=balanced); legacy records default 'beck'. 13-item distortions checklist as multi-select chips → `entry.distortions[]` (normalizeCbt filters to known ids, de-dups, canonical order), shown as tags in card. Draft preserved across toggle. Disclaimer covers CBT+REBT. normalizeCbt/intensityDelta/hasContent node-tested 25/25; ht-v12 |
 | Phase 6 complete | ✅ done | 990cc55 | — | Mental health done (journal + mood + CBT thought record + ABC(DE) + distortions) |
 | B7.1 Breathing + meditation | ✅ done | d945e42 | `js/views/mindfulness.js`, `index.html`, `js/app.js`, `js/views/_all.js`, `css/base.css`, `sw.js` | Mindfulness tab; Box 4-4-4-4 + 4-7-8 pacers (animated expand/hold/contract circle, per-phase countdown, configurable cycles) + meditation countdown (1–20 min, start/pause/resume/reset) + soft Web-Audio chime; nothing persisted; `render()` builds once; pure `cycleSeconds`/`breathingState`/`fmtTime` node-tested 10/10; ht-v13 |
-| Phase 7 complete | ✅ done | (below) | — | Mindfulness done (breathing pacer + meditation timer) |
+| Phase 7 complete | ✅ done | 3527a53 | — | Mindfulness done (breathing pacer + meditation timer) |
 | B8.1 Capacitor native | 🔲 todo | — | New Capacitor project | iOS/Android wrap |
 
 ---
