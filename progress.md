@@ -6,13 +6,23 @@
 
 ## ▶ Resume here
 
-**Current:** Phase 6 — Mental health. **B6.1 Journal** (c0eea32) · **B6.2 Mood** (5b74e0b) ·
-**B6.3 CBT Thought Record** (b887809) done → next is Batch **B6.4 — ABC(DE) + distortions**
-(last batch of Phase 6, then a phase-completion commit).
+**Current:** Phase 6 — Mental health **COMPLETE** ✅ (B6.1 Journal c0eea32 · B6.2 Mood 5b74e0b ·
+B6.3 CBT Thought Record b887809 · B6.4 ABC(DE) + distortions f62b50e · phase-completion below).
+**Next up: Phase 7 — Mindfulness, Batch B7.1** (breathing pacer + meditation timer →
+`js/views/mindfulness.js`).
 
-Phase 5 (Motivation) fully done. B6.1 Journal + B6.2 Mood + B6.3 Thought Records now ship.
-SW cache is now **`ht-v11`**. Schema still **v3** (no bump — journal/mood/cbt keys are additive,
-synced automatically since `sync.js` archives all `ht_*`).
+Phases 0–6 fully done. SW cache is now **`ht-v12`**. Schema still **v3** (no bump — journal/mood/
+cbt keys are additive, synced automatically since `sync.js` archives all `ht_*`).
+
+### What to do next (B7.1 — breathing + meditation; first batch of Phase 7)
+
+New view `js/views/mindfulness.js` + `p-mindfulness` panel (follow the Phase-6 view pattern:
+`init`/`render`, register in `js/views/_all.js`, nav entry in `index.html`, route in `js/app.js`).
+Box-breathing and 4-7-8 pacers (animated expand/hold/contract pacer; configurable cycles) plus a
+simple meditation countdown timer. Reuse `:root` tokens + existing components; keep it
+offline/private. Bump SW to **`ht-v13`**. Mental-health disclaimer is NOT required here (no
+journalling of distressing content) but keep the positive, low-friction tone (Design principles
+1, 2, 4). Node-test any pure helpers (e.g. breathing-phase math, timer formatting).
 
 ### Phase 6 is Mental Health (evidence-based — read CLAUDE.md "Evidence base" table)
 
@@ -100,7 +110,8 @@ all changed modules; served over http — all modules 200 each batch ✅.
 | B6.1 Daily Journal | ✅ done | c0eea32 | `js/views/journal.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `sw.js`, `css/base.css` | 🌟/🌧️/🌱 sections, 10:1:2 caps; ht_journal_YYYY-MM-DD `{wins[],lows[],growth[]}`; tap-to-expand history; disclaimer + Tele-MANAS; pure `normalize()` node-tested; ht-v9 |
 | B6.2 Mood check-in | ✅ done | 5b74e0b | `js/views/mood.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `sw.js`, `css/base.css` | One-tap 5-pt scale 😞–😄 + note; ht_mood_YYYY-MM-DD `{score,note}`; 14-day trend bars + avg; non-judgemental caption; `moodKey`/`eachMood`/`svMood`; pure normalizeMood/avgScore/lastNDates node-tested 16/16; ht-v10 |
 | B6.3 CBT Thought Record | ✅ done | b887809 | `js/views/cbt.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `sw.js`, `css/base.css` | Beck 7-column worksheet; `ht_cbt` array; newest-first tap-to-expand; before→after intensity delta badge + footnote; `CBT`/`setCBT`/`svCBT`; pure normalizeCbt/intensityDelta/hasContent node-tested 21/21; `distortions[]` reserved for B6.4; ht-v11 |
-| B6.4 ABC(DE) + distortions | 🔲 todo | — | `js/views/cbt.js` | Ellis model + 13-item checklist |
+| B6.4 ABC(DE) + distortions | ✅ done | f62b50e | `js/views/cbt.js`, `css/base.css`, `sw.js` | Ellis REBT ABC(DE) as a 2nd framing via `entry.model` ('beck' default \| 'abcde') + form mode toggle (A=situation, B=thoughts, C=emotion+%, D=new `disputation`, E=balanced); legacy records default 'beck'. 13-item distortions checklist as multi-select chips → `entry.distortions[]` (normalizeCbt filters to known ids, de-dups, canonical order), shown as tags in card. Draft preserved across toggle. Disclaimer covers CBT+REBT. normalizeCbt/intensityDelta/hasContent node-tested 25/25; ht-v12 |
+| Phase 6 complete | ✅ done | (next) | — | Mental health done (journal + mood + CBT thought record + ABC(DE) + distortions) |
 | B7.1 Breathing + meditation | 🔲 todo | — | `js/views/mindfulness.js` | Box/4-7-8 pacer |
 | B8.1 Capacitor native | 🔲 todo | — | New Capacitor project | iOS/Android wrap |
 
