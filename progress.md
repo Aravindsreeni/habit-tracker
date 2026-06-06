@@ -6,38 +6,34 @@
 
 ## ▶ Resume here
 
-**Current initiative: Grove re-skin (Phases 9–15)** — plan at
-`C:\Users\91949\.claude\plans\i-ve-added-a-design-iterative-sparrow.md`. Re-skin + re-IA the
-14-tab app onto the **Grove** design system (calm "sunlit room": cream paper, sage, Newsreader +
-Hanken Grotesk, Lucide), regrouping 14 features into **5 destinations: Today · Habits · Reflect ·
-Calm · You**. **Visual + IA only** — no changes to `store.js`/`sync.js`/data model/`ht_*` keys.
+**Grove re-skin (Phases 9–15) COMPLETE ✅** — commits c5bf849 → current HEAD.
 
-> ⚠️ The Grove design kit is vendored **in-repo at `habit-tracker/grove-design/`** (NOT
-> `.claude/skills/` as the plan text says — it was never tracked; copy assets *from there*).
-> `grove-design/ui_kits/grove-app/` has the screen JSX (`screens-track.jsx`, `screens-care.jsx`,
-> `app.jsx`, `ui.jsx`) + `kit.css` to port from. `grove-design/` itself is still untracked.
+All 5 destinations fully Grove-skinned and IA-complete:
+- **Today** (B10.2, `today.js`): ring hero, habit rows, routine, quick wins
+- **Habits** (B11.1, `habits.js`): segmented Daily·Weekly·Monthly·Quarterly·Yearly with `.grv-progress`
+- **Reflect** (B12, `reflect.js`): segmented Mood·Journal·Thoughts·Inbox with Grove header
+- **Calm** (B13, `calm.js`): Grove header wrapper for existing mindfulness.js (timer-safe)
+- **You** (B14, `you.js`): segmented Stats·Settings, Grove Sync & Backup card
+- **Cleanup** (B15, app.js + _all.js slimmed): dead imports/registrations/globals removed
 
-**Phases 9 & 10 COMPLETE ✅** (commits 380ef04 → 0249b1d). Today renders with Grove skin,
-ring, habits, routine, quick wins; all 5 destinations navigable via Grove bottom tabbar.
+SW cache: **`ht-v22`**. Schema: **v3** (unchanged).
 
-**⏭ NEXT: Phase 11 — Habits destination (B11.1)**
+### Architecture (post-Grove)
 
-> ✅ User checkpoint passed — Today view screenshotted and confirmed (see B10.2 commit).
-> Server still running at `python -m http.server 8000` from `habit-tracker/`.
+- `app.js` imports only 5 destination renders + settings init; all routing is via `registerView`/`registerDest`/`sw()`
+- `_all.js renderAll()` calls the 5 destination wrappers; each wrapper re-renders its own sub-views
+- Destination wrappers: `today.js`, `habits.js`, `reflect.js`, `calm.js`, `you.js`
+- Sub-views (mood, journal, cbt, inbox, stats, settings, mindfulness) unchanged — still render via `document.getElementById` into containers created by their parent wrapper
+- `calm.js` guards against re-render via `el.querySelector('#p-mindfulness')` check (preserves running timer sessions)
 
-**B11.1** — New `js/views/habits.js` porting kit **HabitsScreen** (`screens-track.jsx`):
-- `.grv-seg` SegmentedControl tabs: Daily · Weekly · Monthly · Quarterly · Yearly
-- Each habit as `.grv-card` (`grv-card--done` when complete) with title + count `.grv-badge`
-  + `.grv-progress` + caption ("Complete — lovely work this week" / "N to go")
-- Quarterly/Yearly: read-only rolled-up goal-link progress via `store.linkProgress`
-- Port add-habit/add-goal flows (from `weekly/monthly/quarterly/yearly.js`) into Grove forms
-- Bump `CACHE → ht-v18`; SHELL += `habits.js`. Commit + phase-complete.
+> ⚠️ The Grove design kit is vendored **in-repo at `habit-tracker/grove-design/`** (untracked).
+> `grove-design/ui_kits/grove-app/` has `kit.css` + JSX screen references.
 
-**Key architecture note**: `router.js` now uses `registerDest(dest, [viewIds])` + `sw(dest)` to
-toggle 5 destination panels (`data-dest-panel` attr). `today.js` is a full self-contained view.
-The `_all.js renderAll()` calls `rToday()` first for sync restore. `tasks.js` has null guard.
+### Possible next work
 
-Schema still **v3**. SW cache **`ht-v17`**.
+- **Phase 16**: Native mobile (Capacitor) sync + background notifications
+- Visual polish pass on legacy sub-view CSS (mood bars, cbt chips, stats heatmap → Grove tokens)
+- Heatmap in `stats.js` now renders via `.hm-*` legacy CSS; could port to `.grv-progress` pattern
 
 ### State of the project (for whoever picks this up next)
 
