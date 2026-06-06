@@ -6,23 +6,34 @@
 
 ## ▶ Resume here
 
-**Current:** Phase 6 — Mental health **COMPLETE** ✅ (B6.1 Journal c0eea32 · B6.2 Mood 5b74e0b ·
-B6.3 CBT Thought Record b887809 · B6.4 ABC(DE) + distortions f62b50e · phase-completion below).
-**Next up: Phase 7 — Mindfulness, Batch B7.1** (breathing pacer + meditation timer →
-`js/views/mindfulness.js`).
+**Current:** Phase 7 — Mindfulness **COMPLETE** ✅ (B7.1 Breathing + meditation d945e42 ·
+phase-completion below). **Next up: Phase 8 — Native mobile, Batch B8.1** (Capacitor iOS/Android
+wrap of these exact files).
 
-Phases 0–6 fully done. SW cache is now **`ht-v12`**. Schema still **v3** (no bump — journal/mood/
-cbt keys are additive, synced automatically since `sync.js` archives all `ht_*`).
+Phases 0–7 fully done. SW cache is now **`ht-v13`**. Schema still **v3** (no bump — mindfulness
+stores nothing; all MH keys remain additive, synced automatically since `sync.js` archives all `ht_*`).
 
-### What to do next (B7.1 — breathing + meditation; first batch of Phase 7)
+### What to do next (B8.1 — Capacitor native wrap; first batch of Phase 8)
 
-New view `js/views/mindfulness.js` + `p-mindfulness` panel (follow the Phase-6 view pattern:
-`init`/`render`, register in `js/views/_all.js`, nav entry in `index.html`, route in `js/app.js`).
-Box-breathing and 4-7-8 pacers (animated expand/hold/contract pacer; configurable cycles) plus a
-simple meditation countdown timer. Reuse `:root` tokens + existing components; keep it
-offline/private. Bump SW to **`ht-v13`**. Mental-health disclaimer is NOT required here (no
-journalling of distressing content) but keep the positive, low-friction tone (Design principles
-1, 2, 4). Node-test any pure helpers (e.g. breathing-phase math, timer formatting).
+Wrap the existing vanilla PWA in **Capacitor** for iOS/Android without changing the web code
+(CLAUDE.md "Stack & hard rules": keep DOM-centric, no bundler-only idioms). Expected shape:
+a new Capacitor project that points its `webDir` at this repo's web root (or copies it), adds
+the iOS/Android platforms, and keeps `index.html` + `js/` working as the app shell. Things to
+decide/verify when starting: where the Capacitor scaffolding lives (separate folder vs. root —
+keep GitHub Pages serving the root unchanged), how native notifications map to the current
+`reminders.js` Notification API usage, and that the service worker / offline shell still behaves
+inside the native WebView. This is the last planned phase. No mental-health disclaimer concerns;
+follow the same commit/verify discipline.
+
+### Mindfulness view notes (B7.1, for reference)
+- `js/views/mindfulness.js`: pure node-tested exports `cycleSeconds(phases)` /
+  `breathingState(elapsedSec, phases, totalCycles)` / `fmtTime(totalSec)` (m:ss). DOM runtime is
+  timer-driven (`setInterval`), state is module-level `bf` (breathing) + `med` (meditation), **not
+  persisted**. `render()` builds the panel **once** (guarded by `built`) so a live session is not
+  wiped by a sync-triggered `renderAll()`.
+- Circle animation is CSS-transition driven: each phase sets `transform: scale(...)` +
+  `transitionDuration = secs` inline; holds reuse the prior scale (no movement). `.mf-*` CSS reuses
+  `:root` tokens. Soft Web-Audio completion chime (528 Hz), fails silently if no AudioContext.
 
 ### Phase 6 is Mental Health (evidence-based — read CLAUDE.md "Evidence base" table)
 
@@ -112,7 +123,8 @@ all changed modules; served over http — all modules 200 each batch ✅.
 | B6.3 CBT Thought Record | ✅ done | b887809 | `js/views/cbt.js`, `js/store.js`, `js/app.js`, `js/views/_all.js`, `index.html`, `sw.js`, `css/base.css` | Beck 7-column worksheet; `ht_cbt` array; newest-first tap-to-expand; before→after intensity delta badge + footnote; `CBT`/`setCBT`/`svCBT`; pure normalizeCbt/intensityDelta/hasContent node-tested 21/21; `distortions[]` reserved for B6.4; ht-v11 |
 | B6.4 ABC(DE) + distortions | ✅ done | f62b50e | `js/views/cbt.js`, `css/base.css`, `sw.js` | Ellis REBT ABC(DE) as a 2nd framing via `entry.model` ('beck' default \| 'abcde') + form mode toggle (A=situation, B=thoughts, C=emotion+%, D=new `disputation`, E=balanced); legacy records default 'beck'. 13-item distortions checklist as multi-select chips → `entry.distortions[]` (normalizeCbt filters to known ids, de-dups, canonical order), shown as tags in card. Draft preserved across toggle. Disclaimer covers CBT+REBT. normalizeCbt/intensityDelta/hasContent node-tested 25/25; ht-v12 |
 | Phase 6 complete | ✅ done | 990cc55 | — | Mental health done (journal + mood + CBT thought record + ABC(DE) + distortions) |
-| B7.1 Breathing + meditation | 🔲 todo | — | `js/views/mindfulness.js` | Box/4-7-8 pacer |
+| B7.1 Breathing + meditation | ✅ done | d945e42 | `js/views/mindfulness.js`, `index.html`, `js/app.js`, `js/views/_all.js`, `css/base.css`, `sw.js` | Mindfulness tab; Box 4-4-4-4 + 4-7-8 pacers (animated expand/hold/contract circle, per-phase countdown, configurable cycles) + meditation countdown (1–20 min, start/pause/resume/reset) + soft Web-Audio chime; nothing persisted; `render()` builds once; pure `cycleSeconds`/`breathingState`/`fmtTime` node-tested 10/10; ht-v13 |
+| Phase 7 complete | ✅ done | (below) | — | Mindfulness done (breathing pacer + meditation timer) |
 | B8.1 Capacitor native | 🔲 todo | — | New Capacitor project | iOS/Android wrap |
 
 ---
