@@ -29,15 +29,12 @@ optional Google Drive sync.
 - [Configuring Google Drive sync](#configuring-google-drive-sync)
 - [Data, privacy & security](#data-privacy--security)
 - [Contributing & development workflow](#contributing--development-workflow)
-- [Roadmap](#roadmap)
 - [Evidence base (mental-health features)](#evidence-base-mental-health-features)
 - [License](#license)
 
 ---
 
 ## Features
-
-All phases (0–8) are complete (see [Roadmap](#roadmap)).
 
 | Area | What you get |
 |---|---|
@@ -48,11 +45,11 @@ All phases (0–8) are complete (see [Roadmap](#roadmap)).
 | **Routine builder** | Time-blocked daily plan: add blocks, tick them off, auto-sorted by start time. |
 | **Stats** | **Streaks** (current + longest per daily habit), a GitHub-style **year heatmap**, **30/90-day completion rates**, and user-defined **Areas** (categories) with grouped completion. |
 | **Eye-care reminder** | Configurable 20-20-20 timer using the Notification API, with an in-app banner and daily count. |
-| **Journal** *(Phase 6)* | A private daily journal with *what went well & why* (wins), lows, and growth sections — based on the *Three Good Things* exercise. Tap-to-expand history; entries stay on-device. |
-| **Mood check-in** *(Phase 6)* | One-tap 5-point daily mood (😞–😄) with an optional note and a 14-day trend. Non-judgemental — there's no "good" score to chase. |
-| **Thought Records (CBT)** *(Phase 6)* | Beck 7-column cognitive-restructuring worksheet, the Ellis **ABC(DE)** framing, and a 13-item cognitive-distortions checklist; shows the before→after emotion-intensity change. |
-| **Mindfulness** *(Phase 7)* | Box (4-4-4-4) and 4-7-8 **breathing pacers** with an animated expand/hold/contract guide and configurable cycles, plus a **meditation countdown timer** and a soft completion chime. Nothing is stored. |
-| **Native mobile** *(Phase 8)* | An optional **Capacitor** wrapper (in [`native/`](./native/)) packages this exact web app for iOS/Android, bridging reminders to native notifications — the web build is unchanged. |
+| **Journal** | A private daily journal with *what went well & why* (wins), lows, and growth sections — based on the *Three Good Things* exercise. Tap-to-expand history; entries stay on-device. |
+| **Mood check-in** | One-tap 5-point daily mood (😞–😄) with an optional note and a 14-day trend. Non-judgemental — there's no "good" score to chase. |
+| **Thought Records (CBT)** | Beck 7-column cognitive-restructuring worksheet, the Ellis **ABC(DE)** framing, and a 13-item cognitive-distortions checklist; shows the before→after emotion-intensity change. |
+| **Mindfulness** | Box (4-4-4-4) and 4-7-8 **breathing pacers** with an animated expand/hold/contract guide and configurable cycles, plus a **meditation countdown timer** and a soft completion chime. Nothing is stored. |
+| **Native mobile** | An optional **Capacitor** wrapper (in [`native/`](./native/)) packages this exact web app for iOS/Android, bridging reminders to native notifications — the web build is unchanged. |
 | **PWA** | Installable, works offline (app-shell cache), light/dark theme toggle. |
 | **Sync & backup** | Full-history Google Drive sync (opt-in) plus offline Export / Import JSON. |
 
@@ -110,11 +107,11 @@ js/
   views/
     daily.js weekly.js monthly.js quarterly.js yearly.js
     tasks.js inbox.js routine.js stats.js settings.js
-    journal.js mood.js cbt.js          ← mental health (Phase 6)
-    mindfulness.js                     ← breathing pacer + meditation timer (Phase 7)
+    journal.js mood.js cbt.js          ← mental health (journal, mood, thought records)
+    mindfulness.js                     ← breathing pacer + meditation timer
     notes.js          ← shared note-editing behavior
     _all.js           ← renderAll() — re-renders every view (used after sync restore)
-native/               ← Capacitor iOS/Android wrapper (Phase 8); see native/README.md
+native/               ← Capacitor iOS/Android wrapper; see native/README.md
 ```
 
 ### View contract
@@ -126,7 +123,7 @@ Each view module exports:
   views (daily/weekly/monthly/…) render into static markup already present in `index.html`.
 - Optionally `init(container)` and feature-specific handlers (e.g. `addHabit`, `showAddForm`).
 
-**Conventions** (see [`CLAUDE.md`](./CLAUDE.md) for the full list):
+**Conventions:**
 
 - Keep functions small (< ~40 lines) and **split compute logic from rendering** — e.g.
   `js/views/stats.js` exports pure, unit-testable helpers (`completedDaySets`, `currentStreak`,
@@ -162,13 +159,13 @@ user action → view handler mutates in-memory state (e.g. HABITS, ROUTINE, AREA
 | `ht_qw` | Quick Wins task array |
 | `ht_inbox` | brain-dump items |
 | `ht_routine` | routine blocks |
-| `ht_areas` | area/category definitions (Phase 5.3) |
+| `ht_areas` | area/category definitions |
 | `ht_reminders` | reminder configs |
 | `ht_settings` | user prefs (theme, reminder defaults) |
 | `ht_lastsync` | last Drive sync timestamp |
-| `ht_journal_YYYY-MM-DD` | daily journal `{ wins[], lows[], growth[] }` (Phase 6) |
-| `ht_mood_YYYY-MM-DD` | daily mood check-in `{ score, note }` (Phase 6) |
-| `ht_cbt` | CBT/REBT thought-record array (Phase 6) |
+| `ht_journal_YYYY-MM-DD` | daily journal `{ wins[], lows[], growth[] }` |
+| `ht_mood_YYYY-MM-DD` | daily mood check-in `{ score, note }` |
+| `ht_cbt` | CBT/REBT thought-record array |
 
 ### Schema versioning & migration
 
@@ -214,8 +211,7 @@ habit-tracker/
 │   ├── router.js            # tab switching
 │   ├── reminders.js         # reminder engine
 │   └── views/               # one module per feature
-├── CLAUDE.md                # architecture, conventions & rules (agent + human context)
-├── progress.md             # build board / session "resume here" notes
+├── native/                  # optional Capacitor iOS/Android wrapper (see native/README.md)
 └── README.md               # this file
 ```
 
@@ -313,8 +309,8 @@ creates (`habit-tracker-backup.json`) — it cannot see the rest of your Drive.
 
 ## Contributing & development workflow
 
-[`CLAUDE.md`](./CLAUDE.md) is the source of truth for architecture and conventions. Before
-writing code, skim it and keep the change consistent with the existing modules.
+Keep changes consistent with the existing modules and the [Architecture](#architecture)
+described above.
 
 **Guidelines:**
 
@@ -325,12 +321,8 @@ writing code, skim it and keep the change consistent with the existing modules.
 3. **Update the service worker.** If you add or change a cached shell file, add it to `SHELL`
    in `sw.js` and bump the `CACHE` version.
 
-**Commits.** The git history follows two conventions:
-
-- **Conventional commit messages**, one per logical unit of work, e.g.
-  `feat(stats): streaks`, `fix(routine): sort blocks by start time`, `docs: update README`.
-- **A milestone-completion commit** at the end of a body of work, e.g.
-  `chore: complete Phase 5 — Motivation`.
+**Commits.** Use **conventional commit messages**, one per logical unit of work, e.g.
+`feat(stats): streaks`, `fix(routine): sort blocks by start time`, `docs: update README`.
 
 **Verification.** There's no test framework; Node is used as a linter/runner. Before committing:
 
@@ -339,10 +331,6 @@ writing code, skim it and keep the change consistent with the existing modules.
    so they're easy to assert on directly).
 3. Run `python -m http.server 8000`, then confirm the affected tab renders correctly **and**
    prior tabs still work.
-
-> This project is built incrementally with Claude Code. For the build board and the day-to-day
-> session conventions, see [`progress.md`](./progress.md) and [`CLAUDE.md`](./CLAUDE.md) — these
-> are bookkeeping for how the project is assembled and aren't needed to contribute a change.
 
 **Design principles (apply to every change):**
 
@@ -355,27 +343,9 @@ writing code, skim it and keep the change consistent with the existing modules.
 
 ---
 
-## Roadmap
-
-| Phase | Focus | Status |
-|---|---|---|
-| 0 | Docs & repo tidy | ✅ Complete |
-| 1 | Foundation — ES modules, schema v2, full-history sync, PWA | ✅ Complete |
-| 2 | Personal needs — Inbox, Smart Quick Wins, Eye-care reminder | ✅ Complete |
-| 3 | Goals hierarchy — Quarterly + Yearly, goal linking | ✅ Complete |
-| 4 | Routine builder — time-blocked day | ✅ Complete |
-| 5 | Motivation — streaks, heatmap, statistics + areas | ✅ Complete |
-| 6 | Mental health — journal, mood, CBT thought record, ABC(DE) | ✅ Complete |
-| 7 | Mindfulness — breathing pacer + meditation timer | ✅ Complete |
-| 8 | Native mobile — Capacitor iOS/Android wrap | ✅ Complete |
-
-See [`progress.md`](./progress.md) for the detailed batch board and commit history.
-
----
-
 ## Evidence base (mental-health features)
 
-The Phase 6 mental-health features are grounded in published methods:
+The mental-health features are grounded in published methods:
 
 | Feature | Method | Source |
 |---|---|---|
