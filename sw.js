@@ -1,5 +1,5 @@
 // ── sw.js — Service Worker (app-shell cache, offline support) ──────
-const CACHE    = 'ht-v22';
+const CACHE    = 'ht-v23';
 const SHELL    = [
   './',
   './index.html',
