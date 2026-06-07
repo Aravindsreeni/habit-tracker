@@ -270,7 +270,7 @@ export default {
 
     // 13 distortions
     dist_all_or_nothing_label:   'ഒക്കെ-അല്ലെങ്കിൽ-ഒന്നുമില്ല',
-    dist_all_or_nothing_ex:      '"കറുപ്പും വെളുപ്പും' — "പൂർണ്ണമല്ലെങ്കിൽ ഞാൻ പരാജയപ്പെട്ടു."',
+    dist_all_or_nothing_ex:      '"കറുപ്പും വെളുപ്പും" — "പൂർണ്ണമല്ലെങ്കിൽ ഞാൻ പരാജയപ്പെട്ടു."',
     dist_catastrophizing_label:  'ദുരന്തചിന്ത',
     dist_catastrophizing_ex:     'ഏറ്റവും മോശം പ്രതീക്ഷിക്കൽ — "ഇത് പൂർണ്ണമായ ദുരന്തമാകും."',
     dist_overgeneralization_label: 'അമിത സാമാന്യവൽക്കരണം',
