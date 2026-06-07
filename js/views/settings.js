@@ -1,10 +1,11 @@
-// ── settings.js — Settings view (theme + reminders) ───────────────
+// ── settings.js — Settings view (theme + language + reminders) ────
 import { lsGet, lsSet } from '../store.js';
 import {
   PRESETS, getReminders, addReminder, toggleReminder, deleteReminder,
   snooze, dismiss, getRemaining, isDue, getTodayCount,
   initReminders, requestNotificationPermission
 } from '../reminders.js';
+import { initLang, getLang } from '../i18n.js';
 
 const SETTINGS_KEY = 'ht_settings';
 
@@ -37,6 +38,17 @@ function _setTheme(t) {
 function _applySystem(root) {
   const dark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
   root.setAttribute('data-theme', dark ? 'dark' : 'light');
+}
+
+// ── Language ───────────────────────────────────────────────────────
+async function _setLang(lang) {
+  const s = lsGet(SETTINGS_KEY) || {};
+  s.lang = lang;
+  lsSet(SETTINGS_KEY, s);
+  await initLang(lang);
+  // Re-render all destination views so translated strings appear immediately.
+  const { renderAll } = await import('./_all.js');
+  renderAll();
 }
 
 // ── Init reminders (called once from app.js) ───────────────────────
@@ -99,6 +111,7 @@ export function render() {
   const theme = s.theme || 'system';
   const rems  = getReminders();
 
+  const lang = getLang();
   el.innerHTML = `
     <!-- Theme -->
     <div class="sec-eyebrow" style="margin-top:8px">SETTINGS</div>
@@ -111,6 +124,17 @@ export function render() {
               aria-selected="${theme === t ? 'true' : 'false'}"
               data-theme-btn="${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</button>
           `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Language -->
+    <div class="grv-card" style="margin-top:8px">
+      <div class="between">
+        <span class="cardtitle" style="font-size:14px">Language</span>
+        <div class="grv-seg" role="group" aria-label="Language">
+          <button class="grv-seg__opt" aria-selected="${lang === 'en' ? 'true' : 'false'}" data-lang-btn="en">English</button>
+          <button class="grv-seg__opt" aria-selected="${lang === 'ml' ? 'true' : 'false'}" data-lang-btn="ml">മലയാളം</button>
         </div>
       </div>
     </div>
@@ -178,6 +202,10 @@ export function render() {
   // Wire theme buttons
   el.querySelectorAll('[data-theme-btn]').forEach(btn => {
     btn.onclick = () => { _setTheme(btn.dataset.themeBtn); render(); };
+  });
+  // Wire language buttons
+  el.querySelectorAll('[data-lang-btn]').forEach(btn => {
+    btn.onclick = () => { _setLang(btn.dataset.langBtn); };
   });
   // Wire notification permission
   el.querySelector('#rem-perm-btn')?.addEventListener('click', async () => {

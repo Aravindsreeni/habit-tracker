@@ -1,5 +1,5 @@
 // ── sw.js — Service Worker (app-shell cache, offline support) ──────
-const CACHE    = 'ht-v23';
+const CACHE    = 'ht-v24';
 const SHELL    = [
   './',
   './index.html',
@@ -56,6 +56,9 @@ const SHELL    = [
   './js/views/mindfulness.js',
   './js/views/settings.js',
   './js/reminders.js',
+  './js/i18n.js',
+  './js/locales/en.js',
+  './js/locales/ml.js',
   // Manifest + icons
   './manifest.webmanifest',
   './icons/icon-192.svg',
