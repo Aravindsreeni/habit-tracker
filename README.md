@@ -53,6 +53,7 @@ optional Google Drive sync.
 | **PWA** | Installable, works offline (app-shell cache), light/dark theme toggle. |
 | **Sync & backup** | Full-history Google Drive sync (opt-in) plus offline Export / Import JSON. |
 | **Grove design** | All 5 destinations share a unified **Grove design system** (vendored fonts, tokens, and components): Newsreader serif headings, Hanken Grotesk UI text, sage/lavender palette, consistent cards, segmented controls, and progress bars. |
+| **Localisation** | UI is fully localised — switch between **English** and **മലയാളം (Malayalam)** from You → Settings. Preference persists across sessions. Adding a new locale requires only a single `js/locales/<lang>.js` file. |
 
 > The mental-health features (Journal, Mood, Thought Records) are **self-help tools, not a
 > substitute for professional care**; each carries that disclaimer plus a crisis-resource pointer,
@@ -110,13 +111,17 @@ css/
   base.css              ← per-feature legacy styles (.hc, .hm-*, .mf-*, .cbt-*, …)
   grove-app.css         ← ported kit layout (.screen, .scr-head, .scr-eyebrow, .tabhost, …)
 js/
-  app.js                ← bootstrap: init → register 5 destination views → sw('today')
+  app.js                ← bootstrap: applyTheme → await initLang → initSchema → loadAll → sw('today')
+  i18n.js               ← t(key, vars), initLang(lang), getLang(), plural(n, one, other)
   store.js              ← state, localStorage, schema v3, migration, date-key helpers, goal-linking
   sync.js               ← Google Drive OAuth + full-history payload + Export/Import JSON
   ui.js                 ← toast(), mkCard(), mkSum(), SVG helpers
   router.js             ← registerView/registerDest/sw(); toggles [data-dest-panel] hidden attrs
   icons.js              ← icon(name, opts) → inline SVG; refreshIcons() → lucide.createIcons()
   reminders.js          ← recurring timer engine + Notification API, native-aware
+  locales/
+    en.js               ← English strings (~300 keys, 14 namespaces)
+    ml.js               ← Malayalam strings (full translation of en.js)
   vendor/
     lucide.min.js       ← vendored Lucide icon UMD (0.453.0)
   views/
@@ -233,7 +238,7 @@ block — don't mutate older blocks.
 habit-tracker/
 ├── index.html               # app shell; 5 destination panels + Grove tabbar
 ├── manifest.webmanifest     # PWA manifest
-├── sw.js                    # service worker (app-shell cache; currently ht-v22)
+├── sw.js                    # service worker (app-shell cache; currently ht-v24)
 ├── icons/                   # PWA icons
 ├── assets/
 │   └── grove/               # Grove brand SVGs (grove-icon, grove-mark, grove-wordmark)
@@ -248,13 +253,17 @@ habit-tracker/
 │   ├── base.css             # per-feature legacy styles
 │   └── grove-app.css        # ported kit layout classes
 ├── js/
-│   ├── app.js               # bootstrap: registers 5 destinations, calls sw('today')
+│   ├── app.js               # bootstrap: applyTheme → initLang → initSchema → sw('today')
+│   ├── i18n.js              # t(), initLang(), getLang(), plural()
 │   ├── store.js             # state + persistence + schema migration
 │   ├── sync.js              # Drive sync + Export/Import
 │   ├── ui.js                # shared UI helpers (toast, mkCard, …)
 │   ├── router.js            # registerView/registerDest/sw()
 │   ├── icons.js             # icon() + refreshIcons() (Lucide wrapper)
 │   ├── reminders.js         # reminder engine + Notification API
+│   ├── locales/
+│   │   ├── en.js            # English locale (~300 keys)
+│   │   └── ml.js            # Malayalam locale
 │   ├── vendor/
 │   │   └── lucide.min.js    # vendored Lucide UMD (0.453.0)
 │   └── views/
@@ -303,7 +312,7 @@ node -e '/* import or inline a helper and assert outputs */'
 ```
 
 > **Service worker note:** the SW caches the app shell. After changing a cached file, bump the
-> `CACHE` constant in `sw.js` (currently `ht-v22`) so returning users fetch the fresh copy.
+> `CACHE` constant in `sw.js` (currently `ht-v24`) so returning users fetch the fresh copy.
 > During local dev, use your browser's "Update on reload" / "Bypass for network" devtools option.
 
 ---

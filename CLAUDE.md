@@ -21,12 +21,12 @@
 
 ---
 
-## Module map (current — post-Grove re-skin, Phases 9–15)
+## Module map (current — post-i18n, Phases 9–17)
 
 ```
 index.html              ← app shell; 5 [data-dest-panel] divs + Grove bottom tabbar
 manifest.webmanifest
-sw.js                   ← app-shell cache; bump CACHE const on every shell-file change (currently ht-v22)
+sw.js                   ← app-shell cache; bump CACHE const on every shell-file change (currently ht-v24)
 icons/                  ← PWA icons
 css/
   grove/                ← Grove design system (vendored; tokens, fonts, components)
@@ -41,13 +41,17 @@ css/
   grove-app.css         ← ported kit layout (.screen, .scr-head, .scr-eyebrow, .scr-greet,
                            .sec-eyebrow, .tabhost, .hero*, .ring*, .counter*, .breathe-*, etc.)
 js/
-  app.js                ← bootstrap: init → register 5 destination views → sw('today')
+  app.js                ← bootstrap: applyTheme → await initLang → initSchema → loadAll → sw('today')
+  i18n.js               ← t(key, vars), initLang(lang), getLang(), plural(n, one, other)
   store.js              ← state, localStorage, schema v3, migration, date-key helpers, goal-linking
   sync.js               ← Google Drive OAuth + full-history payload + Export/Import JSON
   ui.js                 ← toast(), mkCard(), mkSum(), SVG helpers
   router.js             ← registerView/registerDest/sw(); toggles [data-dest-panel] hidden attrs
   icons.js              ← icon(name, opts) → SVG string; refreshIcons() → lucide.createIcons()
   reminders.js          ← recurring timer engine + Notification API, native-aware
+  locales/
+    en.js               ← English strings (~300 keys across 14 namespaces)
+    ml.js               ← Malayalam strings (complete translation of en.js)
   vendor/
     lucide.min.js       ← vendored Lucide icon UMD (0.453.0)
   views/
@@ -65,7 +69,7 @@ js/
     inbox.js            ← brain-dump (rendered inside reflect.js → #p-inbox)
     routine.js          ← routine (rendered by today.js; null guard)
     stats.js            ← streaks, heatmap, rates, areas (rendered by you.js → #p-stats)
-    settings.js         ← theme, reminders (rendered by you.js → #p-settings)
+    settings.js         ← theme, language selector, reminders (rendered by you.js → #p-settings)
     journal.js          ← Three Good Things journal (rendered by reflect.js → #p-journal)
     mood.js             ← daily mood check-in (rendered by reflect.js → #p-mood)
     cbt.js              ← CBT thought records + ABC(DE) (rendered by reflect.js → #p-cbt)
@@ -140,6 +144,10 @@ run `migrate()` — idempotent, additive only, never deletes existing keys or da
 - Legacy CSS uses BEM-lite namespace prefixes (`.hc`, `.hm-*`, `.mf-*`, `.cbt-*`, `.inb-*`, etc.).
 - Icons: `icon(name, {width, height, strokeWidth})` from `js/icons.js`; call `refreshIcons()`
   after injecting `<i data-lucide="...">` elements into the DOM.
+- **i18n strings:** all user-visible text must go through `t('namespace.key', { token: val })`
+  from `js/i18n.js`. Add missing keys to both `js/locales/en.js` and `js/locales/ml.js`.
+  Dynamic values use `{placeholder}` tokens. Use `plural(n, t('ns.key_one'), t('ns.key_other'))`
+  for count-sensitive strings. Never hardcode UI text in view files.
 
 ---
 
@@ -198,3 +206,5 @@ run `migrate()` — idempotent, additive only, never deletes existing keys or da
 | 13 | Calm destination | ✅ |
 | 14 | You destination | ✅ |
 | 15 | Cleanup + voice pass | ✅ |
+| 16 | i18n engine + English + Malayalam locales + language selector | ✅ |
+| 17 | Wire `t()` into all 12 view files | ✅ |
