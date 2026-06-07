@@ -5,7 +5,7 @@ import {
   snooze, dismiss, getRemaining, isDue, getTodayCount,
   initReminders, requestNotificationPermission
 } from '../reminders.js';
-import { initLang, getLang } from '../i18n.js';
+import { t, initLang, getLang } from '../i18n.js';
 
 const SETTINGS_KEY = 'ht_settings';
 
