@@ -5,23 +5,26 @@
 // this device. This is a self-help tool, NOT a substitute for professional care.
 import { jKey, eachJournal, svJournal, lsGet, p2 } from '../store.js';
 import { xSVG } from '../ui.js';
+import { t } from '../i18n.js';
 
 // Gentle 10:1:2 caps — keep the focus on the positive (lots of wins, few lows).
-const SECTIONS = [
-  { key: 'wins',   max: 10, emoji: '🌟', title: 'What went well — and why?',
-    ph: 'Something good that happened, and why it happened…',
-    hint: 'The heart of the practice — name the good, then the cause.' },
-  { key: 'lows',   max: 1,  emoji: '🌧️', title: 'One hard thing (optional)',
-    ph: 'Name it gently — just once…',
-    hint: 'Acknowledge it, then let it rest.' },
-  { key: 'growth', max: 2,  emoji: '🌱', title: 'What might I learn or try next?',
-    ph: 'A small step or insight for tomorrow…',
-    hint: '' }
+// Emoji kept as data (universal); only text labels are translated via t().
+const SECTIONS = () => [
+  { key: 'wins',   max: 10, emoji: '🌟',
+    title:  t('journal.wins_title'),
+    ph:     t('journal.wins_ph'),
+    hint:   t('journal.wins_hint') },
+  { key: 'lows',   max: 1,  emoji: '🌧️',
+    title:  t('journal.lows_title'),
+    ph:     t('journal.lows_ph'),
+    hint:   t('journal.lows_hint') },
+  { key: 'growth', max: 2,  emoji: '🌱',
+    title:  t('journal.growth_title'),
+    ph:     t('journal.growth_ph'),
+    hint:   '' },
 ];
 
 // ── Pure logic (node-tested) ──
-// Normalise any stored shape into { wins:[], lows:[], growth:[] } of trimmed
-// strings — tolerant of the legacy single-string shape and of missing keys.
 export function normalize(raw) {
   const out = { wins: [], lows: [], growth: [] };
   if (!raw || typeof raw !== 'object') return out;
@@ -48,16 +51,17 @@ export function render() {
 
   const entry = normalize(lsGet(jKey()));
   const total = entry.wins.length + entry.lows.length + entry.growth.length;
+  const hdr   = total ? t('journal.header_count', { n: total }) : t('journal.header_base');
 
   el.innerHTML = `
     <div class="sec-hdr" style="margin-top:4px">
-      <span class="sec-lbl">Journal · Today${total ? ` · ${total}` : ''}</span>
+      <span class="sec-lbl">${hdr}</span>
     </div>
-    <div class="jr-intro">A few honest lines on what went well — and <i>why</i> — gently lifts mood over time.</div>
+    <div class="jr-intro">${t('journal.intro')}</div>
     <div id="jr-today"></div>
-    <div class="sec-hdr" style="margin-top:20px"><span class="sec-lbl">Past days</span></div>
+    <div class="sec-hdr" style="margin-top:20px"><span class="sec-lbl">${t('journal.past_days')}</span></div>
     <div id="jr-history"></div>
-    ${disclaimerHTML()}`;
+    <div class="jr-disc">${t('journal.disclaimer')}</div>`;
 
   _renderToday(entry);
   _renderHistory();
@@ -67,7 +71,7 @@ function _renderToday(entry) {
   const host = document.getElementById('jr-today');
   if (!host) return;
   host.innerHTML = '';
-  SECTIONS.forEach(sec => host.appendChild(_sectionCard(sec, entry[sec.key])));
+  SECTIONS().forEach(sec => host.appendChild(_sectionCard(sec, entry[sec.key])));
 }
 
 function _sectionCard(sec, items) {
@@ -82,14 +86,14 @@ function _sectionCard(sec, items) {
     ${sec.hint ? `<div class="jr-hint">${sec.hint}</div>` : ''}
     <div class="jr-items">${
       items.length
-        ? items.map((t, i) => itemRow(sec.key, i, t)).join('')
-        : '<div class="jr-blank">Nothing here yet — add when you\'re ready</div>'
+        ? items.map((text, i) => itemRow(sec.key, i, text)).join('')
+        : `<div class="jr-blank">${t('journal.blank')}</div>`
     }</div>
     ${full
-      ? `<div class="jr-full">That's plenty for today ✓</div>`
+      ? `<div class="jr-full">${t('journal.full')}</div>`
       : `<div class="jr-add">
            <input class="fi" id="jr-inp-${sec.key}" type="text" placeholder="${esc(sec.ph)}" autocomplete="off" maxlength="280">
-           <button class="fsv" data-jr-add="${sec.key}">Add</button>
+           <button class="fsv" data-jr-add="${sec.key}">${t('common.add')}</button>
          </div>`}`;
 
   card.querySelector('[data-jr-add]')?.addEventListener('click', () => _add(sec.key));
@@ -109,17 +113,18 @@ function itemRow(key, i, text) {
     <div class="jr-item">
       <span class="jr-bull">•</span>
       <span class="jr-text">${esc(text)}</span>
-      <button class="hdel" title="Remove" data-jr-del="${key}:${i}">${xSVG()}</button>
+      <button class="hdel" title="${t('common.remove')}" data-jr-del="${key}:${i}">${xSVG()}</button>
     </div>`;
 }
 
 function _add(key) {
-  const sec = SECTIONS.find(s => s.key === key);
+  const sections = SECTIONS();
+  const sec = sections.find(s => s.key === key);
   const inp = document.getElementById(`jr-inp-${key}`);
   const text = inp?.value.trim();
   if (!text) { inp?.focus(); return; }
   const entry = normalize(lsGet(jKey()));
-  if (entry[key].length >= sec.max) return;   // respect the gentle cap
+  if (entry[key].length >= sec.max) return;
   entry[key].push(text);
   svJournal(todayYmd(), entry);
   render();
@@ -150,7 +155,7 @@ function _renderHistory() {
   rows.sort((a, b) => b.ymd.localeCompare(a.ymd));
 
   if (!rows.length) {
-    host.innerHTML = '<div class="empty">Past reflections will appear here</div>';
+    host.innerHTML = `<div class="empty">${t('journal.history_empty')}</div>`;
     return;
   }
   host.innerHTML = '';
@@ -179,15 +184,16 @@ function _historyCard({ ymd, e }) {
 }
 
 function histBody(e) {
-  return SECTIONS.map(sec => {
+  const secs = SECTIONS();
+  return secs.map(sec => {
     const items = e[sec.key];
     if (!items.length) return '';
     return `
       <div class="jr-hist-sec">
         <div class="jr-hist-lbl">${sec.emoji} ${sec.title}</div>
-        ${items.map(t => `<div class="jr-hist-item">${esc(t)}</div>`).join('')}
+        ${items.map(text => `<div class="jr-hist-item">${esc(text)}</div>`).join('')}
       </div>`;
-  }).join('') || '<div class="jr-blank">No entries</div>';
+  }).join('') || `<div class="jr-blank">${t('journal.blank')}</div>`;
 }
 
 function fmtDate(ymd) {
@@ -195,18 +201,6 @@ function fmtDate(ymd) {
   return new Date(y, m - 1, d).toLocaleDateString('en-IN', {
     weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
   });
-}
-
-// Design principle 5: self-help disclaimer + crisis-resource pointer, always visible.
-function disclaimerHTML() {
-  return `
-    <div class="jr-disc">
-      <b>A self-help tool, not a substitute for professional care.</b>
-      Journaling supports wellbeing but isn't therapy. If you'd like to speak with
-      a therapist, <a href="https://oppam.me" target="_blank" rel="noopener"><b>Oppam</b></a>
-      offers 24×7 online counselling. In a crisis, reach <b>Tele-MANAS 14416</b> (India, 24×7)
-      or your local emergency number. Your entries stay private on this device.
-    </div>`;
 }
 
 function esc(str) {

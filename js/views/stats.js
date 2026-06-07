@@ -4,26 +4,23 @@
 // invitation to begin again.
 import { HABITS, AREAS, setAreas, svAreas, svHabits, eachDailyLog } from '../store.js';
 import { xSVG } from '../ui.js';
+import { t, plural } from '../i18n.js';
 
-// ── Compute helpers (kept separate from render so later batches reuse them) ──
+// ── Compute helpers ──
 
-// A daily habit counts as "done" on a day if its checkbox is true, or its
-// counter is > 0. `h.type === 'w'` is a counter; anything else is a checkbox.
 function isDone(habit, value) {
   return habit.type === 'w'
     ? (typeof value === 'number' && value > 0)
     : value === true;
 }
 
-// Whole-day number (days since epoch, UTC) — DST-safe for streak arithmetic.
 function dayNum(y, m, d) { return Math.floor(Date.UTC(y, m - 1, d) / 86400000); }
 function ymdToNum(ymd)   { const [y, m, d] = ymd.split('-').map(Number); return dayNum(y, m, d); }
 function todayNum() {
-  const t = new Date();
-  return dayNum(t.getFullYear(), t.getMonth() + 1, t.getDate());
+  const t_ = new Date();
+  return dayNum(t_.getFullYear(), t_.getMonth() + 1, t_.getDate());
 }
 
-// Build { habitId: Set<dayNum> } of completed days, in a single pass over history.
 export function completedDaySets(habits) {
   const sets = {};
   habits.forEach(h => { sets[h.id] = new Set(); });
@@ -35,8 +32,6 @@ export function completedDaySets(habits) {
   return sets;
 }
 
-// Consecutive days up to today. Today not being logged yet does NOT break it —
-// we count the run ending at today, or at yesterday if today is still blank.
 export function currentStreak(daySet) {
   let n = todayNum();
   if (!daySet.has(n)) n -= 1;
@@ -45,7 +40,6 @@ export function currentStreak(daySet) {
   return count;
 }
 
-// Longest consecutive run anywhere in the history.
 export function longestStreak(daySet) {
   const nums = [...daySet].sort((a, b) => a - b);
   let best = 0, run = 0, prev = null;
@@ -57,15 +51,11 @@ export function longestStreak(daySet) {
   return best;
 }
 
-// dayNum → 'YYYY-MM-DD' (UTC, matching how dayNum was built).
 function numToYmd(n) { return new Date(n * 86400000).toISOString().slice(0, 10); }
 
-// GitHub-style year grid for a daySet: an array of week-columns, each a length-7
-// array (rows = Mon..Sun) of { n, ymd, on } cells, or null for future padding.
-// The last column is the current week; today is its newest non-null cell.
 export function heatmapWeeks(daySet, weeks = 53) {
   const end = todayNum();
-  const wd  = ((end % 7) + 3) % 7;            // weekday of today, Mon=0 (epoch=Thu)
+  const wd  = ((end % 7) + 3) % 7;
   const firstMonday = (end - wd) - (weeks - 1) * 7;
   const cols = [];
   for (let c = 0; c < weeks; c++) {
@@ -79,8 +69,6 @@ export function heatmapWeeks(daySet, weeks = 53) {
   return cols;
 }
 
-// Completion rate over the last `windowDays` days (counting today back).
-// total is the window length — honest "X of the last N days" framing.
 export function completionRate(daySet, windowDays) {
   const end = todayNum();
   let done = 0;
@@ -88,7 +76,6 @@ export function completionRate(daySet, windowDays) {
   return { done, total: windowDays, pct: Math.round(done / windowDays * 100) };
 }
 
-// Aggregate completion across all daily habits tagged with `areaId`.
 export function areaRate(areaId, habits, sets, windowDays) {
   const hs = habits.filter(h => h.area === areaId);
   let done = 0, total = 0;
@@ -99,19 +86,20 @@ export function areaRate(areaId, habits, sets, windowDays) {
   return { count: hs.length, done, total, pct: total ? Math.round(done / total * 100) : 0 };
 }
 
-// ── Render ──────────────────────────────────────────────────────────
+// ── Render ──
 
-function days(n) { return `${n} ${n === 1 ? 'day' : 'days'}`; }
+function days(n) {
+  return `${n} ${plural(n, t('common.day_one'), t('common.day_other'))}`;
+}
 
-// Encouraging, never-shaming caption for a streak.
 function streakMsg(cur, best) {
   if (cur === 0) {
     return best > 0
-      ? `You hit ${days(best)} once — begin again 🌱`
-      : 'Every streak starts with day one 🌱';
+      ? t('stats.msg_begin', { n: days(best) })
+      : t('stats.msg_first');
   }
-  if (cur === best) return cur >= 2 ? 'Best yet! 🎉' : 'Off to a great start ✨';
-  return 'Keep it going 💪';
+  if (cur === best) return cur >= 2 ? t('stats.msg_best') : t('stats.msg_start');
+  return t('stats.msg_keep');
 }
 
 export function render() {
@@ -121,10 +109,10 @@ export function render() {
 
   const habits = HABITS.daily || [];
   if (!habits.length) {
-    el.appendChild(sectionHdr('Stats', '', '4px'));
+    el.appendChild(sectionHdr(t('stats.title'), '', '4px'));
     const empty = document.createElement('div');
     empty.className = 'empty';
-    empty.textContent = 'Add a daily habit to start tracking streaks & stats';
+    empty.textContent = t('stats.empty');
     el.appendChild(empty);
     return;
   }
@@ -136,7 +124,6 @@ export function render() {
   renderHeatmaps(el, habits, sets);
 }
 
-// A standard uppercase section header, optionally with right-aligned content.
 function sectionHdr(label, rightHTML = '', marginTop = '18px') {
   const hdr = document.createElement('div');
   hdr.className = 'sec-hdr';
@@ -147,7 +134,7 @@ function sectionHdr(label, rightHTML = '', marginTop = '18px') {
 
 // ── Streaks (B5.1) ──
 function renderStreaks(el, habits, sets) {
-  el.appendChild(sectionHdr('Streaks · Daily habits', '', '4px'));
+  el.appendChild(sectionHdr(t('stats.section_streaks'), '', '4px'));
   const list = document.createElement('div');
   el.appendChild(list);
   habits.forEach(h => {
@@ -158,10 +145,10 @@ function renderStreaks(el, habits, sets) {
     c.innerHTML = `
       <div class="hr">
         <span class="hn">${esc(h.label)}</span>
-        <span class="st-fire" title="Current streak">${cur > 0 ? '🔥' : '🌱'} ${days(cur)}</span>
+        <span class="st-fire" title="${t('stats.cur_streak')}">${cur > 0 ? t('stats.fire_icon_on') : t('stats.fire_icon_off')} ${days(cur)}</span>
       </div>
       <div class="st-foot">
-        <span class="st-best">Best · ${days(best)}</span>
+        <span class="st-best">${t('stats.best', { n: days(best) })}</span>
         <span class="st-msg">${streakMsg(cur, best)}</span>
       </div>`;
     list.appendChild(c);
@@ -178,7 +165,7 @@ function rateBar(label, r) {
     </div>`;
 }
 function renderStats(el, habits, sets) {
-  el.appendChild(sectionHdr('Consistency · Recent days'));
+  el.appendChild(sectionHdr(t('stats.section_consistency')));
   const list = document.createElement('div');
   el.appendChild(list);
   habits.forEach(h => {
@@ -192,8 +179,8 @@ function renderStats(el, habits, sets) {
         <span class="stt-pct">${r30.pct}%<span class="stt-sub"> · 30d</span></span>
       </div>
       <div class="stt-bars">
-        ${rateBar('30 days', r30)}
-        ${rateBar('90 days', r90)}
+        ${rateBar(t('stats.window_30'), r30)}
+        ${rateBar(t('stats.window_90'), r90)}
       </div>`;
     list.appendChild(c);
   });
@@ -201,12 +188,12 @@ function renderStats(el, habits, sets) {
 
 // ── Areas (B5.3): user-defined categories + grouped completion ──
 function renderAreas(el, habits, sets) {
-  el.appendChild(sectionHdr('Areas · Group your habits'));
+  el.appendChild(sectionHdr(t('stats.section_areas')));
   const wrap = document.createElement('div');
   wrap.innerHTML = `
     <div class="area-add">
-      <input class="fi" id="area-name" type="text" placeholder="New area (e.g. Health, Learning)" autocomplete="off">
-      <button class="fsv" id="area-addbtn">Add</button>
+      <input class="fi" id="area-name" type="text" placeholder="${t('stats.area_ph')}" autocomplete="off">
+      <button class="fsv" id="area-addbtn">${t('common.add')}</button>
     </div>
     <div id="area-list"></div>
     <div id="area-assign"></div>`;
@@ -224,19 +211,20 @@ function _renderAreaList(habits, sets) {
   const listEl = document.getElementById('area-list');
   if (!listEl) return;
   if (!AREAS.length) {
-    listEl.innerHTML = '<div class="empty">No areas yet — add one above, then tag habits below</div>';
+    listEl.innerHTML = `<div class="empty">${t('stats.no_areas')}</div>`;
     return;
   }
   listEl.innerHTML = '';
   AREAS.forEach(a => {
     const r = areaRate(a.id, habits, sets, 30);
+    const habitWord = plural(r.count, t('stats.habit_one'), t('stats.habit_other'));
     const c = document.createElement('div');
     c.className = 'hc area-card';
     c.innerHTML = `
       <div class="hr">
         <span class="hn">${esc(a.name)}</span>
-        <span class="area-meta">${r.count} ${r.count === 1 ? 'habit' : 'habits'}${r.count ? ` · ${r.pct}% · 30d` : ''}</span>
-        <button class="hdel" title="Delete area" data-area-del="${a.id}">${xSVG()}</button>
+        <span class="area-meta">${r.count} ${habitWord}${r.count ? ` · ${t('stats.area_pct', { pct: r.pct })}` : ''}</span>
+        <button class="hdel" title="${t('common.delete')}" data-area-del="${a.id}">${xSVG()}</button>
       </div>`;
     listEl.appendChild(c);
   });
@@ -254,9 +242,9 @@ function _renderAreaAssign(habits) {
   const el = document.getElementById('area-assign');
   if (!el) return;
   if (!AREAS.length) { el.innerHTML = ''; return; }
-  el.innerHTML = '<div class="area-assign-hdr">Assign habits to areas</div>';
+  el.innerHTML = `<div class="area-assign-hdr">${t('stats.assign_title')}</div>`;
   habits.forEach(h => {
-    const opts = ['<option value="">— None —</option>']
+    const opts = [`<option value="">${t('common.none')}</option>`]
       .concat(AREAS.map(a => `<option value="${a.id}"${h.area === a.id ? ' selected' : ''}>${esc(a.name)}</option>`))
       .join('');
     const row = document.createElement('div');
@@ -286,19 +274,17 @@ function _addArea() {
 
 // ── Heatmap (B5.2) ──
 function renderHeatmaps(el, habits, sets) {
-  el.appendChild(sectionHdr('Heatmap · Past year',
-    '<span class="hm-legend">Less <i class="hm-cell"></i><i class="hm-cell on"></i> More</span>'));
+  const legend = `<span class="hm-legend">${t('stats.legend_less')} <i class="hm-cell"></i><i class="hm-cell on"></i> ${t('stats.legend_more')}</span>`;
+  el.appendChild(sectionHdr(t('stats.section_heatmap'), legend));
   const hmList = document.createElement('div');
   el.appendChild(hmList);
   habits.forEach(h => renderHeatmapCard(hmList, h, sets[h.id]));
 }
 
-// Pitch (px) of one heatmap column = cell width + grid gap (keep in sync with CSS).
 const HM_PITCH = 14;
 const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// Month-label strip above the grid; label shown only for runs wide enough to fit.
 function monthsRow(weeks) {
   const groups = [];
   weeks.forEach(col => {
@@ -313,12 +299,12 @@ function monthsRow(weeks) {
   ).join('');
 }
 
-// Cells in column-major order to match the grid's grid-auto-flow: column.
 function cellsGrid(weeks) {
   let html = '';
   weeks.forEach(col => col.forEach(cell => {
     if (!cell) { html += '<span class="hm-cell hm-pad"></span>'; return; }
-    html += `<span class="hm-cell${cell.on ? ' on' : ''}" title="${cell.ymd}${cell.on ? ' · done ✓' : ''}"></span>`;
+    const tip = `${cell.ymd}${cell.on ? ' ' + t('stats.done_tooltip') : ''}`;
+    html += `<span class="hm-cell${cell.on ? ' on' : ''}" title="${tip}"></span>`;
   }));
   return html;
 }
@@ -328,12 +314,13 @@ function renderHeatmapCard(container, habit, daySet) {
   let count = 0;
   weeks.forEach(col => col.forEach(c => { if (c && c.on) count++; }));
 
+  const countStr = `${count} ${plural(count, t('common.day_one'), t('common.day_other'))} · ${t('stats.hm_past_year')}`;
   const card = document.createElement('div');
   card.className = 'hc hm-card';
   card.innerHTML = `
     <div class="hr">
       <span class="hn">${esc(habit.label)}</span>
-      <span class="hm-count">${count} ${count === 1 ? 'day' : 'days'} · past year</span>
+      <span class="hm-count">${countStr}</span>
     </div>
     <div class="hm-scroll">
       <div class="hm-months">${monthsRow(weeks)}</div>
@@ -341,7 +328,6 @@ function renderHeatmapCard(container, habit, daySet) {
     </div>`;
   container.appendChild(card);
 
-  // Default the scroll to the most recent weeks (today is on the right edge).
   const sc = card.querySelector('.hm-scroll');
   if (sc) sc.scrollLeft = sc.scrollWidth;
 }

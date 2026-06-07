@@ -6,15 +6,16 @@ import { render as rMood }    from './mood.js';
 import { render as rJournal } from './journal.js';
 import { render as rCbt }     from './cbt.js';
 import { render as rInbox }   from './inbox.js';
+import { t } from '../i18n.js';
 
 // ── Module state ──────────────────────────────────────────────────────
 let _tab = 'mood';
 
-const TABS = [
-  { id: 'mood',     label: 'Mood',     pnl: 'p-mood'    },
-  { id: 'journal',  label: 'Journal',  pnl: 'p-journal' },
-  { id: 'thoughts', label: 'Thoughts', pnl: 'p-cbt'     },
-  { id: 'inbox',    label: 'Inbox',    pnl: 'p-inbox'   },
+const TAB_KEYS = [
+  { id: 'mood',     pnl: 'p-mood',    tk: 'reflect.tab_mood'     },
+  { id: 'journal',  pnl: 'p-journal', tk: 'reflect.tab_journal'  },
+  { id: 'thoughts', pnl: 'p-cbt',     tk: 'reflect.tab_thoughts' },
+  { id: 'inbox',    pnl: 'p-inbox',   tk: 'reflect.tab_inbox'    },
 ];
 
 // ── Render ────────────────────────────────────────────────────────────
@@ -22,31 +23,27 @@ export function render() {
   const el = document.getElementById('p-reflect');
   if (!el) return;
 
-  const seg = TABS.map(t =>
+  const seg = TAB_KEYS.map(t_ =>
     `<button class="grv-seg__opt" role="tab"
-      aria-selected="${_tab === t.id ? 'true' : 'false'}"
-      data-rt="${t.id}">${t.label}</button>`
+      aria-selected="${_tab === t_.id ? 'true' : 'false'}"
+      data-rt="${t_.id}">${t(t_.tk)}</button>`
   ).join('');
 
-  // All four sub-containers live here; only the active one is visible.
-  // The sub-view render() functions find their containers via getElementById.
-  const panels = TABS.map(t =>
-    `<div id="${t.pnl}"${_tab !== t.id ? ' hidden' : ''}></div>`
+  const panels = TAB_KEYS.map(t_ =>
+    `<div id="${t_.pnl}"${_tab !== t_.id ? ' hidden' : ''}></div>`
   ).join('\n    ');
 
   el.innerHTML = `<div class="scr-head">
-    <div class="scr-eyebrow">Reflect</div>
-    <div class="scr-greet">Your <em>inner space</em></div>
+    <div class="scr-eyebrow">${t('reflect.title')}</div>
+    <div class="scr-greet">Your <em>${t('reflect.subtitle')}</em></div>
   </div>
   <div style="display:flex;justify-content:center;margin-bottom:18px;overflow-x:auto">
     <div class="grv-seg" role="tablist" aria-label="Section">${seg}</div>
   </div>
   ${panels}`;
 
-  // Render only the active sub-view — inactive containers stay empty until visited
   _renderActive();
 
-  // Wire tab switching
   el.querySelectorAll('[data-rt]').forEach(btn => {
     btn.onclick = () => { _tab = btn.dataset.rt; render(); };
   });

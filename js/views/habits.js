@@ -7,6 +7,7 @@ import {
   linkProgress, linkSources, linkLabel
 } from '../store.js';
 import { icon } from '../icons.js';
+import { t } from '../i18n.js';
 
 // ── Module state ─────────────────────────────────────────────────────
 let _h       = 'daily';   // active horizon
@@ -49,8 +50,14 @@ function _max(h) {
 function _done(h) { return _val(h) >= _max(h); }
 
 function _unit() {
-  return { daily: 'today', weekly: 'this week', monthly: 'this month',
-           quarterly: 'this quarter', yearly: 'this year' }[_h];
+  const map = {
+    daily:     'habits.unit_daily',
+    weekly:    'habits.unit_weekly',
+    monthly:   'habits.unit_monthly',
+    quarterly: 'habits.unit_quarterly',
+    yearly:    'habits.unit_yearly',
+  };
+  return t(map[_h] || 'habits.unit_daily');
 }
 
 function _periodLabel() {
@@ -59,16 +66,28 @@ function _periodLabel() {
     case 'monthly':   return mName();
     case 'quarterly': return qName();
     case 'yearly':    return yName();
-    default:          return 'Daily';
+    default:          return t('habits.tab_daily');
   }
+}
+
+function _horizonLabel(h) {
+  const map = {
+    daily:     'habits.tab_daily',
+    weekly:    'habits.tab_weekly',
+    monthly:   'habits.tab_monthly',
+    quarterly: 'habits.tab_quarterly',
+    yearly:    'habits.tab_yearly',
+  };
+  return t(map[h] || h);
 }
 
 // ── Habit card HTML ───────────────────────────────────────────────────
 function _card(h) {
   const v     = _val(h), max = _max(h), done = v >= max;
-  const p     = pct(v, max);
   const unit  = _unit();
-  const cap   = done ? `Complete — lovely work ${unit}` : `${max - v} to go ${unit}`;
+  const cap   = done
+    ? t('habits.cap_done', { unit })
+    : t('habits.cap_remaining', { remaining: max - v, unit });
   const linked = (_h === 'quarterly' || _h === 'yearly') && h.link;
 
   let ctrl = '';
@@ -96,7 +115,9 @@ function _card(h) {
     ctrl = `<span class="grv-badge grv-badge--${done ? 'sage' : 'honey'}">${v}/${max}</span>`;
   }
 
-  const linkCap = linked ? `<div style="margin-top:4px;font-size:11px;color:var(--text-muted)">↗ fed by ${esc(linkLabel(h.link))}</div>` : '';
+  const linkCap = linked
+    ? `<div style="margin-top:4px;font-size:11px;color:var(--text-muted)">${t('habits.link_fed', { label: esc(linkLabel(h.link)) })}</div>`
+    : '';
 
   return `<div class="grv-card${done ? ' grv-card--done' : ''}" style="padding:14px 16px;margin-bottom:8px">
     <div class="between" style="margin-bottom:${_h === 'daily' && h.type !== 'c' ? '10px' : '12px'}">
@@ -113,52 +134,54 @@ function _card(h) {
 
 // ── Add form HTML per horizon ─────────────────────────────────────────
 function _addForm() {
+  const isGoal = _h === 'quarterly' || _h === 'yearly';
   if (!_addOpen) {
-    const lbl = _h === 'quarterly' || _h === 'yearly' ? 'Add goal' : 'Add habit';
-    return `<button class="grv-btn grv-btn--sm grv-btn--ghost" id="hb-open-btn" style="margin-top:6px">+ ${lbl}</button>`;
+    const lbl = isGoal ? t('habits.add_goal') : t('habits.add_habit');
+    return `<button class="grv-btn grv-btn--sm grv-btn--ghost" id="hb-open-btn" style="margin-top:6px">${lbl}</button>`;
   }
 
   const inpStyle = 'font-size:13px;border:1px solid var(--border-subtle);border-radius:var(--radius-sm);padding:6px 10px;background:var(--surface-inset);color:var(--text-primary);outline:none;font-family:var(--font-ui)';
-  const nameField = `<input id="hb-name" type="text" placeholder="${_h === 'quarterly' || _h === 'yearly' ? 'Goal name' : 'Habit name'}"
+  const namePh   = isGoal ? t('habits.goal_name') : t('habits.habit_name');
+  const nameField = `<input id="hb-name" type="text" placeholder="${namePh}"
     style="flex:1;min-width:100px;height:36px;padding:0 12px;${inpStyle}">`;
 
   let extra = '';
   if (_h === 'daily') {
     extra = `<select id="hb-type" style="${inpStyle}">
-      <option value="c">Checkbox</option>
-      <option value="w">Counter</option>
+      <option value="c">${t('habits.type_checkbox')}</option>
+      <option value="w">${t('habits.type_counter')}</option>
     </select>
-    <input id="hb-max" type="number" min="1" max="100" value="8" placeholder="Max"
+    <input id="hb-max" type="number" min="1" max="100" value="8" placeholder="${t('habits.max_label')}"
       style="width:64px;height:36px;${inpStyle}" hidden>`;
   } else if (_h === 'weekly') {
-    extra = `<input id="hb-target" type="number" min="1" max="7" value="3" placeholder="Days/week"
+    extra = `<input id="hb-target" type="number" min="1" max="7" value="3" placeholder="${t('habits.target_week')}"
       style="width:90px;height:36px;${inpStyle}">`;
   } else if (_h === 'monthly') {
-    extra = `<input id="hb-target" type="number" min="1" max="31" value="7" placeholder="Days/month"
+    extra = `<input id="hb-target" type="number" min="1" max="31" value="7" placeholder="${t('habits.target_month')}"
       style="width:100px;height:36px;${inpStyle}">`;
   } else if (_h === 'quarterly') {
     const linkOpts = linkSources('quarterly').map(o =>
       `<option value="${o.period}:${o.habitId}">${esc(o.period)} · ${esc(o.label)}</option>`).join('');
-    extra = `<input id="hb-target" type="number" min="1" max="99" value="1" placeholder="Target/quarter"
+    extra = `<input id="hb-target" type="number" min="1" max="99" value="1" placeholder="${t('habits.target_quarter')}"
       style="width:110px;height:36px;${inpStyle}">
     <select id="hb-link" style="${inpStyle}">
-      <option value="">No link — manual</option>${linkOpts}
+      <option value="">${t('habits.no_link')}</option>${linkOpts}
     </select>`;
   } else if (_h === 'yearly') {
     const linkOpts = linkSources('yearly').map(o =>
       `<option value="${o.period}:${o.habitId}">${esc(o.period)} · ${esc(o.label)}</option>`).join('');
-    extra = `<input id="hb-target" type="number" min="1" max="365" value="1" placeholder="Target/year"
+    extra = `<input id="hb-target" type="number" min="1" max="365" value="1" placeholder="${t('habits.target_year')}"
       style="width:110px;height:36px;${inpStyle}">
     <select id="hb-link" style="${inpStyle}">
-      <option value="">No link — manual</option>${linkOpts}
+      <option value="">${t('habits.no_link')}</option>${linkOpts}
     </select>`;
   }
 
   return `<div class="grv-card" style="padding:14px 16px;margin-top:6px">
     <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       ${nameField}${extra}
-      <button class="grv-btn grv-btn--sm grv-btn--secondary" id="hb-save-btn">Add</button>
-      <button class="grv-btn grv-btn--sm grv-btn--ghost" id="hb-cancel-btn">Cancel</button>
+      <button class="grv-btn grv-btn--sm grv-btn--secondary" id="hb-save-btn">${t('common.add')}</button>
+      <button class="grv-btn grv-btn--sm grv-btn--ghost" id="hb-cancel-btn">${t('common.cancel')}</button>
     </div>
   </div>`;
 }
@@ -172,22 +195,22 @@ function _html() {
   const periodLbl = _periodLabel();
   const cards = hs.length
     ? hs.map(_card).join('')
-    : `<div style="font-size:14px;color:var(--text-muted);padding:16px 0">No ${_h} habits yet — add one below.</div>`;
+    : `<div style="font-size:14px;color:var(--text-muted);padding:16px 0">${t('habits.no_habits', { horizon: _horizonLabel(_h).toLowerCase() })}</div>`;
 
   const seg = ['daily','weekly','monthly','quarterly','yearly'].map(h =>
     `<button class="grv-seg__opt" role="tab" aria-selected="${_h===h ? 'true':'false'}" data-hz="${h}">
-      ${h[0].toUpperCase()+h.slice(1)}</button>`
+      ${_horizonLabel(h)}</button>`
   ).join('');
 
   const summary = hs.length
     ? `<span class="grv-badge grv-badge--${tone}" style="margin-left:auto">
-        ${done}/${hs.length} done
+        ${t('habits.summary', { done, total: hs.length })}
        </span>`
     : '';
 
   return `<div class="scr-head">
-    <div class="scr-eyebrow">Habits</div>
-    <div class="scr-greet">Your <em>rhythms</em></div>
+    <div class="scr-eyebrow">${t('habits.title')}</div>
+    <div class="scr-greet">Your <em>${t('habits.subtitle')}</em></div>
   </div>
   <div style="display:flex;justify-content:center;margin-bottom:18px;overflow-x:auto">
     <div class="grv-seg" role="tablist" aria-label="Horizon">${seg}</div>
@@ -210,16 +233,13 @@ export function render() {
 
 // ── Wire interactions ─────────────────────────────────────────────────
 function _wire(el) {
-  // Horizon segmented control
   el.querySelectorAll('[data-hz]').forEach(btn => {
     btn.onclick = () => { _h = btn.dataset.hz; _addOpen = false; render(); };
   });
 
-  // Daily: check/uncheck
   el.querySelectorAll('[data-chk]').forEach(btn => {
     btn.onclick = () => { D[btn.dataset.chk] = !D[btn.dataset.chk]; sv('d'); render(); };
   });
-  // Daily: counter
   el.querySelectorAll('[data-cnt]').forEach(btn => {
     btn.onclick = () => {
       const id = btn.dataset.cnt, max = parseInt(btn.dataset.max), d = parseInt(btn.dataset.delta);
@@ -227,28 +247,24 @@ function _wire(el) {
     };
   });
 
-  // Weekly counter
   el.querySelectorAll('[data-wk]').forEach(btn => {
     btn.onclick = () => {
       const id = btn.dataset.wk, d = parseInt(btn.dataset.delta);
       W[id] = Math.max(0, (W[id] || 0) + d); sv('w'); render();
     };
   });
-  // Monthly counter
   el.querySelectorAll('[data-mo]').forEach(btn => {
     btn.onclick = () => {
       const id = btn.dataset.mo, d = parseInt(btn.dataset.delta);
       M[id] = Math.max(0, (M[id] || 0) + d); sv('m'); render();
     };
   });
-  // Quarterly counter
   el.querySelectorAll('[data-qt]').forEach(btn => {
     btn.onclick = () => {
       const id = btn.dataset.qt, d = parseInt(btn.dataset.delta);
       Q[id] = Math.max(0, (Q[id] || 0) + d); sv('qt'); render();
     };
   });
-  // Yearly counter
   el.querySelectorAll('[data-yr]').forEach(btn => {
     btn.onclick = () => {
       const id = btn.dataset.yr, d = parseInt(btn.dataset.delta);
@@ -256,14 +272,11 @@ function _wire(el) {
     };
   });
 
-  // Add form: open
   el.querySelector('#hb-open-btn')?.addEventListener('click', () => {
     _addOpen = true; render(); setTimeout(() => el.querySelector('#hb-name')?.focus(), 20);
   });
-  // Add form: cancel
   el.querySelector('#hb-cancel-btn')?.addEventListener('click', () => { _addOpen = false; render(); });
 
-  // Daily type select toggle (show/hide max field)
   const typeEl = el.querySelector('#hb-type');
   if (typeEl) {
     typeEl.addEventListener('change', () => {
@@ -272,7 +285,6 @@ function _wire(el) {
     });
   }
 
-  // Add form: save
   const nameInp = el.querySelector('#hb-name');
   const save = () => {
     const name = nameInp?.value.trim(); if (!name) { nameInp?.focus(); return; }

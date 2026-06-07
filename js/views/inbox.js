@@ -2,6 +2,7 @@
 // Frictionless thought/task capture. Items can be converted to Quick Wins.
 import { INBOX, setInbox, svInbox, QW, sv } from '../store.js';
 import { xSVG, penSVG, ckSVG } from '../ui.js';
+import { t } from '../i18n.js';
 
 let noteOpenId = null;
 
@@ -10,20 +11,20 @@ export function render() {
   if (!el) return;
 
   const count = INBOX.filter(i => !i.done).length;
+  const hdr   = count ? t('inbox.header_count', { count }) : t('inbox.header_base');
 
   el.innerHTML = `
     <div class="sec-hdr" style="margin-top:4px">
-      <span class="sec-lbl">Inbox${count ? ` · ${count}` : ''}</span>
+      <span class="sec-lbl">${hdr}</span>
     </div>
     <div class="inb-add-row">
-      <input class="fi" id="inb-inp" type="text" placeholder="Capture a thought or task…" autocomplete="off">
-      <button class="fsv" id="inb-addbtn">Add</button>
+      <input class="fi" id="inb-inp" type="text" placeholder="${t('inbox.ph')}" autocomplete="off">
+      <button class="fsv" id="inb-addbtn">${t('common.add')}</button>
     </div>
     <div id="inb-list"></div>`;
 
   _renderList();
 
-  // Wire input
   const inp = el.querySelector('#inb-inp');
   inp?.addEventListener('keydown', e => { if (e.key === 'Enter') _add(); });
   el.querySelector('#inb-addbtn')?.addEventListener('click', _add);
@@ -35,7 +36,7 @@ function _renderList() {
   listEl.innerHTML = '';
 
   if (!INBOX.length) {
-    listEl.innerHTML = '<div class="empty">Your inbox is empty — capture anything here</div>';
+    listEl.innerHTML = `<div class="empty">${t('inbox.empty')}</div>`;
     return;
   }
 
@@ -45,18 +46,17 @@ function _renderList() {
     c.innerHTML = `
       <div class="hr">
         <span class="hn${item.done ? ' sk' : ''}">${_esc(item.text)}</span>
-        <button class="qk${item.done ? ' dn' : ''}" title="Done" data-inb-done="${item.id}">${item.done ? ckSVG() : ''}</button>
-        <button class="rnb${item.note ? ' noted' : ''}" title="Note" data-inb-note="${item.id}">${penSVG()}</button>
-        <button class="fsv inb-conv" title="→ Task" data-inb-conv="${item.id}" style="font-size:11px;padding:2px 7px">→ Task</button>
-        <button class="hdel" title="Delete" data-inb-del="${item.id}">${xSVG()}</button>
+        <button class="qk${item.done ? ' dn' : ''}" title="${t('common.done')}" data-inb-done="${item.id}">${item.done ? ckSVG() : ''}</button>
+        <button class="rnb${item.note ? ' noted' : ''}" title="${t('common.edit')}" data-inb-note="${item.id}">${penSVG()}</button>
+        <button class="fsv inb-conv" title="${t('inbox.convert')}" data-inb-conv="${item.id}" style="font-size:11px;padding:2px 7px">${t('inbox.convert')}</button>
+        <button class="hdel" title="${t('common.delete')}" data-inb-del="${item.id}">${xSVG()}</button>
       </div>
       <div class="ra${noteOpenId === item.id ? ' on' : ''}" id="inb-ra-${item.id}">
-        <textarea class="rta" placeholder="Add a note…" data-inb-note-save="${item.id}">${_esc(item.note || '')}</textarea>
+        <textarea class="rta" placeholder="${t('inbox.note_ph')}" data-inb-note-save="${item.id}">${_esc(item.note || '')}</textarea>
       </div>`;
     listEl.appendChild(c);
   });
 
-  // Wire interactions
   listEl.querySelectorAll('[data-inb-done]').forEach(btn => {
     btn.onclick = () => {
       const item = INBOX.find(i => i.id === btn.dataset.inbDone);
@@ -108,15 +108,12 @@ function _add() {
 function _convertToTask(id) {
   const item = INBOX.find(i => i.id === id);
   if (!item) return;
-  // Add to Quick Wins with default 10-min effort
   QW.push({ id: 'q' + Date.now(), task: item.text, effort: '10', status: 'pending' });
   sv('q');
-  // Remove from inbox
   setInbox(INBOX.filter(i => i.id !== id));
   svInbox();
   render();
-  // Let the user know
-  import('../ui.js').then(m => m.toast('Added to Quick Wins ✓'));
+  import('../ui.js').then(m => m.toast(t('inbox.converted')));
 }
 
 function _esc(str) {

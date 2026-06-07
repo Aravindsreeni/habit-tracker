@@ -10,79 +10,85 @@
 // Self-help tool, NOT a substitute for professional care (disclaimer below).
 import { CBT, setCBT, svCBT } from '../store.js';
 import { xSVG } from '../ui.js';
+import { t } from '../i18n.js';
 
-// 13 cognitive distortions (Beck/Burns; confirmed vs simplypsychology.org /
-// healthline.com). id · short label · one-line plain example.
-const DISTORTIONS = [
-  { id: 'all-or-nothing',  label: 'All-or-nothing',
-    ex: 'Seeing things in black-and-white — "If it\'s not perfect, I failed."' },
-  { id: 'catastrophizing', label: 'Catastrophizing',
-    ex: 'Expecting the worst — "This will be a total disaster."' },
-  { id: 'overgeneralization', label: 'Overgeneralization',
-    ex: 'One event becomes a never-ending pattern — "I always mess this up."' },
-  { id: 'mental-filter',   label: 'Mental filter',
-    ex: 'Dwelling on a single negative and ignoring the rest.' },
-  { id: 'mind-reading',    label: 'Mind-reading',
-    ex: 'Assuming you know what others think — "They think I\'m boring."' },
-  { id: 'labeling',        label: 'Labeling',
-    ex: 'Attaching a fixed label to yourself — "I\'m a loser."' },
-  { id: 'emotional-reasoning', label: 'Emotional reasoning',
-    ex: 'Treating a feeling as fact — "I feel useless, so I must be."' },
-  { id: 'discounting-positive', label: 'Discounting the positive',
-    ex: 'Brushing off good things — "That win doesn\'t count."' },
-  { id: 'fortune-telling', label: 'Fortune-telling',
-    ex: 'Predicting the future negatively — "I\'ll definitely fail."' },
-  { id: 'personalization', label: 'Personalization',
-    ex: 'Blaming yourself for things outside your control.' },
-  { id: 'should-statements', label: 'Should statements',
-    ex: 'Rigid rules — "I should / must / have to…" that fuel guilt.' },
-  { id: 'magnification',   label: 'Magnification / minimization',
-    ex: 'Blowing up flaws, shrinking strengths.' },
-  { id: 'blaming',         label: 'Blaming',
-    ex: 'Holding others wholly at fault, ignoring your part (or vice-versa).' }
+// Distortion ids are stable identifiers; labels and examples are translated via t().
+const DISTORTION_IDS = [
+  'all_or_nothing', 'catastrophizing', 'overgeneralization', 'mental_filter',
+  'mind_reading', 'labeling', 'emotional_reasoning', 'discounting_positive',
+  'fortune_telling', 'personalization', 'should_statements', 'magnification', 'blaming'
 ];
-const DISTORTION_IDS = DISTORTIONS.map(d => d.id);
 
-// Per-framework labels/placeholders for the shared text fields. The same
-// storage keys are reused where the two models map cleanly (situation≈A,
-// thoughts≈B, emotion≈C, balanced≈E); `disputation` is abcde-only.
-const LABELS = {
-  beck: {
-    situation:       { label: 'Situation',
-                       ph: 'What happened? Where and when?' },
-    thoughts:        { label: 'Automatic thought(s)',
-                       ph: 'What went through your mind? What did it mean to you?' },
-    emotion:         { label: 'Emotion(s) & intensity now' },
-    evidenceFor:     { label: 'Evidence for the thought',
-                       ph: 'Facts that seem to support the thought…' },
-    evidenceAgainst: { label: 'Evidence against the thought',
-                       ph: "Facts that don't fit it, or another way to see it…" },
-    balanced:        { label: 'Balanced / alternative thought',
-                       ph: 'A fairer, more rounded way to look at it…' },
-    after:           { label: 'Re-rate that emotion now' }
-  },
-  abcde: {
-    situation:       { label: 'A · Activating event',
-                       ph: 'What triggered this? The event or situation, just the facts.' },
-    thoughts:        { label: 'B · Beliefs',
-                       ph: 'What did you tell yourself about it? Your beliefs and self-talk.' },
-    emotion:         { label: 'C · Consequences — emotion & intensity' },
-    disputation:     { label: 'D · Disputation',
-                       ph: 'Challenge the belief — is it true? helpful? logical? What would you tell a friend?' },
-    balanced:        { label: 'E · Effective new belief',
-                       ph: 'A more useful, rational belief to carry forward.' },
-    after:           { label: 'Re-rate that emotion now' }
-  }
+// Legacy stored ids use hyphens; we map them to the underscore keys used in locales.
+const ID_MAP = {
+  'all-or-nothing': 'all_or_nothing',
+  'catastrophizing': 'catastrophizing',
+  'overgeneralization': 'overgeneralization',
+  'mental-filter': 'mental_filter',
+  'mind-reading': 'mind_reading',
+  'labeling': 'labeling',
+  'emotional-reasoning': 'emotional_reasoning',
+  'discounting-positive': 'discounting_positive',
+  'fortune-telling': 'fortune_telling',
+  'personalization': 'personalization',
+  'should-statements': 'should_statements',
+  'magnification': 'magnification',
+  'blaming': 'blaming',
+};
+// Canonical storage id (hyphenated, matching legacy data)
+const STORAGE_ID = {
+  'all_or_nothing': 'all-or-nothing',
+  'catastrophizing': 'catastrophizing',
+  'overgeneralization': 'overgeneralization',
+  'mental_filter': 'mental-filter',
+  'mind_reading': 'mind-reading',
+  'labeling': 'labeling',
+  'emotional_reasoning': 'emotional-reasoning',
+  'discounting_positive': 'discounting-positive',
+  'fortune_telling': 'fortune-telling',
+  'personalization': 'personalization',
+  'should_statements': 'should-statements',
+  'magnification': 'magnification',
+  'blaming': 'blaming',
 };
 
-// Which text fields each framework shows, in order, between the emotion block.
+// Build the DISTORTIONS array using translation keys
+function distortions() {
+  return DISTORTION_IDS.map(k => ({
+    key: k,
+    storageId: STORAGE_ID[k],
+    label: t(`cbt.dist_${k}_label`),
+    ex:    t(`cbt.dist_${k}_ex`),
+  }));
+}
+
+// Labels/placeholders per framework, built fresh on each render call
+function getLabels(model) {
+  if (model === 'abcde') return {
+    situation:   { label: t('cbt.abcde_situation_label'), ph: t('cbt.abcde_situation_ph') },
+    thoughts:    { label: t('cbt.abcde_thoughts_label'),  ph: t('cbt.abcde_thoughts_ph')  },
+    emotion:     { label: t('cbt.abcde_emotion_label') },
+    disputation: { label: t('cbt.abcde_disp_label'),      ph: t('cbt.abcde_disp_ph')      },
+    balanced:    { label: t('cbt.abcde_balanced_label'),  ph: t('cbt.abcde_balanced_ph')  },
+    after:       { label: t('cbt.abcde_after_label') },
+  };
+  return {
+    situation:       { label: t('cbt.beck_situation_label'),        ph: t('cbt.beck_situation_ph')        },
+    thoughts:        { label: t('cbt.beck_thoughts_label'),         ph: t('cbt.beck_thoughts_ph')         },
+    emotion:         { label: t('cbt.beck_emotion_label') },
+    evidenceFor:     { label: t('cbt.beck_evidence_for_label'),     ph: t('cbt.beck_evidence_for_ph')     },
+    evidenceAgainst: { label: t('cbt.beck_evidence_against_label'), ph: t('cbt.beck_evidence_against_ph') },
+    balanced:        { label: t('cbt.beck_balanced_label'),         ph: t('cbt.beck_balanced_ph')         },
+    after:           { label: t('cbt.beck_after_label') },
+  };
+}
+
 const FORM = {
   beck:  { pre: ['situation', 'thoughts'], post: ['evidenceFor', 'evidenceAgainst', 'balanced'] },
   abcde: { pre: ['situation', 'thoughts'], post: ['disputation', 'balanced'] }
 };
 
 // ── Pure logic (node-tested) ──
-// Coerce any stored shape into a complete, safe record (either model).
 export function normalizeCbt(raw) {
   const o = raw && typeof raw === 'object' ? raw : {};
   const str = v => (typeof v === 'string' ? v.trim() : '');
@@ -91,11 +97,14 @@ export function normalizeCbt(raw) {
     const n = Math.round(Number(v));
     return Number.isFinite(n) ? Math.max(0, Math.min(100, n)) : null;
   };
+  // Normalise stored distortion ids to underscore form for locale lookup
+  const rawDists = Array.isArray(o.distortions) ? o.distortions : [];
+  const normDists = rawDists
+    .map(id => ID_MAP[id] || id)
+    .filter(id => DISTORTION_IDS.includes(id));
   return {
     id:        typeof o.id === 'string' ? o.id : '',
     createdAt: typeof o.createdAt === 'string' ? o.createdAt : '',
-    // Discriminator: 'abcde' only when explicitly set; everything else (incl.
-    // legacy untagged records) defaults to 'beck' so old entries still render.
     model:           o.model === 'abcde' ? 'abcde' : 'beck',
     situation:       str(o.situation),
     thoughts:        str(o.thoughts),
@@ -106,20 +115,15 @@ export function normalizeCbt(raw) {
     disputation:     str(o.disputation),
     balanced:        str(o.balanced),
     after:           pct(o.after),
-    // Keep only known distortion ids, de-duplicated, in canonical order.
-    distortions:     Array.isArray(o.distortions)
-      ? DISTORTION_IDS.filter(id => o.distortions.includes(id))
-      : []
+    distortions:     normDists,
   };
 }
 
-// Drop in intensity after restructuring; positive = emotion eased. null if unrated. Pure.
 export function intensityDelta(before, after) {
   if (typeof before !== 'number' || typeof after !== 'number') return null;
   return before - after;
 }
 
-// Worth saving if there's at least a situation/event or a thought/belief. Pure.
 export function hasContent(entry) {
   const e = normalizeCbt(entry);
   return !!(e.situation || e.thoughts);
@@ -128,28 +132,32 @@ export function hasContent(entry) {
 // ── View state ──
 let formOpen   = false;
 let openId     = null;
-let formModel  = 'beck';            // active framework on the New-record form
-let formDraft  = {};                // preserved across a model toggle
-let selDist    = new Set();         // selected distortion ids on the form
+let formModel  = 'beck';
+let formDraft  = {};
+let selDist    = new Set();   // underscore-key ids
 
 // ── Render ──
 export function render() {
   const el = document.getElementById('p-cbt');
   if (!el) return;
 
+  const hdr = CBT.length
+    ? t('cbt.header_count', { n: CBT.length })
+    : t('cbt.header_base');
+
   el.innerHTML = `
     <div class="sec-hdr" style="margin-top:4px">
-      <span class="sec-lbl">Thought records${CBT.length ? ` · ${CBT.length}` : ''}</span>
-      <button class="sec-add" id="cbt-new">${formOpen ? 'Close' : '+ New record'}</button>
+      <span class="sec-lbl">${hdr}</span>
+      <button class="sec-add" id="cbt-new">${formOpen ? t('cbt.btn_close') : t('cbt.btn_new')}</button>
     </div>
-    <div class="cbt-intro">Untangle a tough moment: name the thought, weigh it, and find a steadier one. Two frames — pick whichever fits.</div>
+    <div class="cbt-intro">${t('cbt.intro')}</div>
     <div id="cbt-form"></div>
     <div id="cbt-list"></div>
-    ${disclaimerHTML()}`;
+    <div class="jr-disc">${t('cbt.disclaimer')}</div>`;
 
   el.querySelector('#cbt-new')?.addEventListener('click', () => {
     formOpen = !formOpen;
-    if (formOpen) { formDraft = {}; selDist = new Set(); }   // fresh form
+    if (formOpen) { formDraft = {}; selDist = new Set(); }
     render();
     if (formOpen) document.getElementById('cbt-situation')?.focus();
   });
@@ -163,18 +171,16 @@ function _renderForm() {
   if (!host) return;
   if (!formOpen) { host.innerHTML = ''; return; }
 
-  const L = LABELS[formModel];
+  const L   = getLabels(formModel);
   const cfg = FORM[formModel];
 
   host.innerHTML = `
     <div class="cbt-card cbt-formcard">
       <div class="cbt-modes" role="tablist">
-        <button class="cbt-mode${formModel === 'beck'  ? ' on' : ''}" data-model="beck">Thought record</button>
-        <button class="cbt-mode${formModel === 'abcde' ? ' on' : ''}" data-model="abcde">ABC(DE)</button>
+        <button class="cbt-mode${formModel === 'beck'  ? ' on' : ''}" data-model="beck">${t('cbt.mode_beck')}</button>
+        <button class="cbt-mode${formModel === 'abcde' ? ' on' : ''}" data-model="abcde">${t('cbt.mode_abcde')}</button>
       </div>
-      <div class="cbt-mode-hint">${formModel === 'beck'
-        ? "Beck's 7-column worksheet — weigh the evidence for and against the thought."
-        : 'Ellis REBT — dispute the belief behind the feeling, then form an effective new one.'}</div>
+      <div class="cbt-mode-hint">${formModel === 'beck' ? t('cbt.hint_beck') : t('cbt.hint_abcde')}</div>
       ${cfg.pre.map(k => field(k, L)).join('')}
       ${distortionsBlock()}
       <div class="cbt-fld">
@@ -190,8 +196,8 @@ function _renderForm() {
         <input class="fnum" id="cbt-after" type="number" min="0" max="100" placeholder="%" value="${esc(formDraft.after || '')}">
       </div>
       <div class="fact">
-        <button class="fcx" id="cbt-cancel">Cancel</button>
-        <button class="fsv" id="cbt-save">Save record</button>
+        <button class="fcx" id="cbt-cancel">${t('common.cancel')}</button>
+        <button class="fsv" id="cbt-save">${t('cbt.btn_save')}</button>
       </div>
     </div>`;
 
@@ -199,7 +205,7 @@ function _renderForm() {
     b.addEventListener('click', () => {
       const m = b.getAttribute('data-model');
       if (m === formModel) return;
-      _collectDraft();                 // keep what's been typed across the switch
+      _collectDraft();
       formModel = m;
       _renderForm();
     }));
@@ -225,20 +231,18 @@ function field(key, L) {
     </div>`;
 }
 
-// Optional multi-select checklist of unhelpful thinking patterns.
 function distortionsBlock() {
-  const chips = DISTORTIONS.map(d =>
-    `<button type="button" class="cbt-chip${selDist.has(d.id) ? ' on' : ''}" data-dist="${d.id}"
-       aria-pressed="${selDist.has(d.id) ? 'true' : 'false'}" title="${esc(d.ex)}">${esc(d.label)}</button>`
+  const chips = distortions().map(d =>
+    `<button type="button" class="cbt-chip${selDist.has(d.key) ? ' on' : ''}" data-dist="${d.key}"
+       aria-pressed="${selDist.has(d.key) ? 'true' : 'false'}" title="${esc(d.ex)}">${esc(d.label)}</button>`
   ).join('');
   return `
     <div class="cbt-fld">
-      <label class="cbt-lbl">Thinking patterns <span class="cbt-lbl-opt">— optional, tap any that fit</span></label>
+      <label class="cbt-lbl">${t('cbt.dist_header')} <span class="cbt-lbl-opt">${t('cbt.dist_hint')}</span></label>
       <div class="cbt-chips">${chips}</div>
     </div>`;
 }
 
-// Snapshot current inputs so a model toggle doesn't lose typed text.
 function _collectDraft() {
   const val = id => document.getElementById(id)?.value ?? '';
   formDraft = {
@@ -256,13 +260,17 @@ function _collectDraft() {
 
 function _save() {
   _collectDraft();
-  const draft = { ...formDraft, model: formModel, distortions: [...selDist] };
+  // Convert underscore-key selDist to hyphenated storage ids for backward compat
+  const storeDists = [...selDist].map(k => STORAGE_ID[k] || k);
+  const draft = { ...formDraft, model: formModel, distortions: storeDists };
   if (!hasContent(draft)) {
     document.getElementById('cbt-situation')?.focus();
-    import('../ui.js').then(m => m.toast('Add a situation or thought first', false));
+    import('../ui.js').then(m => m.toast(t('cbt.toast_empty'), false));
     return;
   }
   const entry = normalizeCbt(draft);
+  // Persist with hyphenated ids (legacy format)
+  entry.distortions = storeDists.filter(id => Object.values(STORAGE_ID).includes(id));
   entry.id = 'c' + Date.now();
   entry.createdAt = new Date().toISOString();
   setCBT([entry, ...CBT]);
@@ -270,9 +278,9 @@ function _save() {
   formOpen = false;
   formDraft = {};
   selDist = new Set();
-  openId = entry.id;            // expand the new record so the user sees their work
+  openId = entry.id;
   render();
-  import('../ui.js').then(m => m.toast('Thought record saved ✓'));
+  import('../ui.js').then(m => m.toast(t('cbt.toast_saved')));
 }
 
 // ── List (newest first, tap to expand) ──
@@ -280,7 +288,7 @@ function _renderList() {
   const host = document.getElementById('cbt-list');
   if (!host) return;
   if (!CBT.length) {
-    host.innerHTML = '<div class="empty">No thought records yet — start one when a moment feels heavy</div>';
+    host.innerHTML = `<div class="empty">${t('cbt.empty')}</div>`;
     return;
   }
   host.innerHTML = '';
@@ -290,7 +298,7 @@ function _renderList() {
 function _card(e) {
   const open  = openId === e.id;
   const delta = intensityDelta(e.before, e.after);
-  const title = e.situation || e.thoughts || 'Thought record';
+  const title = e.situation || e.thoughts || t('cbt.header_base');
   const c = document.createElement('div');
   c.className = `hc cbt-card${open ? ' on' : ''}`;
   c.innerHTML = `
@@ -298,7 +306,7 @@ function _card(e) {
       <span class="cbt-tagline">${e.model === 'abcde' ? 'ABC(DE)' : 'CBT'}</span>
       <span class="hn">${esc(title)}</span>
       ${deltaBadge(delta)}
-      <button class="hdel" title="Delete" data-cbt-del="${e.id}">${xSVG()}</button>
+      <button class="hdel" title="${t('common.delete')}" data-cbt-del="${e.id}">${xSVG()}</button>
     </div>
     ${open ? `<div class="cbt-body">${cardBody(e)}</div>` : ''}`;
 
@@ -326,23 +334,23 @@ function deltaBadge(delta) {
 function cardBody(e) {
   const rows = [];
   if (e.model === 'abcde') {
-    rows.push(bodyRow('A · Activating event', e.situation));
-    rows.push(bodyRow('B · Beliefs', e.thoughts));
+    rows.push(bodyRow(t('cbt.row_a'), e.situation));
+    rows.push(bodyRow(t('cbt.row_b'), e.thoughts));
     rows.push(distortionTags(e));
-    rows.push(emotionRow('C · Consequences (before)', e));
-    rows.push(bodyRow('D · Disputation', e.disputation));
-    rows.push(bodyRow('E · Effective new belief', e.balanced));
+    rows.push(emotionRow(t('cbt.row_c'), e));
+    rows.push(bodyRow(t('cbt.row_d'), e.disputation));
+    rows.push(bodyRow(t('cbt.row_e'), e.balanced));
   } else {
-    rows.push(bodyRow('Situation', e.situation));
-    rows.push(bodyRow('Automatic thought(s)', e.thoughts));
+    rows.push(bodyRow(t('cbt.row_situation'), e.situation));
+    rows.push(bodyRow(t('cbt.row_thoughts'), e.thoughts));
     rows.push(distortionTags(e));
-    rows.push(emotionRow('Emotion (before)', e));
-    rows.push(bodyRow('Evidence for', e.evidenceFor));
-    rows.push(bodyRow('Evidence against', e.evidenceAgainst));
-    rows.push(bodyRow('Balanced thought', e.balanced));
+    rows.push(emotionRow(t('cbt.row_emotion_before'), e));
+    rows.push(bodyRow(t('cbt.row_evidence_for'), e.evidenceFor));
+    rows.push(bodyRow(t('cbt.row_evidence_against'), e.evidenceAgainst));
+    rows.push(bodyRow(t('cbt.row_balanced'), e.balanced));
   }
   if (e.after !== null) {
-    rows.push(`<div class="cbt-row"><div class="cbt-rk">Emotion (after)</div><div class="cbt-rv">${e.after}%</div></div>`);
+    rows.push(`<div class="cbt-row"><div class="cbt-rk">${t('cbt.row_emotion_after')}</div><div class="cbt-rv">${e.after}%</div></div>`);
   }
   return rows.filter(Boolean).join('') + footNote(e);
 }
@@ -355,12 +363,17 @@ function emotionRow(label, e) {
 
 function distortionTags(e) {
   if (!e.distortions.length) return '';
+  // e.distortions may be stored as hyphenated ids; normalise for locale lookup
   const tags = e.distortions.map(id => {
-    const d = DISTORTIONS.find(x => x.id === id);
-    return d ? `<span class="cbt-tag" title="${esc(d.ex)}">${esc(d.label)}</span>` : '';
+    const key = ID_MAP[id] || id;
+    const label = t(`cbt.dist_${key}_label`);
+    const ex    = t(`cbt.dist_${key}_ex`);
+    return label !== `cbt.dist_${key}_label`
+      ? `<span class="cbt-tag" title="${esc(ex)}">${esc(label)}</span>`
+      : '';
   }).filter(Boolean).join('');
   if (!tags) return '';
-  return `<div class="cbt-row"><div class="cbt-rk">Thinking patterns</div><div class="cbt-tags">${tags}</div></div>`;
+  return `<div class="cbt-row"><div class="cbt-rk">${t('cbt.row_thinking')}</div><div class="cbt-tags">${tags}</div></div>`;
 }
 
 function bodyRow(label, value) {
@@ -371,25 +384,11 @@ function bodyRow(label, value) {
 function footNote(e) {
   const delta = intensityDelta(e.before, e.after);
   if (delta === null) return '';
-  const msg = delta > 0
-    ? `Nicely done — that emotion eased from ${e.before}% to ${e.after}%. 🌿`
-    : delta < 0
-      ? `It rose a little (${e.before}% → ${e.after}%). That's okay — naming it still helps. 💛`
-      : `Held steady (${e.before}%). Some thoughts take more than one pass. 🌱`;
+  let msg;
+  if      (delta > 0) msg = t('cbt.foot_eased',  { before: e.before, after: e.after });
+  else if (delta < 0) msg = t('cbt.foot_rose',   { before: e.before, after: e.after });
+  else                msg = t('cbt.foot_steady', { before: e.before });
   return `<div class="cbt-foot">${msg}</div>`;
-}
-
-// Design principle 5: self-help disclaimer + crisis-resource pointer, always visible.
-function disclaimerHTML() {
-  return `
-    <div class="jr-disc">
-      <b>A self-help tool, not a substitute for professional care.</b>
-      Thought records (CBT) and the ABC(DE) model (REBT) are self-help techniques, not therapy
-      or diagnosis. If you'd like to speak with a therapist,
-      <a href="https://oppam.me" target="_blank" rel="noopener"><b>Oppam</b></a>
-      offers 24×7 online counselling. In a crisis, reach <b>Tele-MANAS 14416</b> (India, 24×7)
-      or your local emergency number. Your records stay private on this device.
-    </div>`;
 }
 
 function esc(str) {

@@ -4,19 +4,21 @@
 // it is non-judgemental — there is no "good" or "bad" score to chase.
 // Self-help tool, NOT a substitute for professional care (disclaimer below).
 import { moodKey, eachMood, svMood, lsGet, p2 } from '../store.js';
+import { t } from '../i18n.js';
 
-// 5-point scale, 1 (rough) … 5 (great).
-const SCALE = [
-  { score: 1, emoji: '😞', label: 'Rough' },
-  { score: 2, emoji: '😕', label: 'Low'   },
-  { score: 3, emoji: '😐', label: 'Okay'  },
-  { score: 4, emoji: '🙂', label: 'Good'  },
-  { score: 5, emoji: '😄', label: 'Great' }
-];
+// 5-point scale, 1 (rough) … 5 (great). Emoji is universal; only labels are translated.
+const SCALE_EMOJIS = ['😞', '😕', '😐', '🙂', '😄'];
 const TREND_DAYS = 14;
 
+function _scale() {
+  return SCALE_EMOJIS.map((emoji, i) => ({
+    score: i + 1,
+    emoji,
+    label: t(`mood.label_${i + 1}`),
+  }));
+}
+
 // ── Pure logic (node-tested) ──
-// Normalise any stored shape into { score:0..5, note:'' }. score 0 = not set.
 export function normalizeMood(raw) {
   const out = { score: 0, note: '' };
   if (!raw || typeof raw !== 'object') return out;
@@ -27,15 +29,12 @@ export function normalizeMood(raw) {
   return out;
 }
 
-// Mean of the valid (1..5) scores, or null if none. Pure.
 export function avgScore(scores) {
   const v = scores.filter(s => typeof s === 'number' && s >= 1 && s <= 5);
   if (!v.length) return null;
   return v.reduce((a, b) => a + b, 0) / v.length;
 }
 
-// The last `n` calendar dates ending at `todayYmd`, oldest → newest, as
-// 'YYYY-MM-DD'. UTC arithmetic keeps it DST-safe. Pure.
 export function lastNDates(todayYmd, n) {
   const [y, m, d] = todayYmd.split('-').map(Number);
   const base = Date.UTC(y, m - 1, d);
@@ -56,23 +55,28 @@ export function render() {
   const el = document.getElementById('p-mood');
   if (!el) return;
 
+  const SCALE = _scale();
   const entry = normalizeMood(lsGet(moodKey()));
   const picked = SCALE.find(s => s.score === entry.score);
 
+  const hdr = picked
+    ? t('mood.header_scored', { label: picked.label })
+    : t('mood.header_base');
+
   el.innerHTML = `
     <div class="sec-hdr" style="margin-top:4px">
-      <span class="sec-lbl">Mood · Today${picked ? ` · ${picked.label}` : ''}</span>
+      <span class="sec-lbl">${hdr}</span>
     </div>
-    <div class="md-intro">How are you feeling right now? One tap — there's no wrong answer.</div>
+    <div class="md-intro">${t('mood.intro')}</div>
     <div class="md-scale">${SCALE.map(s => faceBtn(s, entry.score)).join('')}</div>
     <textarea class="rta md-note" id="md-note" maxlength="500"
-      placeholder="Anything you want to note about today? (optional)">${esc(entry.note)}</textarea>
-    <div class="sec-hdr" style="margin-top:20px"><span class="sec-lbl">Last ${TREND_DAYS} days</span></div>
+      placeholder="${t('mood.note_ph')}">${esc(entry.note)}</textarea>
+    <div class="sec-hdr" style="margin-top:20px"><span class="sec-lbl">${t('mood.trend_header', { n: TREND_DAYS })}</span></div>
     <div id="md-trend"></div>
-    ${disclaimerHTML()}`;
+    <div class="jr-disc">${t('mood.disclaimer')}</div>`;
 
-  _wire();
-  _renderTrend();
+  _wire(SCALE);
+  _renderTrend(SCALE);
 }
 
 function faceBtn(s, selected) {
@@ -83,9 +87,9 @@ function faceBtn(s, selected) {
     </button>`;
 }
 
-function _wire() {
+function _wire(SCALE) {
   document.querySelectorAll('[data-md]').forEach(btn => {
-    btn.onclick = () => _setScore(+btn.dataset.md);
+    btn.onclick = () => _setScore(+btn.dataset.md, SCALE);
   });
   const note = document.getElementById('md-note');
   if (note) note.onblur = () => {
@@ -95,17 +99,17 @@ function _wire() {
   };
 }
 
-function _setScore(score) {
+function _setScore(score, SCALE) {
   const entry = normalizeMood(lsGet(moodKey()));
   const note = document.getElementById('md-note');
-  if (note) entry.note = note.value;                    // keep any typed note
-  entry.score = entry.score === score ? 0 : score;      // tap again to clear
+  if (note) entry.note = note.value;
+  entry.score = entry.score === score ? 0 : score;
   svMood(todayYmd(), entry);
   render();
 }
 
 // ── Trend (last 14 days) ──
-function _renderTrend() {
+function _renderTrend(SCALE) {
   const host = document.getElementById('md-trend');
   if (!host) return;
 
@@ -129,22 +133,19 @@ function _renderTrend() {
   host.innerHTML = `
     <div class="hc md-trend-card">
       <div class="md-trend-top">
-        <span class="md-trend-avg">${avg !== null ? avg.toFixed(1) : '—'}<span class="md-trend-sub"> avg</span></span>
-        <span class="md-trend-cnt">${logged.length}/${TREND_DAYS} days logged</span>
+        <span class="md-trend-avg">${avg !== null ? avg.toFixed(1) : '—'}<span class="md-trend-sub"> ${t('mood.trend_avg_suffix')}</span></span>
+        <span class="md-trend-cnt">${t('mood.trend_logged', { logged: logged.length, total: TREND_DAYS })}</span>
       </div>
       <div class="md-bars">${bars}</div>
       <div class="md-trend-msg">${trendMsg(avg, logged.length)}</div>
     </div>`;
 }
 
-// Gentle, non-judgemental caption — supportive on hard stretches, never shaming.
 function trendMsg(avg, count) {
-  if (!count) return 'Check in daily to start seeing your mood trend. 🌱';
-  if (avg !== null && avg <= 2) {
-    return 'Some heavy days lately — be gentle with yourself. Consider talking to someone at <a href="https://oppam.me" target="_blank" rel="noopener">oppam.me</a>. 💛';
-  }
-  if (avg !== null && avg >= 4) return 'A brighter stretch — good to see. ✨';
-  return 'Thanks for checking in — noticing is the first step. 🌱';
+  if (!count)                          return t('mood.trend_none');
+  if (avg !== null && avg <= 2)        return t('mood.trend_low');
+  if (avg !== null && avg >= 4)        return t('mood.trend_high');
+  return t('mood.trend_mid');
 }
 
 function fmtDate(ymd) {
@@ -152,18 +153,6 @@ function fmtDate(ymd) {
   return new Date(y, m - 1, d).toLocaleDateString('en-IN', {
     weekday: 'short', day: 'numeric', month: 'short'
   });
-}
-
-// Design principle 5: self-help disclaimer + crisis-resource pointer, always visible.
-function disclaimerHTML() {
-  return `
-    <div class="jr-disc">
-      <b>A self-help tool, not a substitute for professional care.</b>
-      Mood tracking builds awareness but isn't a diagnosis. If you'd like to speak with
-      a therapist, <a href="https://oppam.me" target="_blank" rel="noopener"><b>Oppam</b></a>
-      offers 24×7 online counselling. In a crisis, reach <b>Tele-MANAS 14416</b> (India, 24×7)
-      or your local emergency number. Your check-ins stay private on this device.
-    </div>`;
 }
 
 function esc(str) {
