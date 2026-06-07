@@ -6,34 +6,35 @@
 
 ## ▶ Resume here
 
-**Grove re-skin (Phases 9–15) COMPLETE ✅** — commits c5bf849 → current HEAD.
+**Localisation i18n (Phases 16–19) COMPLETE ✅** — commits `879d7a5` + `83f194b`.
 
-All 5 destinations fully Grove-skinned and IA-complete:
-- **Today** (B10.2, `today.js`): ring hero, habit rows, routine, quick wins
-- **Habits** (B11.1, `habits.js`): segmented Daily·Weekly·Monthly·Quarterly·Yearly with `.grv-progress`
-- **Reflect** (B12, `reflect.js`): segmented Mood·Journal·Thoughts·Inbox with Grove header
-- **Calm** (B13, `calm.js`): Grove header wrapper for existing mindfulness.js (timer-safe)
-- **You** (B14, `you.js`): segmented Stats·Settings, Grove Sync & Backup card
-- **Cleanup** (B15, app.js + _all.js slimmed): dead imports/registrations/globals removed
+English + Malayalam localisation is fully wired:
+- **Phase 16** (`js/i18n.js`, `js/locales/en.js`): `t()` engine, ~300 English keys, `initLang()`, `getLang()`, `plural()`
+- **Phase 17** (`js/locales/ml.js`): complete Malayalam translations for all ~300 keys
+- **Phase 18** (all 12 view files): `t()` wired into today, habits, reflect, calm, you, mood, journal, cbt, mindfulness, settings, inbox, stats
+- **Phase 19** (`sw.js`): cache bumped to `ht-v24`; `i18n.js` + both locale files added to SHELL
 
-SW cache: **`ht-v22`**. Schema: **v3** (unchanged).
+Language selector (English / മലയാളം) lives in **You → Settings** below the Theme picker.
+Language persists via `ht_settings.lang`; switching triggers `renderAll()` + `resetBuilt()`.
 
-### Architecture (post-Grove)
+SW cache: **`ht-v24`**. Schema: **v3** (unchanged).
 
-- `app.js` imports only 5 destination renders + settings init; all routing is via `registerView`/`registerDest`/`sw()`
-- `_all.js renderAll()` calls the 5 destination wrappers; each wrapper re-renders its own sub-views
-- Destination wrappers: `today.js`, `habits.js`, `reflect.js`, `calm.js`, `you.js`
-- Sub-views (mood, journal, cbt, inbox, stats, settings, mindfulness) unchanged — still render via `document.getElementById` into containers created by their parent wrapper
-- `calm.js` guards against re-render via `el.querySelector('#p-mindfulness')` check (preserves running timer sessions)
+### Architecture (post-i18n)
 
-> ⚠️ The Grove design kit is vendored **in-repo at `habit-tracker/grove-design/`** (untracked).
-> `grove-design/ui_kits/grove-app/` has `kit.css` + JSX screen references.
+- `app.js` calls `await initLang()` before `initSchema()` so views always see a loaded locale
+- `js/i18n.js` — `t(key, vars)`, `initLang(lang)`, `getLang()`, `plural(n, one, other)`
+- `js/locales/en.js` + `js/locales/ml.js` — flat namespace objects with dot-key entries
+- All 12 view files import `{ t }` from `../i18n.js`; hardcoded strings replaced with `t('ns.key')`
+- Language change: save to `ht_settings.lang` → `await initLang(lang)` → `resetBuilt()` (mindfulness) → `renderAll()`
+- `calm.js` updates header text in-place without destroying `#p-mindfulness` (preserves running timer)
+- `journal.js` uses `SECTIONS()` function (not const) so `t()` is called at render time
+- CBT distortion IDs: stored with hyphens (`all-or-nothing`), locale keys use underscores — bidirectional map maintained
 
 ### Possible next work
 
-- **Phase 16**: Native mobile (Capacitor) sync + background notifications
-- Visual polish pass on legacy sub-view CSS (mood bars, cbt chips, stats heatmap → Grove tokens)
-- Heatmap in `stats.js` now renders via `.hm-*` legacy CSS; could port to `.grv-progress` pattern
+- Native mobile (Capacitor) background notifications
+- Visual polish: legacy sub-view CSS (mood bars, cbt chips, stats heatmap) → Grove tokens
+- Additional locale (e.g. Tamil, Hindi)
 
 ### State of the project (for whoever picks this up next)
 
@@ -125,6 +126,11 @@ app icons/splash via `@capacitor/assets`; a real `appId` (currently the placehol
 | Phase 14 complete | ✅ done | c6d23ad | — | You destination wrapping stats + settings + sync |
 | B15.1 Cleanup + voice pass | ✅ done | d81912d | `js/app.js`, `js/views/_all.js`, `progress.md` | Removed ~50 lines of dead imports/registrations/globals from app.js (rD, rW, rM, rQ, rY, keyboard shortcuts, old sync wiring); _all.js slimmed to 5 destination wrappers; progress.md Resume section updated; ht-v21→ht-v22 |
 | Phase 15 complete | ✅ done | d81912d | — | Cleanup: dead code removed, voice pass, all 15 phases COMPLETE |
+| B16.1 i18n engine + English locale | ✅ done | 879d7a5 | `js/i18n.js` (new), `js/locales/en.js` (new), `js/app.js`, `js/views/settings.js`, `sw.js` | `t()` key lookup + `{token}` substitution; `initLang(lang)` dynamic import; `getLang()`; `plural(n,one,other)`; ~300 English keys across 14 namespaces; language selector (grv-seg) in Settings; `_setLang()` triggers renderAll; ht-v23→ht-v24 |
+| B16.2 Malayalam locale | ✅ done | 879d7a5 | `js/locales/ml.js` (new) | Complete Malayalam translations for all ~300 keys; proper nouns/HTML/emoji preserved; language buttons always show 'English'/'മലയാളം' regardless of active lang |
+| Phase 16 complete | ✅ done | 879d7a5 | — | i18n engine + English + Malayalam locales + settings UI + SW cache bump |
+| B17.1 Wire t() into all views | ✅ done | 83f194b | `js/views/today.js`, `habits.js`, `reflect.js`, `calm.js`, `you.js`, `mood.js`, `journal.js`, `cbt.js`, `mindfulness.js`, `settings.js`, `inbox.js`, `stats.js` | All 12 view files: import `{ t }` from i18n.js; replace hardcoded strings; SECTIONS() fn in journal.js (render-time t()); CBT distortion ID bidirectional map (hyphens↔underscores); resetBuilt() exported from mindfulness.js; calm.js in-place header update (timer-safe lang switch) |
+| Phase 17 complete | ✅ done | 83f194b | — | All views fully localised; English ↔ Malayalam switch works live |
 
 ---
 
