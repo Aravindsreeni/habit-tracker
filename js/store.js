@@ -1,38 +1,12 @@
 // ── store.js — state, localStorage, schema migration, date keys ────
 
+// New visitors start with a clean slate — no seeded habits or tasks.
+// (Never ship personal data here: these defaults are public in the repo.)
 export const DEFAULT_HABITS = {
-  daily: [
-    { id: 'exercise',   label: 'Exercise',            type: 'c' },
-    { id: 'breathMorn', label: 'Breathing — Morning', type: 'c' },
-    { id: 'breathEve',  label: 'Breathing — Evening', type: 'c' },
-    { id: 'water',      label: 'Drinking Water',      type: 'w', max: 8 }
-  ],
-  weekly: [
-    { id: 'readBook',  label: 'Read few pages of book', target: 4 },
-    { id: 'walk',      label: 'Go for a walk',          target: 3 },
-    { id: 'cleanRoom', label: 'Clean room',             target: 3 }
-  ],
-  monthly: [
-    { id: 'chapter', label: 'Complete chapter of book', target: 14 },
-    { id: 'desk',    label: 'Arrange desk',             target: 2  },
-    { id: 'hobby',   label: 'Try new hobby',            target: 5  }
-  ],
-  quarterly: [
-    { id: 'books', label: 'Read 3 books',      target: 3 },
-    { id: 'trip',  label: 'Plan a short trip', target: 1 }
-  ],
-  yearly: [
-    { id: 'skill',   label: 'Learn a new skill',     target: 1 },
-    { id: 'checkup', label: 'Annual health checkup', target: 1 }
-  ]
+  daily: [], weekly: [], monthly: [], quarterly: [], yearly: []
 };
 
-export const DEFAULT_QW = () => [
-  { id: 'q1', task: 'Call friend about bus availability', effort: '5',  status: 'pending' },
-  { id: 'q2', task: 'Buy shampoo',                        effort: '10', status: 'pending' },
-  { id: 'q3', task: 'Clean room',                         effort: '30', status: 'pending' },
-  { id: 'q4', task: 'Read few pages',                     effort: '10', status: 'pending' }
-];
+export const DEFAULT_QW = () => [];
 
 // ── Mutable app state ──────────────────────────────────────────────
 export let HABITS = {};
