@@ -1,0 +1,21 @@
+name: habit_tracker
+description: Routine & Wellbeing OS — offline-first Flutter port of the Grove habit tracker.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  # Only dependency: mirrors the web app's localStorage (same ht_* keys, same JSON shapes).
+  shared_preferences: ^2.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

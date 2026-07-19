@@ -1,0 +1,12 @@
+# Flutter / Dart
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec.lock
+
+# Platform folders are generated with `flutter create .` — commit them once generated
+# if you customise them; until then they stay untracked.
+.idea/
+*.iml

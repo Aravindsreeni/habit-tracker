@@ -6,6 +6,25 @@
 
 ## ▶ Resume here
 
+**Flutter port written, NOT yet compiled** — `flutter_app/` (2026-07-19).
+
+- Full Dart port of all 5 destinations: Today (ring/habits/routine/wins),
+  Habits (5 horizons), Reflect (mood/journal/CBT/inbox), Calm (breathing +
+  meditation), You (stats/settings + JSON backup/restore).
+- Same architecture as web: offline-first, `shared_preferences` with the SAME
+  `ht_*` keys & JSON shapes (schema v3), Grove tokens ported to a
+  ThemeExtension, full en + ml locales.
+- **Next session:** install Flutter SDK → `cd flutter_app` →
+  `flutter create . --platforms=android,ios` → `flutter pub get` →
+  `flutter analyze` (code is unverified — fix what it flags) → `flutter run`.
+- Deferred: notifications, Drive sync, Areas, per-habit heatmaps, goal-link
+  auto-feed, Grove font files. See `flutter_app/README.md`.
+
+Also: **privacy fix** — personal seed data removed from `DEFAULT_HABITS` /
+`DEFAULT_QW` in `js/store.js` (new visitors start blank); SW → `ht-v27`.
+
+---
+
 **Localisation i18n (Phases 16–19) COMPLETE ✅** — commits `879d7a5` + `83f194b`.
 
 English + Malayalam localisation is fully wired:
